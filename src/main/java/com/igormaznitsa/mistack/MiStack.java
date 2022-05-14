@@ -31,6 +31,7 @@ public class MiStack implements Iterable<MiStackItem> {
    * Default constructor. Name of stack will be generated automatically.
    *
    * @see UUID
+   * @since 1.0.0
    */
   public MiStack() {
     this(UUID.randomUUID().toString());
@@ -40,6 +41,7 @@ public class MiStack implements Iterable<MiStackItem> {
    * Constructor allows to provide name of stack.
    *
    * @param name name of stack, must not be null
+   * @since 1.0.0
    */
   public MiStack(final String name) {
     this.name = requireNonNull(name);
@@ -50,6 +52,7 @@ public class MiStack implements Iterable<MiStackItem> {
    * Get stack name
    *
    * @return the stack name, it can't be null
+   * @since 1.0.0
    */
   public String getName() {
     return this.name;
@@ -60,6 +63,7 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param item element to be pushed on the stack, must not be null.
    * @return the stack instance
+   * @since 1.0.0
    */
   public MiStack push(final MiStackItem item) {
     this.items.add(requireNonNull(item));
@@ -71,6 +75,7 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param items elements to be pushed on the stack, must not contain any null element.
    * @return the stack instance
+   * @since 1.0.0
    */
   public MiStack push(final MiStackItem... items) {
     for (final MiStackItem s : items) {
@@ -85,6 +90,7 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param predicate condition for element search, must not be null
    * @return condition for element search, must not be null
+   * @since 1.0.0
    */
   public Optional<MiStackItem> pop(final Predicate<MiStackItem> predicate) {
     MiStackItem result = null;
@@ -105,6 +111,7 @@ public class MiStack implements Iterable<MiStackItem> {
    * @param predicate condition for element search, must not be null
    * @param depth     how many elements must be skipped during search
    * @return found element
+   * @since 1.0.0
    */
   public Optional<MiStackItem> peek(final Predicate<MiStackItem> predicate, final long depth) {
     return this.stream(predicate).skip(depth).findFirst();
@@ -116,6 +123,7 @@ public class MiStack implements Iterable<MiStackItem> {
    * @param predicate condition for element search, must not be null
    * @param depth     how many elements must be skipped during search
    * @return removed element
+   * @since 1.0.0
    */
   public Optional<MiStackItem> remove(final Predicate<MiStackItem> predicate, long depth) {
     MiStackItem result = null;
@@ -133,6 +141,8 @@ public class MiStack implements Iterable<MiStackItem> {
 
   /**
    * Remove all elements from the stack.
+   *
+   * @since 1.0.0
    */
   public void clear() {
     this.items.clear();
@@ -143,6 +153,7 @@ public class MiStack implements Iterable<MiStackItem> {
    * Remove all elements from the stack which meet predicate condition.
    *
    * @param predicate condition for elements, must not be null.
+   * @since 1.0.0
    */
   public void clear(final Predicate<MiStackItem> predicate) {
     final Iterator<MiStackItem> iterator = this.iterator(predicate);
@@ -157,6 +168,7 @@ public class MiStack implements Iterable<MiStackItem> {
    * Get iterator for all stack elements.
    *
    * @return created iterator, must not be null.
+   * @since 1.0.0
    */
   @Override
   public Iterator<MiStackItem> iterator() {
@@ -168,6 +180,7 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param predicate condition for elements, must not be null.
    * @return created iterator, must not be null.
+   * @since 1.0.0
    */
   public Iterator<MiStackItem> iterator(final Predicate<MiStackItem> predicate) {
     return new Iterator<>() {
@@ -220,9 +233,30 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param predicate condition for elements, must not be null.
    * @return created stream, must not be null.
+   * @since 1.0.0
    */
   public Stream<MiStackItem> stream(final Predicate<MiStackItem> predicate) {
     return StreamSupport.stream(spliteratorUnknownSize(this.iterator(predicate), ORDERED), false);
+  }
+
+  /**
+   * Check that there is no any element on the stack.
+   *
+   * @return true if the stack is empty, false elsewhere
+   * @since 1.0.0
+   */
+  public boolean isEmpty() {
+    return this.items.isEmpty();
+  }
+
+  /**
+   * Check that there is no any element on the stack for predicate.
+   *
+   * @return true if the stack is empty, false elsewhere
+   * @since 1.0.0
+   */
+  public boolean isEmpty(final Predicate<MiStackItem> predicate) {
+    return this.items.stream().noneMatch(predicate);
   }
 
   /**
@@ -230,9 +264,20 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param predicate condition for elements, must not be null
    * @return number of found elements on the stack
+   * @since 1.0.0
    */
   public long size(final Predicate<MiStackItem> predicate) {
     return this.stream(predicate).count();
+  }
+
+  /**
+   * Find number of all elements on the stack.
+   *
+   * @return number of all elements on the stack.
+   * @since 1.0.0
+   */
+  public long size() {
+    return this.items.size();
   }
 
 }
