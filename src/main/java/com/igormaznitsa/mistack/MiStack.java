@@ -1,6 +1,6 @@
 package com.igormaznitsa.mistack;
 
-import static com.igormaznitsa.mistack.Predicates.ALL;
+import static com.igormaznitsa.mistack.MiStackTagPredicates.ALL;
 import static java.util.Objects.requireNonNull;
 import static java.util.Spliterator.ORDERED;
 import static java.util.Spliterators.spliteratorUnknownSize;
