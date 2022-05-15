@@ -142,6 +142,37 @@ class MiStackTest {
   }
 
   @Test
+  void testIteratorForPredicateWithRemoveCall() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    var iterator = stack.iterator(Predicates.all(tagOf("hello"), tagOf("world")));
+    assertTrue(iterator.hasNext());
+    assertSame(item4, iterator.next());
+
+    assertTrue(iterator.hasNext());
+    assertSame(item2, iterator.next());
+    iterator.remove();
+
+    assertTrue(iterator.hasNext());
+    assertSame(item1, iterator.next());
+
+    assertFalse(iterator.hasNext());
+    assertThrows(NoSuchElementException.class, iterator::next);
+
+    assertArrayEquals(new MiStackItem[] {item4, item3, item1}, stack.stream().toArray());
+  }
+
+  @Test
   void testPeek() {
     final MiStack stack = new MiStack();
 

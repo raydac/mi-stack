@@ -2,23 +2,23 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.igormaznitsa</groupId>
-  <artifactId>mistack</artifactId>
+  <artifactId>mi-stack</artifactId>
   <version>1.0.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
-  <name>MiStack</name>
+  <name>Mi-Stack</name>
   <description>Advanced stack</description>
-  <url>https://github.com/raydac/mistack</url>
+  <url>https://github.com/raydac/mi-stack</url>
   
   <issueManagement>
     <system>GitHub Issues</system>
-    <url>https://github.com/raydac/mistack/issues</url>
+    <url>https://github.com/raydac/mi-stack/issues</url>
   </issueManagement>
 
   <scm>
-    <url>https://github.com/raydac/mistack</url>
-    <connection>scm:git:git://github.com/raydac/mistack.git</connection>
-    <developerConnection>scm:git:git@github.com:raydac/mistack.git</developerConnection>
+    <url>https://github.com/raydac/mi-stack</url>
+    <connection>scm:git:git://github.com/raydac/mi-stack.git</connection>
+    <developerConnection>scm:git:git@github.com:raydac/mi-stack.git</developerConnection>
   </scm>
   
   <properties>
