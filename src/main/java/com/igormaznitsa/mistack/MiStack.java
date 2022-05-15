@@ -1,5 +1,6 @@
 package com.igormaznitsa.mistack;
 
+import static com.igormaznitsa.mistack.Predicates.ALL;
 import static java.util.Objects.requireNonNull;
 import static java.util.Spliterator.ORDERED;
 import static java.util.Spliterators.spliteratorUnknownSize;
@@ -131,6 +132,7 @@ public class MiStack implements Iterable<MiStackItem> {
     while (depth >= 0 && iterator.hasNext()) {
       result = iterator.next();
       if (depth == 0) {
+        depth = -1L;
         iterator.remove();
       } else {
         depth--;
@@ -172,7 +174,7 @@ public class MiStack implements Iterable<MiStackItem> {
    */
   @Override
   public Iterator<MiStackItem> iterator() {
-    return this.iterator(Predicates.ALL);
+    return this.iterator(ALL);
   }
 
   /**
@@ -232,11 +234,21 @@ public class MiStack implements Iterable<MiStackItem> {
    * Get stream of stack items meet predicate.
    *
    * @param predicate condition for elements, must not be null.
-   * @return created stream, must not be null.
+   * @return created stream of all stacked elements meet predicate in their stack order, must not be null.
    * @since 1.0.0
    */
   public Stream<MiStackItem> stream(final Predicate<MiStackItem> predicate) {
     return StreamSupport.stream(spliteratorUnknownSize(this.iterator(predicate), ORDERED), false);
+  }
+
+  /**
+   * Make stream of all elements on the stack.
+   *
+   * @return stream with all stacked elements in their order on the stack, must not be null.
+   * @since 1.0.0
+   */
+  public Stream<MiStackItem> stream() {
+    return StreamSupport.stream(spliteratorUnknownSize(this.iterator(ALL), ORDERED), false);
   }
 
   /**

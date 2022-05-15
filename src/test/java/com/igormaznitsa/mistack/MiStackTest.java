@@ -1,33 +1,290 @@
 package com.igormaznitsa.mistack;
 
+import static com.igormaznitsa.mistack.MiStackTest.MiStackItemImpl.itemOf;
+import static com.igormaznitsa.mistack.MiStackTest.MiStackTagImpl.tagOf;
+import static com.igormaznitsa.mistack.MiStackTest.MiStackTagImpl.tagsOf;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class MiStackTest {
 
   @Test
-  public void testPushPop() {
+  void testIsEmpty() {
     final MiStack stack = new MiStack();
 
-    var item = MiStackItemImpl.itemOf("Test", MiStackTagImpl.tagsOf("Hello", "World"));
+    assertTrue(stack.isEmpty());
 
-    Assertions.assertTrue(stack.isEmpty());
-    stack.push(item);
+    var tags1 = tagsOf("hello", "world");
+    var item1 = itemOf("item1", tags1);
 
-    Assertions.assertEquals(1, stack.size());
-    Assertions.assertEquals(1, stack.size(Predicates.ALL));
+    stack.push(item1);
+
+    assertFalse(stack.isEmpty());
+    stack.clear();
+    assertTrue(stack.isEmpty());
+  }
+
+  @Test
+  void testIsEmptyForPredicate() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    assertTrue(stack.isEmpty(Predicates.any(tagOf("unknown"))));
+    assertFalse(stack.isEmpty(Predicates.any(tagOf("universe"))));
+    assertFalse(stack.isEmpty(Predicates.all(tagOf("hello"), tagOf("world"))));
+  }
+
+  @Test
+  void testName() {
+    assertNotNull(new MiStack().getName());
+    assertEquals("hello", new MiStack("hello").getName());
+  }
+
+  @Test
+  void testRemove() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    assertEquals(item3, stack.remove(Predicates.any(tagOf("universe")), 0).orElseThrow());
+    assertArrayEquals(new MiStackItem[] {item4, item2, item1}, stack.stream().toArray());
+
+    assertEquals(item2,
+        stack.remove(Predicates.all(tagOf("hello"), tagOf("world")), 1).orElseThrow());
+    assertArrayEquals(new MiStackItem[] {item4, item1}, stack.stream().toArray());
+  }
+
+  @Test
+  void testIteratorAll() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    var iterator = stack.iterator();
+    assertTrue(iterator.hasNext());
+    assertSame(item4, iterator.next());
+
+    assertTrue(iterator.hasNext());
+    assertSame(item3, iterator.next());
+
+    assertTrue(iterator.hasNext());
+    assertSame(item2, iterator.next());
+
+    assertTrue(iterator.hasNext());
+    assertSame(item1, iterator.next());
+
+    assertFalse(iterator.hasNext());
+    assertThrows(NoSuchElementException.class, iterator::next);
+  }
+
+  @Test
+  void testIteratorForPredicate() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    var iterator = stack.iterator(Predicates.all(tagOf("hello"), tagOf("world")));
+    assertTrue(iterator.hasNext());
+    assertSame(item4, iterator.next());
+
+    assertTrue(iterator.hasNext());
+    assertSame(item2, iterator.next());
+
+    assertTrue(iterator.hasNext());
+    assertSame(item1, iterator.next());
+
+    assertFalse(iterator.hasNext());
+    assertThrows(NoSuchElementException.class, iterator::next);
+  }
+
+  @Test
+  void testPeek() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    assertEquals(item3, stack.peek(Predicates.any(tagOf("universe")), 0).orElseThrow());
+    assertTrue(stack.peek(Predicates.any(tagOf("universe")), 1).isEmpty());
+    assertEquals(item4,
+        stack.peek(Predicates.all(tagOf("hello"), tagOf("world")), 0).orElseThrow());
+    assertEquals(item2,
+        stack.peek(Predicates.all(tagOf("hello"), tagOf("world")), 1).orElseThrow());
+    assertEquals(item1,
+        stack.peek(Predicates.all(tagOf("hello"), tagOf("world")), 2).orElseThrow());
+  }
+
+  @Test
+  void testClear() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    assertEquals(4L, stack.size());
+    stack.clear();
+    assertEquals(0L, stack.size());
+  }
+
+  @Test
+  void testClearForPredicate() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    assertEquals(4, stack.size());
+    assertEquals(1L, stack.size(Predicates.any(tagOf("universe"))));
+    assertEquals(3L, stack.size(Predicates.all(tagOf("hello"), tagOf("world"))));
+
+    stack.clear(Predicates.any(tagOf("universe")));
+    assertEquals(3, stack.size());
+    assertEquals(0L, stack.size(Predicates.any(tagOf("universe"))));
+    assertEquals(3L, stack.size(Predicates.all(tagOf("hello"), tagOf("world"))));
+
+    stack.clear(Predicates.all(tagOf("hello"), tagOf("world")));
+    assertEquals(0L, stack.size(Predicates.all(tagOf("hello"), tagOf("world"))));
+    assertEquals(0L, stack.size());
+  }
+
+  @Test
+  void testSize() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    assertEquals(4, stack.size());
+    assertEquals(1L, stack.size(Predicates.any(tagOf("universe"))));
+    assertEquals(3L, stack.size(Predicates.all(tagOf("hello"), tagOf("world"))));
+  }
+
+  @Test
+  void testPushPopSingleElement() {
+    final MiStack stack = new MiStack();
+
+    var item = itemOf("Test", tagsOf("Hello", "World"));
+
+    assertTrue(stack.isEmpty());
+    assertSame(stack, stack.push(item));
+
+    assertEquals(1, stack.size());
+    assertEquals(1, stack.size(Predicates.ALL));
 
     var poppedItem = stack.pop(Predicates.ALL);
 
-    Assertions.assertSame(item, poppedItem.orElseThrow());
+    assertSame(item, poppedItem.orElseThrow());
 
-    Assertions.assertEquals(0, stack.size());
+    assertEquals(0, stack.size());
   }
 
-  public static final class MiStackItemImpl implements MiStackItem {
+  @Test
+  void testStreamAllElements() {
+    final MiStack stack = new MiStack();
+
+    var tags = tagsOf("hello", "world");
+    var item1 = itemOf("item1", tags);
+    var item2 = itemOf("item2", tags);
+    var item3 = itemOf("item3", tags);
+    var item4 = itemOf("item4", tags);
+
+    assertSame(stack, stack.push(item1, item2, item3, item4));
+
+    assertArrayEquals(new MiStackItem[] {item4, item3, item2, item1}, stack.stream().toArray());
+  }
+
+  @Test
+  void testStreamForPredicate() {
+    final MiStack stack = new MiStack();
+
+    var tags = tagsOf("hello", "world");
+    var item1 = itemOf("item1", tags);
+    var item2 = itemOf("item2", tags);
+    var item3 = itemOf("item3", tags);
+    var item4 = itemOf("item4", tags);
+
+    stack.push(item1, item2, item3, item4);
+
+    assertArrayEquals(new MiStackItem[] {item4, item3, item2, item1},
+        stack.stream(Predicates.ALL).toArray());
+    assertArrayEquals(new MiStackItem[] {item4, item3, item2, item1},
+        stack.stream(Predicates.any(tagOf("hello"))).toArray());
+    assertEquals(0, stack.stream(Predicates.any(tagOf("universe"))).toArray().length);
+  }
+
+  static final class MiStackItemImpl implements MiStackItem {
     private final Object value;
     private final Set<MiStackTag> tags;
 
@@ -66,9 +323,14 @@ class MiStackTest {
     public int hashCode() {
       return Objects.hash(value, tags);
     }
+
+    @Override
+    public String toString() {
+      return this.value.toString() + ' ' + this.tags;
+    }
   }
 
-  public static final class MiStackTagImpl implements MiStackTag {
+  static final class MiStackTagImpl implements MiStackTag {
     private final String text;
 
     private MiStackTagImpl(final String text) {
@@ -101,6 +363,11 @@ class MiStackTest {
     @Override
     public int hashCode() {
       return this.text.hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return this.text;
     }
   }
 
