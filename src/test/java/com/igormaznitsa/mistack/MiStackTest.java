@@ -49,9 +49,9 @@ class MiStackTest {
 
     stack.push(item1, item2, item3, item4);
 
-    assertTrue(stack.isEmpty(MiStackTagPredicates.anyTag(tagOf("unknown"))));
-    assertFalse(stack.isEmpty(MiStackTagPredicates.anyTag(tagOf("universe"))));
-    assertFalse(stack.isEmpty(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world"))));
+    assertTrue(stack.isEmpty(Predicates.anyTag(tagOf("unknown"))));
+    assertFalse(stack.isEmpty(Predicates.anyTag(tagOf("universe"))));
+    assertFalse(stack.isEmpty(Predicates.allTags(tagOf("hello"), tagOf("world"))));
   }
 
   @Test
@@ -75,11 +75,11 @@ class MiStackTest {
     stack.push(item1, item2, item3, item4);
 
     assertEquals(item3,
-        stack.remove(MiStackTagPredicates.anyTag(tagOf("universe")), 0).orElseThrow());
+        stack.remove(Predicates.anyTag(tagOf("universe")), 0).orElseThrow());
     assertArrayEquals(new MiStackItem[] {item4, item2, item1}, stack.stream().toArray());
 
     assertEquals(item2,
-        stack.remove(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world")), 1)
+        stack.remove(Predicates.allTags(tagOf("hello"), tagOf("world")), 1)
             .orElseThrow());
     assertArrayEquals(new MiStackItem[] {item4, item1}, stack.stream().toArray());
   }
@@ -129,7 +129,7 @@ class MiStackTest {
 
     stack.push(item1, item2, item3, item4);
 
-    var iterator = stack.iterator(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world")));
+    var iterator = stack.iterator(Predicates.allTags(tagOf("hello"), tagOf("world")));
     assertTrue(iterator.hasNext());
     assertSame(item4, iterator.next());
 
@@ -157,7 +157,7 @@ class MiStackTest {
 
     stack.push(item1, item2, item3, item4);
 
-    var iterator = stack.iterator(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world")));
+    var iterator = stack.iterator(Predicates.allTags(tagOf("hello"), tagOf("world")));
     assertTrue(iterator.hasNext());
     assertSame(item4, iterator.next());
 
@@ -189,14 +189,14 @@ class MiStackTest {
     stack.push(item1, item2, item3, item4);
 
     assertEquals(item3,
-        stack.peek(MiStackTagPredicates.anyTag(tagOf("universe")), 0).orElseThrow());
-    assertTrue(stack.peek(MiStackTagPredicates.anyTag(tagOf("universe")), 1).isEmpty());
+        stack.peek(Predicates.anyTag(tagOf("universe")), 0).orElseThrow());
+    assertTrue(stack.peek(Predicates.anyTag(tagOf("universe")), 1).isEmpty());
     assertEquals(item4,
-        stack.peek(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world")), 0).orElseThrow());
+        stack.peek(Predicates.allTags(tagOf("hello"), tagOf("world")), 0).orElseThrow());
     assertEquals(item2,
-        stack.peek(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world")), 1).orElseThrow());
+        stack.peek(Predicates.allTags(tagOf("hello"), tagOf("world")), 1).orElseThrow());
     assertEquals(item1,
-        stack.peek(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world")), 2).orElseThrow());
+        stack.peek(Predicates.allTags(tagOf("hello"), tagOf("world")), 2).orElseThrow());
   }
 
   @Test
@@ -233,16 +233,16 @@ class MiStackTest {
     stack.push(item1, item2, item3, item4);
 
     assertEquals(4, stack.size());
-    assertEquals(1L, stack.size(MiStackTagPredicates.anyTag(tagOf("universe"))));
-    assertEquals(3L, stack.size(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world"))));
+    assertEquals(1L, stack.size(Predicates.anyTag(tagOf("universe"))));
+    assertEquals(3L, stack.size(Predicates.allTags(tagOf("hello"), tagOf("world"))));
 
-    stack.clear(MiStackTagPredicates.anyTag(tagOf("universe")));
+    stack.clear(Predicates.anyTag(tagOf("universe")));
     assertEquals(3, stack.size());
-    assertEquals(0L, stack.size(MiStackTagPredicates.anyTag(tagOf("universe"))));
-    assertEquals(3L, stack.size(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world"))));
+    assertEquals(0L, stack.size(Predicates.anyTag(tagOf("universe"))));
+    assertEquals(3L, stack.size(Predicates.allTags(tagOf("hello"), tagOf("world"))));
 
-    stack.clear(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world")));
-    assertEquals(0L, stack.size(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world"))));
+    stack.clear(Predicates.allTags(tagOf("hello"), tagOf("world")));
+    assertEquals(0L, stack.size(Predicates.allTags(tagOf("hello"), tagOf("world"))));
     assertEquals(0L, stack.size());
   }
 
@@ -261,8 +261,8 @@ class MiStackTest {
     stack.push(item1, item2, item3, item4);
 
     assertEquals(4, stack.size());
-    assertEquals(1L, stack.size(MiStackTagPredicates.anyTag(tagOf("universe"))));
-    assertEquals(3L, stack.size(MiStackTagPredicates.allTags(tagOf("hello"), tagOf("world"))));
+    assertEquals(1L, stack.size(Predicates.anyTag(tagOf("universe"))));
+    assertEquals(3L, stack.size(Predicates.allTags(tagOf("hello"), tagOf("world"))));
   }
 
   @Test
@@ -275,9 +275,9 @@ class MiStackTest {
     assertSame(stack, stack.push(item));
 
     assertEquals(1, stack.size());
-    assertEquals(1, stack.size(MiStackTagPredicates.ALL));
+    assertEquals(1, stack.size(Predicates.ALL_TAGS));
 
-    var poppedItem = stack.pop(MiStackTagPredicates.ALL);
+    var poppedItem = stack.pop(Predicates.ALL_TAGS);
 
     assertSame(item, poppedItem.orElseThrow());
 
@@ -312,10 +312,10 @@ class MiStackTest {
     stack.push(item1, item2, item3, item4);
 
     assertArrayEquals(new MiStackItem[] {item4, item3, item2, item1},
-        stack.stream(MiStackTagPredicates.ALL).toArray());
+        stack.stream(Predicates.ALL_TAGS).toArray());
     assertArrayEquals(new MiStackItem[] {item4, item3, item2, item1},
-        stack.stream(MiStackTagPredicates.anyTag(tagOf("hello"))).toArray());
-    assertEquals(0, stack.stream(MiStackTagPredicates.anyTag(tagOf("universe"))).toArray().length);
+        stack.stream(Predicates.anyTag(tagOf("hello"))).toArray());
+    assertEquals(0, stack.stream(Predicates.anyTag(tagOf("universe"))).toArray().length);
   }
 
   static final class MiStackItemImpl implements MiStackItem {

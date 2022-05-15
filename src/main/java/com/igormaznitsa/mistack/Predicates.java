@@ -11,31 +11,31 @@ import java.util.function.Predicate;
  * @see MiStackTag
  * @since 1.0.0
  */
-public final class MiStackTagPredicates {
+public final class Predicates {
 
-  public static final Predicate<MiStackItem> ALL = item -> true;
-  public static final Predicate<MiStackItem> EMPTY = item -> item.getTags().isEmpty();
+  public static final Predicate<MiStackItem> ALL_TAGS = item -> true;
+  public static final Predicate<MiStackItem> EMPTY_TAGS = item -> item.getTags().isEmpty();
 
-  private MiStackTagPredicates() {
+  private Predicates() {
 
   }
 
-  public static Predicate<MiStackItem> and(final Predicate<MiStackItem> alpha,
-                                           final Predicate<MiStackItem> beta) {
+  public static <T> Predicate<T> and(final Predicate<T> alpha,
+                                     final Predicate<T> beta) {
     return item -> alpha.test(item) && beta.test(item);
   }
 
-  public static Predicate<MiStackItem> xor(final Predicate<MiStackItem> alpha,
-                                           final Predicate<MiStackItem> beta) {
+  public static <T> Predicate<T> xor(final Predicate<T> alpha,
+                                     final Predicate<T> beta) {
     return item -> alpha.test(item) ^ beta.test(item);
   }
 
-  public static Predicate<MiStackItem> or(final Predicate<MiStackItem> alpha,
-                                          final Predicate<MiStackItem> beta) {
+  public static <T> Predicate<T> or(final Predicate<T> alpha,
+                                    final Predicate<T> beta) {
     return item -> alpha.test(item) || beta.test(item);
   }
 
-  public static Predicate<MiStackItem> not(final Predicate<MiStackItem> predicate) {
+  public static <T> Predicate<T> not(final Predicate<T> predicate) {
     return item -> !predicate.test(item);
   }
 

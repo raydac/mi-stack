@@ -1,6 +1,6 @@
 package com.igormaznitsa.mistack;
 
-import static com.igormaznitsa.mistack.MiStackTagPredicates.ALL;
+import static com.igormaznitsa.mistack.Predicates.ALL_TAGS;
 import static java.util.Objects.requireNonNull;
 import static java.util.Spliterator.ORDERED;
 import static java.util.Spliterators.spliteratorUnknownSize;
@@ -174,7 +174,7 @@ public class MiStack implements Iterable<MiStackItem> {
    */
   @Override
   public Iterator<MiStackItem> iterator() {
-    return this.iterator(ALL);
+    return this.iterator(ALL_TAGS);
   }
 
   /**
@@ -248,7 +248,7 @@ public class MiStack implements Iterable<MiStackItem> {
    * @since 1.0.0
    */
   public Stream<MiStackItem> stream() {
-    return StreamSupport.stream(spliteratorUnknownSize(this.iterator(ALL), ORDERED), false);
+    return StreamSupport.stream(spliteratorUnknownSize(this.iterator(ALL_TAGS), ORDERED), false);
   }
 
   /**
