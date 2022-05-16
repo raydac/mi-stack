@@ -50,7 +50,7 @@ public class MiStack implements Iterable<MiStackItem> {
   }
 
   /**
-   * Get stack name
+   * Get stack name.
    *
    * @return the stack name, it can't be null
    * @since 1.0.0
