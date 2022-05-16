@@ -20,6 +20,37 @@ import org.junit.jupiter.api.Test;
 class MiStackTest {
 
   @Test
+  void testExceptionAfterClose() {
+    final MiStack stack = new MiStack();
+
+    var tags1 = tagsOf("hello", "world");
+    var tags2 = tagsOf("universe");
+
+    var item1 = itemOf("item1", tags1);
+    var item2 = itemOf("item2", tags1);
+    var item3 = itemOf("item3", tags2);
+    var item4 = itemOf("item4", tags1);
+
+    stack.push(item1, item2, item3, item4);
+
+    var iterator = stack.iterator();
+    assertTrue(iterator.hasNext());
+    assertSame(item4, iterator.next());
+
+    assertTrue(iterator.hasNext());
+    assertSame(item3, iterator.next());
+
+    stack.close();
+
+    assertThrows(IllegalStateException.class, iterator::hasNext);
+    assertThrows(IllegalStateException.class, iterator::next);
+    assertThrows(IllegalStateException.class, iterator::remove);
+    assertThrows(IllegalStateException.class, stack::close);
+    assertThrows(IllegalStateException.class, () -> stack.push(item1));
+    assertThrows(IllegalStateException.class, () -> stack.pop(Predicates.ALL_TAGS));
+  }
+
+  @Test
   void testIsEmpty() {
     final MiStack stack = new MiStack();
 
