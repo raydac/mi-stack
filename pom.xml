@@ -7,7 +7,7 @@
   <packaging>jar</packaging>
 
   <name>Mi-Stack</name>
-  <description>Advanced stack</description>
+  <description>Stack supports tagged items</description>
   <url>https://github.com/raydac/mi-stack</url>
   
   <issueManagement>
@@ -55,15 +55,6 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
-
-  <dependencies>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
-      <version>5.8.2</version>
-      <scope>test</scope>
-    </dependency>
-  </dependencies>
 
   <profiles>
     <profile>
@@ -138,6 +129,15 @@
       </build>
     </profile>
   </profiles>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter-engine</artifactId>
+      <version>5.8.2</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <plugins>

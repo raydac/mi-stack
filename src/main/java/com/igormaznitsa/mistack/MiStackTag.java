@@ -1,7 +1,7 @@
 package com.igormaznitsa.mistack;
 
 /**
- * Tag for stack item.
+ * Tag to mark a stack item.
  *
  * @see MiStack
  * @since 1.0.0

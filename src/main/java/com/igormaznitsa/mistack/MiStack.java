@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -23,10 +24,11 @@ import java.util.stream.StreamSupport;
  * @author Igor Maznitsa
  * @since 1.0.0
  */
-public class MiStack implements Iterable<MiStackItem> {
+public class MiStack implements Iterable<MiStackItem>, AutoCloseable {
 
   private final String name;
   private final List<MiStackItem> items;
+  private final AtomicBoolean closed = new AtomicBoolean();
 
   /**
    * Default constructor. Name of stack will be generated automatically.
@@ -49,6 +51,12 @@ public class MiStack implements Iterable<MiStackItem> {
     this.items = new ArrayList<>();
   }
 
+  private void assertNotClosed() {
+    if (this.closed.get()) {
+      throw new IllegalStateException("Stack '" + this.name + "' is closed");
+    }
+  }
+
   /**
    * Get stack name.
    *
@@ -64,9 +72,11 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param item element to be pushed on the stack, must not be null.
    * @return the stack instance
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public MiStack push(final MiStackItem item) {
+    this.assertNotClosed();
     this.items.add(requireNonNull(item));
     return this;
   }
@@ -76,9 +86,11 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param items elements to be pushed on the stack, must not contain any null element.
    * @return the stack instance
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public MiStack push(final MiStackItem... items) {
+    this.assertNotClosed();
     for (final MiStackItem s : items) {
       this.items.add(requireNonNull(s));
     }
@@ -91,9 +103,11 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param predicate condition for element search, must not be null
    * @return condition for element search, must not be null
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public Optional<MiStackItem> pop(final Predicate<MiStackItem> predicate) {
+    this.assertNotClosed();
     MiStackItem result = null;
     for (int i = this.items.size() - 1; result == null && i >= 0; i--) {
       final MiStackItem item = this.items.get(i);
@@ -112,9 +126,11 @@ public class MiStack implements Iterable<MiStackItem> {
    * @param predicate condition for element search, must not be null
    * @param depth     how many elements must be skipped during search
    * @return found element
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public Optional<MiStackItem> peek(final Predicate<MiStackItem> predicate, final long depth) {
+    this.assertNotClosed();
     return this.stream(predicate).skip(depth).findFirst();
   }
 
@@ -124,9 +140,11 @@ public class MiStack implements Iterable<MiStackItem> {
    * @param predicate condition for element search, must not be null
    * @param depth     how many elements must be skipped during search
    * @return removed element
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public Optional<MiStackItem> remove(final Predicate<MiStackItem> predicate, long depth) {
+    this.assertNotClosed();
     MiStackItem result = null;
     var iterator = this.iterator(predicate);
     while (depth >= 0 && iterator.hasNext()) {
@@ -144,9 +162,11 @@ public class MiStack implements Iterable<MiStackItem> {
   /**
    * Remove all elements from the stack.
    *
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public void clear() {
+    this.assertNotClosed();
     this.items.clear();
     ((ArrayList<?>) this.items).trimToSize();
   }
@@ -155,9 +175,11 @@ public class MiStack implements Iterable<MiStackItem> {
    * Remove all elements from the stack which meet predicate condition.
    *
    * @param predicate condition for elements, must not be null.
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public void clear(final Predicate<MiStackItem> predicate) {
+    this.assertNotClosed();
     final Iterator<MiStackItem> iterator = this.iterator(predicate);
     while (iterator.hasNext()) {
       iterator.next();
@@ -170,6 +192,7 @@ public class MiStack implements Iterable<MiStackItem> {
    * Get iterator for all stack elements.
    *
    * @return created iterator, must not be null.
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   @Override
@@ -182,14 +205,17 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param predicate condition for elements, must not be null.
    * @return created iterator, must not be null.
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public Iterator<MiStackItem> iterator(final Predicate<MiStackItem> predicate) {
+    this.assertNotClosed();
     return new Iterator<>() {
       private int index = this.findNext(items.size() - 1);
       private int indexRemove = -1;
 
       private int findNext(int from) {
+        assertNotClosed();
         int result = -1;
         while (result < 0 && from >= 0) {
           if (predicate.test(items.get(from))) {
@@ -207,6 +233,7 @@ public class MiStack implements Iterable<MiStackItem> {
 
       @Override
       public MiStackItem next() {
+        assertNotClosed();
         if (this.index < 0) {
           this.indexRemove = -1;
           throw new NoSuchElementException();
@@ -220,6 +247,7 @@ public class MiStack implements Iterable<MiStackItem> {
 
       @Override
       public void remove() {
+        assertNotClosed();
         if (this.indexRemove < 0) {
           throw new IllegalStateException();
         } else {
@@ -235,9 +263,11 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param predicate condition for elements, must not be null.
    * @return created stream of all stacked elements meet predicate in their stack order, must not be null.
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public Stream<MiStackItem> stream(final Predicate<MiStackItem> predicate) {
+    this.assertNotClosed();
     return StreamSupport.stream(spliteratorUnknownSize(this.iterator(predicate), ORDERED), false);
   }
 
@@ -245,9 +275,11 @@ public class MiStack implements Iterable<MiStackItem> {
    * Make stream of all elements on the stack.
    *
    * @return stream with all stacked elements in their order on the stack, must not be null.
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public Stream<MiStackItem> stream() {
+    this.assertNotClosed();
     return StreamSupport.stream(spliteratorUnknownSize(this.iterator(ALL_TAGS), ORDERED), false);
   }
 
@@ -255,9 +287,11 @@ public class MiStack implements Iterable<MiStackItem> {
    * Check that there is no any element on the stack.
    *
    * @return true if the stack is empty, false elsewhere
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public boolean isEmpty() {
+    this.assertNotClosed();
     return this.items.isEmpty();
   }
 
@@ -265,9 +299,11 @@ public class MiStack implements Iterable<MiStackItem> {
    * Check that there is no any element on the stack for predicate.
    *
    * @return true if the stack is empty, false elsewhere
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public boolean isEmpty(final Predicate<MiStackItem> predicate) {
+    this.assertNotClosed();
     return this.items.stream().noneMatch(predicate);
   }
 
@@ -276,9 +312,11 @@ public class MiStack implements Iterable<MiStackItem> {
    *
    * @param predicate condition for elements, must not be null
    * @return number of found elements on the stack
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public long size(final Predicate<MiStackItem> predicate) {
+    this.assertNotClosed();
     return this.stream(predicate).count();
   }
 
@@ -286,10 +324,27 @@ public class MiStack implements Iterable<MiStackItem> {
    * Find number of all elements on the stack.
    *
    * @return number of all elements on the stack.
+   * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
   public long size() {
+    this.assertNotClosed();
     return this.items.size();
   }
 
+  /**
+   * Dispose the stack and free its resources.
+   *
+   * @throws IllegalStateException if stack is closed
+   * @since 1.0.0
+   */
+  @Override
+  public void close() {
+    if (this.closed.compareAndSet(false, true)) {
+      this.items.clear();
+      ((ArrayList<?>) this.items).trimToSize();
+    } else {
+      this.assertNotClosed();
+    }
+  }
 }
