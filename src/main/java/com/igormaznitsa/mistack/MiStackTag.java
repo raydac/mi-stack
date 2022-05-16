@@ -13,10 +13,12 @@
 
 package com.igormaznitsa.mistack;
 
+import com.igormaznitsa.mistack.impl.MiStackArrayList;
+
 /**
  * Tag to mark a stack item.
  *
- * @see MiStack
+ * @see MiStackArrayList
  * @since 1.0.0
  */
 public interface MiStackTag {

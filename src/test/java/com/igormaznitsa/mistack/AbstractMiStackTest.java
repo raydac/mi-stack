@@ -1,9 +1,10 @@
 package com.igormaznitsa.mistack;
 
-import static com.igormaznitsa.mistack.MiStackTest.MiStackItemImpl.itemOf;
-import static com.igormaznitsa.mistack.MiStackTest.MiStackTagImpl.tagOf;
-import static com.igormaznitsa.mistack.MiStackTest.MiStackTagImpl.tagsOf;
+import static com.igormaznitsa.mistack.AbstractMiStackTest.MiStackItemImpl.itemOf;
+import static com.igormaznitsa.mistack.AbstractMiStackTest.MiStackTagImpl.tagOf;
+import static com.igormaznitsa.mistack.AbstractMiStackTest.MiStackTagImpl.tagsOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -17,11 +18,15 @@ import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
-class MiStackTest {
+abstract class AbstractMiStackTest {
+
+  abstract MiStack makeStack();
+
+  abstract MiStack makeStack(String name);
 
   @Test
   void testExceptionAfterClose() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -40,7 +45,7 @@ class MiStackTest {
     assertTrue(iterator.hasNext());
     assertSame(item3, iterator.next());
 
-    stack.close();
+    assertDoesNotThrow(stack::close);
 
     assertThrows(IllegalStateException.class, iterator::hasNext);
     assertThrows(IllegalStateException.class, iterator::next);
@@ -52,7 +57,7 @@ class MiStackTest {
 
   @Test
   void testIsEmpty() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     assertTrue(stack.isEmpty());
 
@@ -68,7 +73,7 @@ class MiStackTest {
 
   @Test
   void testIsEmptyForPredicate() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -87,13 +92,15 @@ class MiStackTest {
 
   @Test
   void testName() {
-    assertNotNull(new MiStack().getName());
-    assertEquals("hello", new MiStack("hello").getName());
+    final MiStack noName = this.makeStack();
+    final MiStack named = this.makeStack("hello");
+    assertNotNull(noName);
+    assertEquals("hello", named.getName());
   }
 
   @Test
   void testRemove() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -117,7 +124,7 @@ class MiStackTest {
 
   @Test
   void testIteratorAll() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -148,7 +155,7 @@ class MiStackTest {
 
   @Test
   void testIteratorForPredicate() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -176,7 +183,7 @@ class MiStackTest {
 
   @Test
   void testIteratorForPredicateWithRemoveCall() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -207,7 +214,7 @@ class MiStackTest {
 
   @Test
   void testPeek() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -232,7 +239,7 @@ class MiStackTest {
 
   @Test
   void testClear() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -251,7 +258,7 @@ class MiStackTest {
 
   @Test
   void testClearForPredicate() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -279,7 +286,7 @@ class MiStackTest {
 
   @Test
   void testSize() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -298,7 +305,7 @@ class MiStackTest {
 
   @Test
   void testPushPopSingleElement() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var item = itemOf("Test", tagsOf("Hello", "World"));
 
@@ -317,7 +324,7 @@ class MiStackTest {
 
   @Test
   void testStreamAllElements() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags = tagsOf("hello", "world");
     var item1 = itemOf("item1", tags);
@@ -332,7 +339,7 @@ class MiStackTest {
 
   @Test
   void testStreamForPredicate() {
-    final MiStack stack = new MiStack();
+    final MiStack stack = this.makeStack();
 
     var tags = tagsOf("hello", "world");
     var item1 = itemOf("item1", tags);

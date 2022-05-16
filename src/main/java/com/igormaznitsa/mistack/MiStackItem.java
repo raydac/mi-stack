@@ -13,12 +13,13 @@
 
 package com.igormaznitsa.mistack;
 
+import com.igormaznitsa.mistack.impl.MiStackArrayList;
 import java.util.Set;
 
 /**
  * Tagged item of stack.
  *
- * @see MiStack
+ * @see MiStackArrayList
  * @since 1.0.0
  */
 public interface MiStackItem {

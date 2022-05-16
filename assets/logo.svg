@@ -2,8 +2,6 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
         width="834.5199mm"
         height="256.02759mm"
         viewBox="0 0 834.5199 256.02759"
@@ -11,6 +9,11 @@
         id="svg5"
         inkscape:version="1.1.2 (1:1.1+202202050950+0a00cf5339)"
         sodipodi:docname="logo.svg"
+        xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+        xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+        inkscape:export-filename="/home/igorm/Projects/Pet/mi-stack/assets/logo.png"
+        inkscape:export-xdpi="31.052122"
+        inkscape:export-ydpi="31.052122"
         xmlns="http://www.w3.org/2000/svg"
 >
   <sodipodi:namedview

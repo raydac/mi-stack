@@ -13,6 +13,7 @@
 
 package com.igormaznitsa.mistack;
 
+import com.igormaznitsa.mistack.impl.MiStackArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
@@ -20,7 +21,7 @@ import java.util.function.Predicate;
 /**
  * Auxiliary class to make predicates for tags and their combinations.
  *
- * @see MiStack
+ * @see MiStackArrayList
  * @see MiStackTag
  * @since 1.0.0
  */
