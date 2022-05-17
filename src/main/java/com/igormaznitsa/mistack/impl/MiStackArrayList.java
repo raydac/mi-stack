@@ -13,7 +13,7 @@
 
 package com.igormaznitsa.mistack.impl;
 
-import static com.igormaznitsa.mistack.Predicates.ALL_TAGS;
+import static com.igormaznitsa.mistack.Predicates.ALL_ITEMS;
 import static java.util.Objects.requireNonNull;
 import static java.util.Spliterator.ORDERED;
 import static java.util.Spliterators.spliteratorUnknownSize;
@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -43,7 +42,7 @@ public class MiStackArrayList implements MiStack {
 
   private final String name;
   private final List<MiStackItem> items;
-  private final AtomicBoolean closed = new AtomicBoolean();
+  private boolean closed = false;
 
   /**
    * Default constructor. Name of stack will be generated automatically.
@@ -72,7 +71,7 @@ public class MiStackArrayList implements MiStack {
   }
 
   private void assertNotClosed() {
-    if (this.closed.get()) {
+    if (this.closed) {
       throw new IllegalStateException("Stack '" + this.name + "' is closed");
     }
   }
@@ -156,11 +155,12 @@ public class MiStackArrayList implements MiStack {
 
   @Override
   public Iterator<MiStackItem> iterator() {
-    return this.iterator(ALL_TAGS);
+    return this.iterator(ALL_ITEMS, ALL_ITEMS);
   }
 
   @Override
-  public Iterator<MiStackItem> iterator(final Predicate<MiStackItem> predicate) {
+  public Iterator<MiStackItem> iterator(final Predicate<MiStackItem> predicate,
+                                        final Predicate<MiStackItem> takeWhile) {
     this.assertNotClosed();
     return new Iterator<>() {
       private int index = this.findNext(items.size() - 1);
@@ -170,8 +170,13 @@ public class MiStackArrayList implements MiStack {
         assertNotClosed();
         int result = -1;
         while (result < 0 && from >= 0) {
-          if (predicate.test(items.get(from))) {
-            result = from;
+          var nextItem = items.get(from);
+          if (predicate.test(nextItem)) {
+            if (takeWhile.test(nextItem)) {
+              result = from;
+            } else {
+              break;
+            }
           }
           from--;
         }
@@ -212,15 +217,26 @@ public class MiStackArrayList implements MiStack {
   }
 
   @Override
-  public Stream<MiStackItem> stream(final Predicate<MiStackItem> predicate) {
+  public Iterator<MiStackItem> iterator(Predicate<MiStackItem> predicate) {
+    return this.iterator(predicate, ALL_ITEMS);
+  }
+
+  @Override
+  public Stream<MiStackItem> stream(Predicate<MiStackItem> predicate,
+                                    Predicate<MiStackItem> takeWhile) {
     this.assertNotClosed();
-    return StreamSupport.stream(spliteratorUnknownSize(this.iterator(predicate), ORDERED), false);
+    return StreamSupport.stream(
+        spliteratorUnknownSize(this.iterator(predicate, takeWhile), ORDERED), false);
+  }
+
+  @Override
+  public Stream<MiStackItem> stream(final Predicate<MiStackItem> predicate) {
+    return this.stream(predicate, ALL_ITEMS);
   }
 
   @Override
   public Stream<MiStackItem> stream() {
-    this.assertNotClosed();
-    return StreamSupport.stream(spliteratorUnknownSize(this.iterator(ALL_TAGS), ORDERED), false);
+    return this.stream(ALL_ITEMS, ALL_ITEMS);
   }
 
   @Override
@@ -262,11 +278,12 @@ public class MiStackArrayList implements MiStack {
    */
   @Override
   public void close() {
-    if (this.closed.compareAndSet(false, true)) {
+    if (this.closed) {
+      this.assertNotClosed();
+    } else {
+      this.closed = true;
       this.items.clear();
       ((ArrayList<?>) this.items).trimToSize();
-    } else {
-      this.assertNotClosed();
     }
   }
 }

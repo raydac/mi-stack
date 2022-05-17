@@ -32,7 +32,7 @@ public final class Predicates {
    *
    * @since 1.0.0
    */
-  public static final Predicate<MiStackItem> ALL_TAGS = item -> true;
+  public static final Predicate<MiStackItem> ALL_ITEMS = item -> true;
 
   /**
    * Predefined predicate matches with items with empty tag set.

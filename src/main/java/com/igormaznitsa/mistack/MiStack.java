@@ -93,7 +93,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
   void clear(final Predicate<MiStackItem> predicate);
 
   /**
-   * Get iterator for all stack elements.
+   * Make iterator for all stack elements.
    *
    * @return created iterator, must not be null.
    * @throws IllegalStateException if stack is closed
@@ -102,7 +102,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
   Iterator<MiStackItem> iterator();
 
   /**
-   * Get iterator for stack elements which meet predicate.
+   * Make iterator for stack elements which meet predicate.
    *
    * @param predicate condition for elements, must not be null.
    * @return created iterator, must not be null.
@@ -111,6 +111,17 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    */
   Iterator<MiStackItem> iterator(Predicate<MiStackItem> predicate);
 
+  /**
+   * Make iterator for stack elements which meet predicate with possibility to stop iteration by predicate.
+   *
+   * @param predicate condition for elements, must not be null.
+   * @param takeWhile condition predicate to take next element if true, if false then iteration stopped, must not be null.
+   * @return created iterator, must not be null.
+   * @throws IllegalStateException if stack is closed
+   * @since 1.0.0
+   */
+  Iterator<MiStackItem> iterator(Predicate<MiStackItem> predicate,
+                                 Predicate<MiStackItem> takeWhile);
 
   /**
    * Get stream of stack items meet predicate.
@@ -121,6 +132,17 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @since 1.0.0
    */
   Stream<MiStackItem> stream(Predicate<MiStackItem> predicate);
+
+  /**
+   * Get stream of stack items meet predicate.
+   *
+   * @param predicate condition for elements, must not be null.
+   * @param takeWhile predicated to take elements while it is true, must not be null.
+   * @return created stream of all stacked elements meet predicate in their stack order, must not be null.
+   * @throws IllegalStateException if stack is closed
+   * @since 1.0.0
+   */
+  Stream<MiStackItem> stream(Predicate<MiStackItem> predicate, Predicate<MiStackItem> takeWhile);
 
   /**
    * Make stream of all elements on the stack.
@@ -161,4 +183,6 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
 
   long size();
 
+  @Override
+  void close();
 }
