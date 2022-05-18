@@ -22,7 +22,7 @@ import java.util.Set;
  * @see MiStackArrayList
  * @since 1.0.0
  */
-public interface MiStackItem {
+public interface MiStackItem<T> {
   /**
    * Get all tags for the item.
    *
@@ -30,4 +30,12 @@ public interface MiStackItem {
    * @since 1.0.0
    */
   Set<MiStackTag> getTags();
+
+  /**
+   * Get value carried by the item.
+   *
+   * @return value in the item, must not be null.
+   * @since 1.0.0
+   */
+  T getValue();
 }

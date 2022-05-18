@@ -412,27 +412,27 @@ abstract class AbstractMiStackTest {
     }
   }
 
-  static final class MiStackItemImpl implements MiStackItem {
-    private final Object value;
+  static final class MiStackItemImpl implements MiStackItem<String> {
+    private final String value;
     private final Set<MiStackTag> tags;
 
-    private MiStackItemImpl(final Object value, final Set<MiStackTag> tags) {
+    private MiStackItemImpl(final String value, final Set<MiStackTag> tags) {
       this.value = Objects.requireNonNull(value);
       this.tags = Objects.requireNonNull(tags);
     }
 
-    public static MiStackItemImpl itemOf(final Object value, final Set<MiStackTag> tags) {
+    public static MiStackItemImpl itemOf(final String value, final Set<MiStackTag> tags) {
       return new MiStackItemImpl(value, tags);
+    }
+
+    @Override
+    public String getValue() {
+      return this.value;
     }
 
     @Override
     public Set<MiStackTag> getTags() {
       return this.tags;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T> T getValue() {
-      return (T) this.value;
     }
 
     @Override
