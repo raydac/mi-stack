@@ -22,7 +22,6 @@ import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -40,12 +39,19 @@ import java.util.stream.StreamSupport;
  */
 public class MiStackArrayList implements MiStack {
 
+  /**
+   * Default capacity of array list if not provided direct value.
+   *
+   * @since 1.0.0
+   */
+  public static final int DEFAULT_INITIAL_CAPACITY = 16;
   private final String name;
-  private final List<MiStackItem> items;
+  private final ArrayList<MiStackItem> items;
   private boolean closed = false;
 
   /**
    * Default constructor. Name of stack will be generated automatically.
+   * Name is generated through UUID.
    *
    * @see UUID
    * @since 1.0.0
@@ -61,10 +67,16 @@ public class MiStackArrayList implements MiStack {
    * @since 1.0.0
    */
   public MiStackArrayList(final String name) {
-    this.name = requireNonNull(name);
-    this.items = new ArrayList<>();
+    this(name, DEFAULT_INITIAL_CAPACITY);
   }
 
+  /**
+   * Constructor allows define name and capacity.
+   *
+   * @param name     name of the stack, can't be null
+   * @param capacity initial capacity of internal array list
+   * @since 1.0.0
+   */
   public MiStackArrayList(final String name, final int capacity) {
     this.name = requireNonNull(name);
     this.items = new ArrayList<>(capacity);
@@ -139,7 +151,7 @@ public class MiStackArrayList implements MiStack {
   public void clear() {
     this.assertNotClosed();
     this.items.clear();
-    ((ArrayList<?>) this.items).trimToSize();
+    this.items.trimToSize();
   }
 
   @Override
@@ -150,7 +162,7 @@ public class MiStackArrayList implements MiStack {
       iterator.next();
       iterator.remove();
     }
-    ((ArrayList<?>) this.items).trimToSize();
+    this.items.trimToSize();
   }
 
   @Override
@@ -283,7 +295,17 @@ public class MiStackArrayList implements MiStack {
     } else {
       this.closed = true;
       this.items.clear();
-      ((ArrayList<?>) this.items).trimToSize();
+      this.items.trimToSize();
     }
+  }
+
+  /**
+   * Method returns direct internal array list container for the stack.
+   *
+   * @return the internal array list container, can't be null.
+   * @since 1.0.0
+   */
+  protected ArrayList<MiStackItem> getInternalArrayList() {
+    return this.items;
   }
 }
