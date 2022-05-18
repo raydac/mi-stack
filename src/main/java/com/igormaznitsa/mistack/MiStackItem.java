@@ -23,5 +23,11 @@ import java.util.Set;
  * @since 1.0.0
  */
 public interface MiStackItem {
+  /**
+   * Get all tags for the item.
+   *
+   * @return all tags as a set, the set can be empty but can't be null.
+   * @since 1.0.0
+   */
   Set<MiStackTag> getTags();
 }
