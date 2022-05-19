@@ -1,8 +1,8 @@
 package com.igormaznitsa.mistack;
 
 import static com.igormaznitsa.mistack.AbstractMiStackTest.MiStackItemImpl.itemOf;
-import static com.igormaznitsa.mistack.AbstractMiStackTest.MiStackTagImpl.tagOf;
-import static com.igormaznitsa.mistack.AbstractMiStackTest.MiStackTagImpl.tagsOf;
+import static com.igormaznitsa.mistack.impl.MiStackStringTag.tagOf;
+import static com.igormaznitsa.mistack.impl.MiStackStringTag.tagsOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,7 +12,6 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Set;
@@ -456,46 +455,4 @@ abstract class AbstractMiStackTest {
       return this.value + ' ' + this.tags;
     }
   }
-
-  static final class MiStackTagImpl implements MiStackTag {
-    private final String text;
-
-    private MiStackTagImpl(final String text) {
-      this.text = Objects.requireNonNull(text);
-    }
-
-    public static Set<MiStackTag> tagsOf(final String... tags) {
-      final Set<MiStackTag> set = new HashSet<>();
-      for (final String s : tags) {
-        set.add(tagOf(s));
-      }
-      return Set.copyOf(set);
-    }
-
-    public static MiStackTagImpl tagOf(final String text) {
-      return new MiStackTagImpl(text);
-    }
-
-    @Override
-    public boolean equals(final Object that) {
-      if (this == that) {
-        return true;
-      }
-      if (that == null || getClass() != that.getClass()) {
-        return false;
-      }
-      return this.text.equals(((MiStackTagImpl) that).text);
-    }
-
-    @Override
-    public int hashCode() {
-      return this.text.hashCode();
-    }
-
-    @Override
-    public String toString() {
-      return this.text;
-    }
-  }
-
 }

@@ -29,11 +29,9 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * ArrayList based implementation of Mi-Stack.
- * <b>The stack is not thread safe, so you must provide extra synchronization if going to use
- * it in multi-thread environment.</b>
+ * Mi-Stack implementation based on ArrayList. <b>It is Thread unsafe and must not be used for concurrent use.</b>
  *
- * @author Igor Maznitsa
+ * @param <T> type of item values saved in stack
  * @since 1.0.0
  */
 public class MiStackArrayList<T> implements MiStack<T> {
