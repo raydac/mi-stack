@@ -1,5 +1,8 @@
 package com.igormaznitsa.mistack;
 
+import static java.util.Spliterator.ORDERED;
+import static java.util.Spliterators.spliteratorUnknownSize;
+
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -7,10 +10,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * A multi-context stack. It provides way to make iterations through tag marked elements.
  *
+ * @param <T> type of item values on the stack
  * @author Igor Maznitsa
  * @since 1.0.0
  */
@@ -18,7 +23,6 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
 
   /**
    * Get predicate matches for all items in the stack.
-   *
    * @return predicate matches for all items in the stack, must not be null.
    * @since 1.0.0
    */
@@ -142,7 +146,9 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate);
+  default Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate) {
+    return this.stream(predicate, this.forAll());
+  }
 
   /**
    * Get stream of stack items meet predicate.
@@ -153,8 +159,11 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate,
-                                Predicate<MiStackItem<T>> takeWhile);
+  default Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate,
+                                        Predicate<MiStackItem<T>> takeWhile) {
+    return StreamSupport.stream(
+        spliteratorUnknownSize(this.iterator(predicate, takeWhile), ORDERED), false);
+  }
 
   /**
    * Make stream of all elements on the stack.
@@ -163,7 +172,9 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Stream<MiStackItem<T>> stream();
+  default Stream<MiStackItem<T>> stream() {
+    return this.stream(this.forAll(), this.forAll());
+  }
 
   /**
    * Check that there is no any element on the stack.
@@ -230,6 +241,14 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   default Predicate<MiStackItem<T>> anyTag(final MiStackTag... tags) {
     return this.anyTag(List.of(tags));
   }
+
+  /**
+   * Allows to get information that the stack is closed;
+   *
+   * @return true if the stack is closed, false otherwise.
+   * @since 1.0.0
+   */
+  boolean isClosed();
 
   /**
    * Create predicate matches if any tag met in item

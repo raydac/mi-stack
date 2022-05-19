@@ -14,8 +14,6 @@
 package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
-import static java.util.Spliterator.ORDERED;
-import static java.util.Spliterators.spliteratorUnknownSize;
 
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
@@ -25,8 +23,6 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 /**
  * Mi-Stack implementation based on ArrayList. <b>It is Thread unsafe and must not be used for concurrent use.</b>
@@ -240,21 +236,8 @@ public class MiStackArrayList<T> implements MiStack<T> {
   }
 
   @Override
-  public Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate,
-                                       Predicate<MiStackItem<T>> takeWhile) {
-    this.assertNotClosed();
-    return StreamSupport.stream(
-        spliteratorUnknownSize(this.iterator(predicate, takeWhile), ORDERED), false);
-  }
-
-  @Override
-  public Stream<MiStackItem<T>> stream(final Predicate<MiStackItem<T>> predicate) {
-    return this.stream(predicate, all);
-  }
-
-  @Override
-  public Stream<MiStackItem<T>> stream() {
-    return this.stream(e -> true, e -> true);
+  public boolean isClosed() {
+    return this.closed;
   }
 
   @Override
