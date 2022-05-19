@@ -23,6 +23,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
 
   /**
    * Get predicate matches for all items in the stack.
+   *
    * @return predicate matches for all items in the stack, must not be null.
    * @since 1.0.0
    */
@@ -114,7 +115,9 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Iterator<MiStackItem<T>> iterator();
+  default Iterator<MiStackItem<T>> iterator() {
+    return this.iterator(this.forAll());
+  }
 
   /**
    * Make iterator for stack elements which meet predicate.
@@ -124,7 +127,9 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate);
+  default Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate) {
+    return this.iterator(predicate, this.forAll());
+  }
 
   /**
    * Make iterator for stack elements which meet predicate with possibility to stop iteration by predicate.
@@ -202,7 +207,9 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  long size(Predicate<MiStackItem<T>> predicate);
+  default long size(Predicate<MiStackItem<T>> predicate) {
+    return this.stream(predicate).count();
+  }
 
   long size();
 

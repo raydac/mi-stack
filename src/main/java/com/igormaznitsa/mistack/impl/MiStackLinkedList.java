@@ -14,35 +14,28 @@
 package com.igormaznitsa.mistack.impl;
 
 import com.igormaznitsa.mistack.MiStackItem;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
 /**
- * Array list based implementation of Mi-Stack. <b>It is not thread safe</b>
+ * Linked list based implementation of Mi-Stack. <b>It is not thread safe</b>
  *
  * @param <T> item type to be saved on stack
  * @since 1.0.0
  */
-public class MiStackArrayList<T> extends AbstractMiStackList<T> {
+public class MiStackLinkedList<T> extends AbstractMiStackList<T> {
 
-  private static final int INITIAL_CAPACITY = 16;
-
-  public MiStackArrayList() {
+  public MiStackLinkedList() {
     this(UUID.randomUUID().toString());
   }
 
-  public MiStackArrayList(final String name) {
-    super(name, INITIAL_CAPACITY);
-  }
-
-  @Override
-  protected void afterClear() {
-    ((ArrayList<?>) this.items).trimToSize();
+  public MiStackLinkedList(final String name) {
+    super(name, null);
   }
 
   @Override
   protected final List<MiStackItem<T>> createList(final Object value) {
-    return new ArrayList<>((Integer) value);
+    return new LinkedList<>();
   }
 }
