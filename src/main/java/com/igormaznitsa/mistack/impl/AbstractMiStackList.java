@@ -17,7 +17,7 @@ import java.util.function.Predicate;
  * @param <T> type of values placed on stack
  * @since 1.0.0
  */
-abstract class AbstractMiStackList<T> implements MiStack<T> {
+public abstract class AbstractMiStackList<T> implements MiStack<T> {
 
   protected final Predicate<MiStackItem<T>> all = e -> true;
   protected final List<MiStackItem<T>> items;
