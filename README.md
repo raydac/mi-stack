@@ -6,6 +6,9 @@
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-cyan.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 [![YooMoney donation](https://img.shields.io/badge/donation-Yoo.money-blue.svg)](https://yoomoney.ru/to/41001158080699)
 
-# MStack
+# What is it?
 
-Yet another stack
+Just abstract stack allows to mark its items by tags and get elements through either stream or iterator.
+
+# Example
+

@@ -1,7 +1,10 @@
 package com.igormaznitsa.mistack;
 
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 
@@ -11,7 +14,15 @@ import java.util.stream.Stream;
  * @author Igor Maznitsa
  * @since 1.0.0
  */
-public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
+public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
+
+  /**
+   * Get predicate matches for all items in the stack.
+   *
+   * @return predicate matches for all items in the stack, must not be null.
+   * @since 1.0.0
+   */
+  Predicate<MiStackItem<T>> forAll();
 
   /**
    * Get stack name.
@@ -29,7 +40,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  MiStack push(MiStackItem item);
+  MiStack<T> push(MiStackItem<T> item);
 
   /**
    * Push multiple elements on the stack.
@@ -39,7 +50,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  MiStack push(MiStackItem... items);
+  MiStack<T> push(MiStackItem<T>... items);
 
   /**
    * Pop the first element from the stack which meet predicate condition.
@@ -50,7 +61,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Optional<MiStackItem> pop(Predicate<MiStackItem> predicate);
+  Optional<MiStackItem<T>> pop(Predicate<MiStackItem<T>> predicate);
 
   /**
    * Peek element on the stack which meet predicate condition.
@@ -62,7 +73,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Optional<MiStackItem> peek(Predicate<MiStackItem> predicate, long depth);
+  Optional<MiStackItem<T>> peek(Predicate<MiStackItem<T>> predicate, long depth);
 
   /**
    * Find and remove element on the stack which meet predicate condition.
@@ -73,7 +84,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Optional<MiStackItem> remove(Predicate<MiStackItem> predicate, long depth);
+  Optional<MiStackItem<T>> remove(Predicate<MiStackItem<T>> predicate, long depth);
 
   /**
    * Remove all elements from the stack.
@@ -90,7 +101,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  void clear(final Predicate<MiStackItem> predicate);
+  void clear(final Predicate<MiStackItem<T>> predicate);
 
   /**
    * Make iterator for all stack elements.
@@ -99,7 +110,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Iterator<MiStackItem> iterator();
+  Iterator<MiStackItem<T>> iterator();
 
   /**
    * Make iterator for stack elements which meet predicate.
@@ -109,7 +120,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Iterator<MiStackItem> iterator(Predicate<MiStackItem> predicate);
+  Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate);
 
   /**
    * Make iterator for stack elements which meet predicate with possibility to stop iteration by predicate.
@@ -120,8 +131,8 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Iterator<MiStackItem> iterator(Predicate<MiStackItem> predicate,
-                                 Predicate<MiStackItem> takeWhile);
+  Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate,
+                                    Predicate<MiStackItem<T>> takeWhile);
 
   /**
    * Get stream of stack items meet predicate.
@@ -131,7 +142,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Stream<MiStackItem> stream(Predicate<MiStackItem> predicate);
+  Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate);
 
   /**
    * Get stream of stack items meet predicate.
@@ -142,7 +153,8 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Stream<MiStackItem> stream(Predicate<MiStackItem> predicate, Predicate<MiStackItem> takeWhile);
+  Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate,
+                                Predicate<MiStackItem<T>> takeWhile);
 
   /**
    * Make stream of all elements on the stack.
@@ -151,7 +163,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Stream<MiStackItem> stream();
+  Stream<MiStackItem<T>> stream();
 
   /**
    * Check that there is no any element on the stack.
@@ -169,7 +181,7 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  boolean isEmpty(Predicate<MiStackItem> predicate);
+  boolean isEmpty(Predicate<MiStackItem<T>> predicate);
 
   /**
    * Find size of stack for elements meet predicate.
@@ -179,10 +191,55 @@ public interface MiStack extends Iterable<MiStackItem>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  long size(Predicate<MiStackItem> predicate);
+  long size(Predicate<MiStackItem<T>> predicate);
 
   long size();
 
   @Override
   void close();
+
+  /**
+   * Create predicate matches if all listed tags met in item.
+   *
+   * @param tags array of tags
+   * @return predicate which is true if item contains all tags, must not be null
+   * @since 1.0.0
+   */
+  default Predicate<MiStackItem<T>> allTags(final MiStackTag... tags) {
+    return this.allTags(List.of(tags));
+  }
+
+  /**
+   * Create predicate matches if all listed tags met in item.
+   *
+   * @param tags collections of tags
+   * @return predicate which is true if item contains all tags, must not be null
+   * @since 1.0.0
+   */
+  default Predicate<MiStackItem<T>> allTags(final Collection<MiStackTag> tags) {
+    return e -> e.getTags().containsAll(tags);
+  }
+
+  /**
+   * Create predicate matches if any tag met in item
+   *
+   * @param tags array of tags
+   * @return predicate which is true if item contains any tag, must not be null
+   * @since 1.0.0
+   */
+  default Predicate<MiStackItem<T>> anyTag(final MiStackTag... tags) {
+    return this.anyTag(List.of(tags));
+  }
+
+  /**
+   * Create predicate matches if any tag met in item
+   *
+   * @param tags collections of tags
+   * @return predicate which is true if item contains any tag, must not be null
+   * @since 1.0.0
+   */
+  default Predicate<MiStackItem<T>> anyTag(final Collection<MiStackTag> tags) {
+    var setOfTags = Set.copyOf(tags);
+    return e -> e.getTags().stream().anyMatch(setOfTags::contains);
+  }
 }
