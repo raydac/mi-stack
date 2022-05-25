@@ -37,6 +37,16 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   }
 
   /**
+   * Get the list used as store for items.
+   *
+   * @return the base list store, can't be null
+   * @since 1.0.0
+   */
+  protected List<MiStackItem<T>> getList() {
+    return this.list;
+  }
+
+  /**
    * Assert that the stack is not closed yet.
    *
    * @throws IllegalStateException if stack is closed

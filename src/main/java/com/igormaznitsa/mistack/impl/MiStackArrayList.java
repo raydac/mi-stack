@@ -24,10 +24,21 @@ import java.util.UUID;
  */
 public class MiStackArrayList<T> extends AbstractMiStackList<T> {
 
+  /**
+   * Default constructor, as name will be used random UUID text representation.
+   *
+   * @since 1.0.0
+   */
   public MiStackArrayList() {
     this(UUID.randomUUID().toString());
   }
 
+  /**
+   * Constructor allows to provide name for the stack.
+   *
+   * @param name the name will be used as the stack name, must not be null but no any restrictions for emptiness.
+   * @since 1.0.0
+   */
   public MiStackArrayList(final String name) {
     super(name, new ArrayList<>());
   }
