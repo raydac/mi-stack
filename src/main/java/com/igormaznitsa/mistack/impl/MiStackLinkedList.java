@@ -13,9 +13,7 @@
 
 package com.igormaznitsa.mistack.impl;
 
-import com.igormaznitsa.mistack.MiStackItem;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -31,11 +29,7 @@ public class MiStackLinkedList<T> extends AbstractMiStackList<T> {
   }
 
   public MiStackLinkedList(final String name) {
-    super(name, null);
+    super(name, new LinkedList<>());
   }
 
-  @Override
-  protected final List<MiStackItem<T>> createList(final Object value) {
-    return new LinkedList<>();
-  }
 }

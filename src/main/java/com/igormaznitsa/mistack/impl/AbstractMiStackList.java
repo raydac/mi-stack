@@ -20,15 +20,28 @@ import java.util.function.Predicate;
 public abstract class AbstractMiStackList<T> implements MiStack<T> {
 
   protected final Predicate<MiStackItem<T>> all = e -> true;
-  protected final List<MiStackItem<T>> items;
+  protected final List<MiStackItem<T>> list;
   private final String name;
   private boolean closed = false;
 
-  AbstractMiStackList(final String name, final Object initValue) {
+  /**
+   * Constructor for name and list collection which will be used as the store for items.
+   *
+   * @param name name of the stack, can't be null
+   * @param list internal storage for items, can't be null
+   * @since 1.0.0
+   */
+  public AbstractMiStackList(final String name, final List<MiStackItem<T>> list) {
     this.name = requireNonNull(name);
-    this.items = this.createList(initValue);
+    this.list = requireNonNull(list);
   }
 
+  /**
+   * Assert that the stack is not closed yet.
+   *
+   * @throws IllegalStateException if stack is closed
+   * @since 1.0.0
+   */
   protected void assertNotClosed() {
     if (this.closed) {
       throw new IllegalStateException("Stack '" + this.name + "' is closed");
@@ -43,7 +56,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   @Override
   public MiStack<T> push(final MiStackItem<T> item) {
     this.assertNotClosed();
-    this.items.add(requireNonNull(item));
+    this.list.add(requireNonNull(item));
     return this;
   }
 
@@ -52,7 +65,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   public final MiStack<T> push(final MiStackItem<T>... items) {
     this.assertNotClosed();
     for (final MiStackItem<T> s : items) {
-      this.items.add(requireNonNull(s));
+      this.list.add(requireNonNull(s));
     }
     return this;
   }
@@ -66,11 +79,11 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
     this.assertNotClosed();
     MiStackItem<T> result = null;
-    for (int i = this.items.size() - 1; result == null && i >= 0; i--) {
-      final MiStackItem<T> item = this.items.get(i);
+    for (int i = this.list.size() - 1; result == null && i >= 0; i--) {
+      final MiStackItem<T> item = this.list.get(i);
       if (predicate.test(item)) {
         result = item;
-        this.items.remove(i);
+        this.list.remove(i);
       }
     }
     return Optional.ofNullable(result);
@@ -103,7 +116,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   @Override
   public void clear() {
     this.assertNotClosed();
-    this.items.clear();
+    this.list.clear();
     this.afterClear();
   }
 
@@ -123,14 +136,14 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
                                            final Predicate<MiStackItem<T>> takeWhile) {
     this.assertNotClosed();
     return new Iterator<>() {
-      private int index = this.findNext(items.size() - 1);
+      private int index = this.findNext(list.size() - 1);
       private int indexRemove = -1;
 
       private int findNext(int from) {
         assertNotClosed();
         int result = -1;
         while (result < 0 && from >= 0) {
-          var nextItem = items.get(from);
+          var nextItem = list.get(from);
           if (predicate.test(nextItem)) {
             if (takeWhile.test(nextItem)) {
               result = from;
@@ -156,7 +169,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
           this.indexRemove = -1;
           throw new NoSuchElementException();
         } else {
-          final MiStackItem<T> result = items.get(this.index);
+          final MiStackItem<T> result = list.get(this.index);
           this.indexRemove = this.index;
           this.index = findNext(this.index - 1);
           return result;
@@ -169,7 +182,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
         if (this.indexRemove < 0) {
           throw new IllegalStateException();
         } else {
-          items.remove(this.indexRemove);
+          list.remove(this.indexRemove);
           this.indexRemove = -1;
         }
       }
@@ -184,13 +197,13 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   @Override
   public boolean isEmpty() {
     this.assertNotClosed();
-    return this.items.isEmpty();
+    return this.list.isEmpty();
   }
 
   @Override
   public boolean isEmpty(final Predicate<MiStackItem<T>> predicate) {
     this.assertNotClosed();
-    for (final MiStackItem<T> i : this.items) {
+    for (final MiStackItem<T> i : this.list) {
       if (predicate.test(i)) {
         return false;
       }
@@ -208,7 +221,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   @Override
   public long size() {
     this.assertNotClosed();
-    return this.items.size();
+    return this.list.size();
   }
 
   /**
@@ -223,14 +236,18 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
       this.assertNotClosed();
     } else {
       this.closed = true;
-      this.items.clear();
+      this.list.clear();
       this.afterClear();
     }
   }
 
+  /**
+   * Method is called after clear operations. Allow for instance to trim collection.
+   *
+   * @since 1.0.0
+   */
   protected void afterClear() {
 
   }
 
-  protected abstract List<MiStackItem<T>> createList(final Object value);
 }

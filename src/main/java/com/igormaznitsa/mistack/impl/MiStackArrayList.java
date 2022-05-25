@@ -13,9 +13,7 @@
 
 package com.igormaznitsa.mistack.impl;
 
-import com.igormaznitsa.mistack.MiStackItem;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 /**
@@ -26,23 +24,17 @@ import java.util.UUID;
  */
 public class MiStackArrayList<T> extends AbstractMiStackList<T> {
 
-  private static final int INITIAL_CAPACITY = 16;
-
   public MiStackArrayList() {
     this(UUID.randomUUID().toString());
   }
 
   public MiStackArrayList(final String name) {
-    super(name, INITIAL_CAPACITY);
+    super(name, new ArrayList<>());
   }
 
   @Override
   protected void afterClear() {
-    ((ArrayList<?>) this.items).trimToSize();
+    ((ArrayList<?>) this.list).trimToSize();
   }
 
-  @Override
-  protected final List<MiStackItem<T>> createList(final Object value) {
-    return new ArrayList<>((Integer) value);
-  }
 }
