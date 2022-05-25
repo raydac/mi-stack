@@ -25,12 +25,8 @@ predicated streams.
     stack.push(MiStackItemImpl.itemOf("Antares",tagGalaxy));
     stack.push(MiStackItemImpl.itemOf("Vega",tagGalaxy));
 
-    assertArrayEquals(new Object[]{"Moon","Earth"},stack.stream(stack.allTags(tagSun)).map(
-    MiStackItem::getValue).toArray());
-    assertArrayEquals(new Object[]{"Moon","Earth"},stack.stream(stack.anyTag(tagSun)).map(
-    MiStackItem::getValue).toArray());
-    assertArrayEquals(new Object[]{"Vega","Antares"},
-    stack.stream(stack.allTags(tagGalaxy)).map(
-    MiStackItem::getValue).toArray());
+    assertArrayEquals(new Object[]{"Moon","Earth"},stack.stream(stack.allTags(tagSun)).map(MiStackItem::getValue).toArray());
+    assertArrayEquals(new Object[]{"Moon","Earth"},stack.stream(stack.anyTag(tagSun)).map(MiStackItem::getValue).toArray());
+    assertArrayEquals(new Object[]{"Vega","Antares"},stack.stream(stack.allTags(tagGalaxy)).map(MiStackItem::getValue).toArray());
     }
 ```
