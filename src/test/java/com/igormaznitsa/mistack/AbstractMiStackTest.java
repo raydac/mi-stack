@@ -1,8 +1,8 @@
 package com.igormaznitsa.mistack;
 
 import static com.igormaznitsa.mistack.AbstractMiStackTest.MiStackItemImpl.itemOf;
-import static com.igormaznitsa.mistack.impl.MiStackStringTag.tagOf;
-import static com.igormaznitsa.mistack.impl.MiStackStringTag.tagsOf;
+import static com.igormaznitsa.mistack.impl.MiStackTagImpl.tagOf;
+import static com.igormaznitsa.mistack.impl.MiStackTagImpl.tagsOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
