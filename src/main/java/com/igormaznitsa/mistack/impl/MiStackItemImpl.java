@@ -7,6 +7,8 @@ import com.igormaznitsa.mistack.MiStackTag;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Parametrized mmplementation of mi-stack item.
@@ -48,13 +50,15 @@ public class MiStackItemImpl<T> implements MiStackItem<T>, Serializable {
    * Auxiliary method to create an item for its value with tags provided as collection.
    *
    * @param value value to be saved in the item, must not be null
-   * @param tags  collection of tags to be associated with the item, must not be null
+   * @param tags  array of tag collections to be associated with the item, must not be null
    * @param <V>   type of item value
    * @return generated created mi-stack item with value and tags, can't be null
    * @since 1.0.0
    */
-  public static <V> MiStackItem<V> itemOf(final V value, final Collection<MiStackTag> tags) {
-    return new MiStackItemImpl<>(value, Set.copyOf(tags));
+  @SafeVarargs
+  public static <V> MiStackItem<V> itemOf(final V value, final Collection<MiStackTag>... tags) {
+    return new MiStackItemImpl<>(value,
+        Stream.of(tags).flatMap(Collection::stream).collect(Collectors.toSet()));
   }
 
   @Override
