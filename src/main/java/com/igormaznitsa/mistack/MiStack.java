@@ -7,8 +7,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -20,6 +20,58 @@ import java.util.stream.StreamSupport;
  * @since 1.0.0
  */
 public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
+
+  /**
+   * Make predicate to check all tags presented for stack item.
+   *
+   * @param tags array tags, must not contain null or be null
+   * @param <T>  type of stack item values.
+   * @return predicate returns true only if all tags presented for stack item.
+   * @since 1.0.0
+   */
+  static <T> Predicate<MiStackItem<T>> allTags(final MiStackTag... tags) {
+    return allTags(List.of(tags));
+  }
+
+  /**
+   * Make predicate to check all tags presented for stack item.
+   *
+   * @param tags collections of tags, must not contain null or be null
+   * @param <T>  type of stack item values.
+   * @return predicate returns true only if all tags presented for stack item.
+   * @since 1.0.0
+   */
+  @SafeVarargs
+  static <T> Predicate<MiStackItem<T>> allTags(final Collection<MiStackTag>... tags) {
+    var setOfAllTags = Stream.of(tags).flatMap(Collection::stream).collect(Collectors.toSet());
+    return e -> e.getTags().containsAll(setOfAllTags);
+  }
+
+  /**
+   * Make predicate to check any tag presented for stack item.
+   *
+   * @param tags array tags, must not contain null or be null
+   * @param <T>  type of stack item values.
+   * @return predicate returns true only if all tags presented for stack item.
+   * @since 1.0.0
+   */
+  static <T> Predicate<MiStackItem<T>> anyTag(final MiStackTag... tags) {
+    return anyTag(List.of(tags));
+  }
+
+  /**
+   * Make predicate to check any tag presented for stack item.
+   *
+   * @param tags array of tag collections, must not contain null or be null
+   * @param <T>  type of stack item values.
+   * @return predicate returns true only if all tags presented for stack item.
+   * @since 1.0.0
+   */
+  @SafeVarargs
+  static <T> Predicate<MiStackItem<T>> anyTag(final Collection<MiStackTag>... tags) {
+    var setOfTags = Stream.of(tags).flatMap(Collection::stream).collect(Collectors.toSet());
+    return e -> e.getTags().stream().anyMatch(setOfTags::contains);
+  }
 
   /**
    * Get predicate matches for all items in the stack.
@@ -217,55 +269,10 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   void close();
 
   /**
-   * Create predicate matches if all listed tags met in item.
-   *
-   * @param tags array of tags
-   * @return predicate which is true if item contains all tags, must not be null
-   * @since 1.0.0
-   */
-  default Predicate<MiStackItem<T>> allTags(final MiStackTag... tags) {
-    return this.allTags(List.of(tags));
-  }
-
-  /**
-   * Create predicate matches if all listed tags met in item.
-   *
-   * @param tags collections of tags
-   * @return predicate which is true if item contains all tags, must not be null
-   * @since 1.0.0
-   */
-  default Predicate<MiStackItem<T>> allTags(final Collection<MiStackTag> tags) {
-    return e -> e.getTags().containsAll(tags);
-  }
-
-  /**
-   * Create predicate matches if any tag met in item
-   *
-   * @param tags array of tags
-   * @return predicate which is true if item contains any tag, must not be null
-   * @since 1.0.0
-   */
-  default Predicate<MiStackItem<T>> anyTag(final MiStackTag... tags) {
-    return this.anyTag(List.of(tags));
-  }
-
-  /**
-   * Allows to get information that the stack is closed;
+   * Allows to get information that the stack is closed.
    *
    * @return true if the stack is closed, false otherwise.
    * @since 1.0.0
    */
   boolean isClosed();
-
-  /**
-   * Create predicate matches if any tag met in item
-   *
-   * @param tags collections of tags
-   * @return predicate which is true if item contains any tag, must not be null
-   * @since 1.0.0
-   */
-  default Predicate<MiStackItem<T>> anyTag(final Collection<MiStackTag> tags) {
-    var setOfTags = Set.copyOf(tags);
-    return e -> e.getTags().stream().anyMatch(setOfTags::contains);
-  }
 }

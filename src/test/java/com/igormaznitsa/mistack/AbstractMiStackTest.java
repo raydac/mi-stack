@@ -109,9 +109,9 @@ abstract class AbstractMiStackTest {
 
     stack.push(item1, item2, item3, item4);
 
-    assertTrue(stack.isEmpty(stack.anyTag(tagOf("unknown"))));
-    assertFalse(stack.isEmpty(stack.anyTag(tagOf("universe"))));
-    assertFalse(stack.isEmpty(stack.allTags(tagOf("hello"), tagOf("world"))));
+    assertTrue(stack.isEmpty(MiStack.anyTag(tagOf("unknown"))));
+    assertFalse(stack.isEmpty(MiStack.anyTag(tagOf("universe"))));
+    assertFalse(stack.isEmpty(MiStack.allTags(tagOf("hello"), tagOf("world"))));
   }
 
   @Test
@@ -139,11 +139,11 @@ abstract class AbstractMiStackTest {
       stack.push(item1, item2, item3, item4);
 
       assertEquals(item3,
-          stack.remove(stack.anyTag(tagOf("universe")), 0).orElseThrow());
+          stack.remove(MiStack.anyTag(tagOf("universe")), 0).orElseThrow());
       assertArrayEquals(new MiStackItem[] {item4, item2, item1}, stack.stream().toArray());
 
       assertEquals(item2,
-          stack.remove(stack.allTags(tagOf("hello"), tagOf("world")), 1)
+          stack.remove(MiStack.allTags(tagOf("hello"), tagOf("world")), 1)
               .orElseThrow());
       assertArrayEquals(new MiStackItem[] {item4, item1}, stack.stream().toArray());
     }
@@ -195,7 +195,7 @@ abstract class AbstractMiStackTest {
 
       stack.push(item1, item2, item3, item4);
 
-      var iterator = stack.iterator(stack.allTags(tagOf("hello"), tagOf("world")));
+      var iterator = stack.iterator(MiStack.allTags(tagOf("hello"), tagOf("world")));
       assertTrue(iterator.hasNext());
       assertSame(item4, iterator.next());
 
@@ -224,7 +224,7 @@ abstract class AbstractMiStackTest {
 
       stack.push(item1, item2, item3, item4);
 
-      var iterator = stack.iterator(stack.allTags(tagOf("hello"), tagOf("world")));
+      var iterator = stack.iterator(MiStack.allTags(tagOf("hello"), tagOf("world")));
       assertTrue(iterator.hasNext());
       assertSame(item4, iterator.next());
 
@@ -257,14 +257,14 @@ abstract class AbstractMiStackTest {
       stack.push(item1, item2, item3, item4);
 
       assertEquals(item3,
-          stack.peek(stack.anyTag(tagOf("universe")), 0).orElseThrow());
-      assertTrue(stack.peek(stack.anyTag(tagOf("universe")), 1).isEmpty());
+          stack.peek(MiStack.anyTag(tagOf("universe")), 0).orElseThrow());
+      assertTrue(stack.peek(MiStack.anyTag(tagOf("universe")), 1).isEmpty());
       assertEquals(item4,
-          stack.peek(stack.allTags(tagOf("hello"), tagOf("world")), 0).orElseThrow());
+          stack.peek(MiStack.allTags(tagOf("hello"), tagOf("world")), 0).orElseThrow());
       assertEquals(item2,
-          stack.peek(stack.allTags(tagOf("hello"), tagOf("world")), 1).orElseThrow());
+          stack.peek(MiStack.allTags(tagOf("hello"), tagOf("world")), 1).orElseThrow());
       assertEquals(item1,
-          stack.peek(stack.allTags(tagOf("hello"), tagOf("world")), 2).orElseThrow());
+          stack.peek(MiStack.allTags(tagOf("hello"), tagOf("world")), 2).orElseThrow());
     }
   }
 
@@ -303,16 +303,16 @@ abstract class AbstractMiStackTest {
       stack.push(item1, item2, item3, item4);
 
       assertEquals(4, stack.size());
-      assertEquals(1L, stack.size(stack.anyTag(tagOf("universe"))));
-      assertEquals(3L, stack.size(stack.allTags(tagOf("hello"), tagOf("world"))));
+      assertEquals(1L, stack.size(MiStack.anyTag(tagOf("universe"))));
+      assertEquals(3L, stack.size(MiStack.allTags(tagOf("hello"), tagOf("world"))));
 
-      stack.clear(stack.anyTag(tagOf("universe")));
+      stack.clear(MiStack.anyTag(tagOf("universe")));
       assertEquals(3, stack.size());
-      assertEquals(0L, stack.size(stack.anyTag(tagOf("universe"))));
-      assertEquals(3L, stack.size(stack.allTags(tagOf("hello"), tagOf("world"))));
+      assertEquals(0L, stack.size(MiStack.anyTag(tagOf("universe"))));
+      assertEquals(3L, stack.size(MiStack.allTags(tagOf("hello"), tagOf("world"))));
 
-      stack.clear(stack.allTags(tagOf("hello"), tagOf("world")));
-      assertEquals(0L, stack.size(stack.allTags(tagOf("hello"), tagOf("world"))));
+      stack.clear(MiStack.allTags(tagOf("hello"), tagOf("world")));
+      assertEquals(0L, stack.size(MiStack.allTags(tagOf("hello"), tagOf("world"))));
       assertEquals(0L, stack.size());
     }
   }
@@ -332,8 +332,8 @@ abstract class AbstractMiStackTest {
       stack.push(item1, item2, item3, item4);
 
       assertEquals(4, stack.size());
-      assertEquals(1L, stack.size(stack.anyTag(tagOf("universe"))));
-      assertEquals(3L, stack.size(stack.allTags(tagOf("hello"), tagOf("world"))));
+      assertEquals(1L, stack.size(MiStack.anyTag(tagOf("universe"))));
+      assertEquals(3L, stack.size(MiStack.allTags(tagOf("hello"), tagOf("world"))));
     }
   }
 
@@ -403,10 +403,10 @@ abstract class AbstractMiStackTest {
       stack.push(item1, item2, item3, item4);
 
       assertArrayEquals(new MiStackItem[] {item4, item3, item2, item1},
-          stack.stream(stack.allTags()).toArray());
+          stack.stream(MiStack.allTags(Set.of())).toArray());
       assertArrayEquals(new MiStackItem[] {item4, item3, item2, item1},
-          stack.stream(stack.anyTag(tagOf("hello"))).toArray());
-      assertEquals(0, stack.stream(stack.anyTag(tagOf("universe"))).toArray().length);
+          stack.stream(MiStack.anyTag(tagOf("hello"))).toArray());
+      assertEquals(0, stack.stream(MiStack.anyTag(tagOf("universe"))).toArray().length);
     }
   }
 
