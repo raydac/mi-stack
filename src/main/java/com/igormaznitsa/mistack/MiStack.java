@@ -24,7 +24,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   /**
    * Make predicate to check all tags presented for stack item.
    *
-   * @param tags array tags, must not contain null or be null
+   * @param tags array of tags, must not contain null or be null
    * @param <T>  type of stack item values.
    * @return predicate returns true only if all tags presented for stack item.
    * @since 1.0.0
@@ -36,7 +36,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   /**
    * Make predicate to check all tags presented for stack item.
    *
-   * @param tags collections of tags, must not contain null or be null
+   * @param tags array of tag collections, must not contain null or be null
    * @param <T>  type of stack item values.
    * @return predicate returns true only if all tags presented for stack item.
    * @since 1.0.0
@@ -50,7 +50,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   /**
    * Make predicate to check any tag presented for stack item.
    *
-   * @param tags array tags, must not contain null or be null
+   * @param tags array of tags, must not contain null or be null
    * @param <T>  type of stack item values.
    * @return predicate returns true only if all tags presented for stack item.
    * @since 1.0.0
