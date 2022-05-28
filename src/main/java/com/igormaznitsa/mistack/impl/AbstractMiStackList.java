@@ -88,15 +88,17 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   @Override
   public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
     this.assertNotClosed();
+    var iterator = this.makeItemIterator(this.list);
     MiStackItem<T> result = null;
-    for (int i = this.list.size() - 1; result == null && i >= 0; i--) {
-      final MiStackItem<T> item = this.list.get(i);
-      if (predicate.test(item)) {
-        result = item;
-        this.list.remove(i);
+    while (iterator.hasNext() && result == null) {
+      result = iterator.next();
+      if (predicate.test(result)) {
+        iterator.remove();
+      } else {
+        result = null;
       }
     }
-    return Optional.ofNullable(result);
+    return Optional.of(result);
   }
 
   @Override
@@ -141,27 +143,42 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
     this.afterClear();
   }
 
+  /**
+   * Make iterator for stack items in appropriate order for stack.
+   *
+   * @param list list to be sourced for the iterator, must not be null
+   * @return created iterator for the list, must not be null
+   * @since 1.0.0
+   */
+  protected abstract Iterator<MiStackItem<T>> makeItemIterator(final List<MiStackItem<T>> list);
+
   @Override
   public Iterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
                                            final Predicate<MiStackItem<T>> takeWhile) {
-    this.assertNotClosed();
-    return new Iterator<>() {
-      private int index = this.findNext(list.size() - 1);
-      private int indexRemove = -1;
 
-      private int findNext(int from) {
+    var listIterator = this.makeItemIterator(this.list);
+    return new Iterator<>() {
+
+      private boolean completed = false;
+      private MiStackItem<T> foundItem = null;
+
+      private MiStackItem<T> findNext() {
         assertNotClosed();
-        int result = -1;
-        while (result < 0 && from >= 0) {
-          var nextItem = list.get(from);
-          if (predicate.test(nextItem)) {
-            if (takeWhile.test(nextItem)) {
-              result = from;
-            } else {
+        if (this.completed) {
+          return null;
+        }
+        MiStackItem<T> result = null;
+        while (result == null && listIterator.hasNext()) {
+          result = listIterator.next();
+          if (predicate.test(result)) {
+            if (!takeWhile.test(result)) {
+              result = null;
+              this.completed = true;
               break;
             }
+          } else {
+            result = null;
           }
-          from--;
         }
         return result;
       }
@@ -169,32 +186,30 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
       @Override
       public boolean hasNext() {
         assertNotClosed();
-        return this.index >= 0;
+        if (this.foundItem == null) {
+          this.foundItem = findNext();
+        }
+        return this.foundItem != null;
       }
 
       @Override
       public MiStackItem<T> next() {
         assertNotClosed();
-        if (this.index < 0) {
-          this.indexRemove = -1;
-          throw new NoSuchElementException();
-        } else {
-          final MiStackItem<T> result = list.get(this.index);
-          this.indexRemove = this.index;
-          this.index = findNext(this.index - 1);
-          return result;
+        if (this.foundItem == null) {
+          this.foundItem = this.findNext();
+          if (this.foundItem == null) {
+            throw new NoSuchElementException();
+          }
         }
+        var result = this.foundItem;
+        this.foundItem = null;
+        return result;
       }
 
       @Override
       public void remove() {
         assertNotClosed();
-        if (this.indexRemove < 0) {
-          throw new IllegalStateException();
-        } else {
-          list.remove(this.indexRemove);
-          this.indexRemove = -1;
-        }
+        listIterator.remove();
       }
     };
   }

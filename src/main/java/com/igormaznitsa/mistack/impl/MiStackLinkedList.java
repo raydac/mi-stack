@@ -13,7 +13,10 @@
 
 package com.igormaznitsa.mistack.impl;
 
+import com.igormaznitsa.mistack.MiStackItem;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -43,4 +46,8 @@ public class MiStackLinkedList<T> extends AbstractMiStackList<T> {
     super(name, new LinkedList<>());
   }
 
+  @Override
+  protected Iterator<MiStackItem<T>> makeItemIterator(List<MiStackItem<T>> list) {
+    return ((LinkedList<MiStackItem<T>>) list).descendingIterator();
+  }
 }
