@@ -41,7 +41,8 @@ public class MiStackArrayList<T> extends AbstractMiStackList<T> {
   /**
    * Constructor allows to provide name for the stack.
    *
-   * @param name the name will be used as the stack name, must not be null but no any restrictions for emptiness.
+   * @param name the name will be used as the stack name, must not be null but no any
+   *             restrictions for emptiness.
    * @since 1.0.0
    */
   public MiStackArrayList(final String name) {

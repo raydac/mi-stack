@@ -80,7 +80,8 @@ public class MiStackArray<T> implements MiStack<T> {
    * @param item element to be pushed on the stack, must not be null.
    * @return the stack instance
    * @throws IllegalStateException    if stack is closed
-   * @throws MiStackOverflowException if stack is not dynamic one and there is no space for new element.
+   * @throws MiStackOverflowException if stack is not dynamic one and there is no space
+   *                                  for new element.
    * @see #push(MiStackItem[])
    * @since 1.0.0
    */
@@ -120,7 +121,8 @@ public class MiStackArray<T> implements MiStack<T> {
   /**
    * Try to make defragmentation of underlying array and remove null cells.
    *
-   * @param trim if true then try trimming of the underlying array after defragmentation, do nothing if false.
+   * @param trim if true then try trimming of the underlying array after defragmentation, do
+   *             nothing if false.
    * @since 1.0.0
    */
   protected void makeDefragmentation(final boolean trim) {

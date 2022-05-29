@@ -44,7 +44,7 @@ public class MiStackTagImpl<T> implements MiStackTag {
    * @since 1.0.0
    */
   public static <T> MiStackTag tagOf(final T value) {
-    return new MiStackTagImpl<T>(value);
+    return new MiStackTagImpl<>(value);
   }
 
   /**

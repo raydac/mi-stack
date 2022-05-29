@@ -89,6 +89,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
+  @SuppressWarnings("unchecked")
   default MiStack<T> push(final MiStackItem<T>... items) {
     for (final MiStackItem<T> item : items) {
       this.push(item);
@@ -192,16 +193,20 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   }
 
   /**
-   * Make iterator for stack elements which meet predicate with possibility to stop iteration by predicate.
+   * Get stream of stack items meet predicate.
    *
    * @param predicate condition for elements, must not be null.
-   * @param takeWhile condition predicate to take next element if true, if false then iteration stopped, must not be null.
-   * @return created iterator, must not be null.
+   * @param takeWhile predicated to take elements while it is true, must not be null.
+   * @return created stream of all stacked elements meet predicate in their stack order, must
+   * not be null.
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate,
-                                    Predicate<MiStackItem<T>> takeWhile);
+  default Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate,
+                                        Predicate<MiStackItem<T>> takeWhile) {
+    return StreamSupport.stream(
+        spliteratorUnknownSize(this.iterator(predicate, takeWhile), ORDERED), false);
+  }
 
   /**
    * Get predicate matches for all items in the stack.
@@ -212,19 +217,18 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   Predicate<MiStackItem<T>> forAll();
 
   /**
-   * Get stream of stack items meet predicate.
+   * Make iterator for stack elements which meet predicate with possibility to stop
+   * iteration by predicate.
    *
    * @param predicate condition for elements, must not be null.
-   * @param takeWhile predicated to take elements while it is true, must not be null.
-   * @return created stream of all stacked elements meet predicate in their stack order, must not be null.
+   * @param takeWhile condition predicate to take next element if true, if false then iteration
+   *                 stopped, must not be null.
+   * @return created iterator, must not be null.
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  default Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate,
-                                        Predicate<MiStackItem<T>> takeWhile) {
-    return StreamSupport.stream(
-        spliteratorUnknownSize(this.iterator(predicate, takeWhile), ORDERED), false);
-  }
+  Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate,
+                                    Predicate<MiStackItem<T>> takeWhile);
 
   /**
    * Check that there is no any element on the stack.
@@ -260,7 +264,8 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * Get stream of stack items meet predicate.
    *
    * @param predicate condition for elements, must not be null.
-   * @return created stream of all stacked elements meet predicate in their stack order, must not be null.
+   * @return created stream of all stacked elements meet predicate in their stack order, must
+   *         not be null.
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */

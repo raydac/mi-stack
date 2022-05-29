@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
- * Parametrized mmplementation of mi-stack item.
+ * Parametrized implementation of mi-stack item.
  *
  * @param <T> type of object carried by item
  * @since 1.0.0

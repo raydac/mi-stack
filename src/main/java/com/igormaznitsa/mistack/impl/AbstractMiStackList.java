@@ -71,7 +71,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
         result = null;
       }
     }
-    return Optional.of(result);
+    return Optional.ofNullable(result);
   }
 
   @Override
