@@ -58,9 +58,9 @@ public class MiStackLinked<T> implements MiStack<T> {
   public MiStack<T> push(final MiStackItem<T> item) {
     this.assertNotClosed();
     var newNode = new StackChainNode<>(item);
-    newNode.next = this.head;
+    newNode.setNext(this.head);
     if (this.head != null) {
-      this.head.prev = newNode;
+      this.head.setPrev(newNode);
     }
     this.head = newNode;
     this.size++;
@@ -78,7 +78,7 @@ public class MiStackLinked<T> implements MiStack<T> {
     MiStackItem<T> result = null;
     StackChainNode<T> node = this.head;
     while (node != null && result == null) {
-      var nodeValue = node.item;
+      var nodeValue = node.getItem();
       if (predicate.test(nodeValue)) {
         if (depth <= 0L) {
           result = nodeValue;
@@ -86,7 +86,7 @@ public class MiStackLinked<T> implements MiStack<T> {
           depth--;
         }
       }
-      node = node.next;
+      node = node.getNext();
     }
     return Optional.ofNullable(result);
   }
@@ -97,7 +97,7 @@ public class MiStackLinked<T> implements MiStack<T> {
     MiStackItem<T> result = null;
     StackChainNode<T> node = this.head;
     while (node != null && result == null) {
-      var nodeValue = node.item;
+      var nodeValue = node.getItem();
       if (predicate.test(nodeValue)) {
         if (depth <= 0L) {
           result = nodeValue;
@@ -110,10 +110,10 @@ public class MiStackLinked<T> implements MiStack<T> {
           this.size--;
         } else {
           depth--;
-          node = node.next;
+          node = node.getNext();
         }
       } else {
-        node = node.next;
+        node = node.getNext();
       }
     }
     return Optional.ofNullable(result);
@@ -131,7 +131,7 @@ public class MiStackLinked<T> implements MiStack<T> {
     this.assertNotClosed();
     StackChainNode<T> node = this.head;
     while (node != null) {
-      var nodeValue = node.item;
+      var nodeValue = node.getItem();
       if (predicate.test(nodeValue)) {
         if (node == this.head) {
           this.head = node.remove();
@@ -141,7 +141,7 @@ public class MiStackLinked<T> implements MiStack<T> {
         }
         this.size--;
       } else {
-        node = node.next;
+        node = node.getNext();
       }
     }
   }
@@ -168,8 +168,8 @@ public class MiStackLinked<T> implements MiStack<T> {
           throw new NoSuchElementException();
         } else {
           this.pointerForRemove = this.nextPointer;
-          this.nextPointer = findNext(this.nextPointer.next);
-          return this.pointerForRemove.item;
+          this.nextPointer = findNext(this.nextPointer.getNext());
+          return this.pointerForRemove.getItem();
         }
       }
 
@@ -179,7 +179,7 @@ public class MiStackLinked<T> implements MiStack<T> {
         }
         StackChainNode<T> result = null;
         while (pointer != null) {
-          var value = pointer.item;
+          var value = pointer.getItem();
           if (predicate.test(value)) {
             if (takeWhile.test(value)) {
               result = pointer;
@@ -188,7 +188,7 @@ public class MiStackLinked<T> implements MiStack<T> {
             }
             break;
           }
-          pointer = pointer.next;
+          pointer = pointer.getNext();
         }
         return result;
       }
@@ -227,10 +227,10 @@ public class MiStackLinked<T> implements MiStack<T> {
     this.assertNotClosed();
     StackChainNode<T> node = this.head;
     while (node != null) {
-      if (predicate.test(node.item)) {
+      if (predicate.test(node.getItem())) {
         return false;
       }
-      node = node.next;
+      node = node.getNext();
     }
     return true;
   }
@@ -260,62 +260,4 @@ public class MiStackLinked<T> implements MiStack<T> {
     }
   }
 
-  /**
-   * Internal auxiliary class describing one stack item saved in heap.
-   *
-   * @param <T> type of value saved by stack item
-   * @since 1.0.0
-   */
-  public static final class StackChainNode<T> {
-    /**
-     * Stack item value saved by the node. Must not be null.
-     */
-    private final MiStackItem<T> item;
-    /**
-     * Previous node in the stack (upper element).
-     */
-    private StackChainNode<T> prev;
-    /**
-     * Next node in the stack (underlying element).
-     */
-    private StackChainNode<T> next;
-
-    public StackChainNode(final MiStackItem<T> item) {
-      this.item = requireNonNull(item);
-    }
-
-    public StackChainNode<T> getPrev() {
-      return this.prev;
-    }
-
-    public void setPrev(final StackChainNode<T> prev) {
-      this.prev = prev;
-    }
-
-    public StackChainNode<T> getNext() {
-      return this.next;
-    }
-
-    public void setNext(final StackChainNode<T> next) {
-      this.next = next;
-    }
-
-    public MiStackItem<T> getItem() {
-      return this.item;
-    }
-
-    public StackChainNode<T> remove() {
-      if (this.prev != null) {
-        this.prev.next = this.next;
-      }
-      if (this.next != null) {
-        this.next.prev = this.prev;
-      }
-      var nextNode = this.next;
-      this.next = null;
-      this.prev = null;
-      return nextNode;
-    }
-
-  }
 }
