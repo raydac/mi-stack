@@ -46,16 +46,9 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
     return this.list;
   }
 
-  /**
-   * Assert that the stack is not closed yet.
-   *
-   * @throws IllegalStateException if stack is closed
-   * @since 1.0.0
-   */
-  protected void assertNotClosed() {
-    if (this.closed) {
-      throw new IllegalStateException("Stack '" + this.name + "' is closed");
-    }
+  @Override
+  public Predicate<MiStackItem<T>> forAll() {
+    return this.all;
   }
 
   @Override
@@ -71,8 +64,65 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   }
 
   @Override
-  public Predicate<MiStackItem<T>> forAll() {
-    return this.all;
+  public Iterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
+                                           final Predicate<MiStackItem<T>> takeWhile) {
+
+    var listIterator = this.makeItemIterator(this.list);
+    return new Iterator<>() {
+
+      private boolean completed = false;
+      private MiStackItem<T> foundItem = null;
+
+      @Override
+      public boolean hasNext() {
+        assertNotClosed();
+        if (this.foundItem == null) {
+          this.foundItem = findNext();
+        }
+        return this.foundItem != null;
+      }
+
+      private MiStackItem<T> findNext() {
+        assertNotClosed();
+        if (this.completed) {
+          return null;
+        }
+        MiStackItem<T> result = null;
+        while (result == null && listIterator.hasNext()) {
+          result = listIterator.next();
+          if (predicate.test(result)) {
+            if (!takeWhile.test(result)) {
+              result = null;
+              this.completed = true;
+              break;
+            }
+          } else {
+            result = null;
+          }
+        }
+        return result;
+      }
+
+      @Override
+      public MiStackItem<T> next() {
+        assertNotClosed();
+        if (this.foundItem == null) {
+          this.foundItem = this.findNext();
+          if (this.foundItem == null) {
+            throw new NoSuchElementException();
+          }
+        }
+        var result = this.foundItem;
+        this.foundItem = null;
+        return result;
+      }
+
+      @Override
+      public void remove() {
+        assertNotClosed();
+        listIterator.remove();
+      }
+    };
   }
 
   @Override
@@ -133,77 +183,6 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
     this.afterClear();
   }
 
-  /**
-   * Make iterator for stack items in appropriate order for stack.
-   *
-   * @param list list to be sourced for the iterator, must not be null
-   * @return created iterator for the list, must not be null
-   * @since 1.0.0
-   */
-  protected abstract Iterator<MiStackItem<T>> makeItemIterator(final List<MiStackItem<T>> list);
-
-  @Override
-  public Iterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                           final Predicate<MiStackItem<T>> takeWhile) {
-
-    var listIterator = this.makeItemIterator(this.list);
-    return new Iterator<>() {
-
-      private boolean completed = false;
-      private MiStackItem<T> foundItem = null;
-
-      private MiStackItem<T> findNext() {
-        assertNotClosed();
-        if (this.completed) {
-          return null;
-        }
-        MiStackItem<T> result = null;
-        while (result == null && listIterator.hasNext()) {
-          result = listIterator.next();
-          if (predicate.test(result)) {
-            if (!takeWhile.test(result)) {
-              result = null;
-              this.completed = true;
-              break;
-            }
-          } else {
-            result = null;
-          }
-        }
-        return result;
-      }
-
-      @Override
-      public boolean hasNext() {
-        assertNotClosed();
-        if (this.foundItem == null) {
-          this.foundItem = findNext();
-        }
-        return this.foundItem != null;
-      }
-
-      @Override
-      public MiStackItem<T> next() {
-        assertNotClosed();
-        if (this.foundItem == null) {
-          this.foundItem = this.findNext();
-          if (this.foundItem == null) {
-            throw new NoSuchElementException();
-          }
-        }
-        var result = this.foundItem;
-        this.foundItem = null;
-        return result;
-      }
-
-      @Override
-      public void remove() {
-        assertNotClosed();
-        listIterator.remove();
-      }
-    };
-  }
-
   @Override
   public boolean isClosed() {
     return this.closed;
@@ -257,12 +236,33 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   }
 
   /**
+   * Make iterator for stack items in appropriate order for stack.
+   *
+   * @param list list to be sourced for the iterator, must not be null
+   * @return created iterator for the list, must not be null
+   * @since 1.0.0
+   */
+  protected abstract Iterator<MiStackItem<T>> makeItemIterator(final List<MiStackItem<T>> list);
+
+  /**
    * Method is called after clear operations. Allow for instance to trim collection.
    *
    * @since 1.0.0
    */
   protected void afterClear() {
 
+  }
+
+  /**
+   * Assert that the stack is not closed yet.
+   *
+   * @throws IllegalStateException if stack is closed
+   * @since 1.0.0
+   */
+  protected void assertNotClosed() {
+    if (this.closed) {
+      throw new IllegalStateException("Stack '" + this.name + "' is closed");
+    }
   }
 
 }

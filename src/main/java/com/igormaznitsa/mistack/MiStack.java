@@ -74,30 +74,12 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   }
 
   /**
-   * Get predicate matches for all items in the stack.
-   *
-   * @return predicate matches for all items in the stack, must not be null.
-   * @since 1.0.0
-   */
-  Predicate<MiStackItem<T>> forAll();
-
-  /**
    * Get stack name.
    *
    * @return the stack name, it can't be null
    * @since 1.0.0
    */
   String getName();
-
-  /**
-   * Push single element on the stack.
-   *
-   * @param item element to be pushed on the stack, must not be null.
-   * @return the stack instance
-   * @throws IllegalStateException if stack is closed
-   * @since 1.0.0
-   */
-  MiStack<T> push(MiStackItem<T> item);
 
   /**
    * Push multiple elements on the stack.
@@ -113,6 +95,16 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
     }
     return this;
   }
+
+  /**
+   * Push single element on the stack.
+   *
+   * @param item element to be pushed on the stack, must not be null.
+   * @return the stack instance
+   * @throws IllegalStateException if stack is closed
+   * @since 1.0.0
+   */
+  MiStack<T> push(MiStackItem<T> item);
 
   /**
    * Pop the first element from the stack which meet predicate condition.
@@ -189,6 +181,17 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   }
 
   /**
+   * Make stream of all elements on the stack.
+   *
+   * @return stream with all stacked elements in their order on the stack, must not be null.
+   * @throws IllegalStateException if stack is closed
+   * @since 1.0.0
+   */
+  default Stream<MiStackItem<T>> stream() {
+    return this.stream(this.forAll(), this.forAll());
+  }
+
+  /**
    * Make iterator for stack elements which meet predicate with possibility to stop iteration by predicate.
    *
    * @param predicate condition for elements, must not be null.
@@ -201,16 +204,12 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
                                     Predicate<MiStackItem<T>> takeWhile);
 
   /**
-   * Get stream of stack items meet predicate.
+   * Get predicate matches for all items in the stack.
    *
-   * @param predicate condition for elements, must not be null.
-   * @return created stream of all stacked elements meet predicate in their stack order, must not be null.
-   * @throws IllegalStateException if stack is closed
+   * @return predicate matches for all items in the stack, must not be null.
    * @since 1.0.0
    */
-  default Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate) {
-    return this.stream(predicate, this.forAll());
-  }
+  Predicate<MiStackItem<T>> forAll();
 
   /**
    * Get stream of stack items meet predicate.
@@ -225,17 +224,6 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
                                         Predicate<MiStackItem<T>> takeWhile) {
     return StreamSupport.stream(
         spliteratorUnknownSize(this.iterator(predicate, takeWhile), ORDERED), false);
-  }
-
-  /**
-   * Make stream of all elements on the stack.
-   *
-   * @return stream with all stacked elements in their order on the stack, must not be null.
-   * @throws IllegalStateException if stack is closed
-   * @since 1.0.0
-   */
-  default Stream<MiStackItem<T>> stream() {
-    return this.stream(this.forAll(), this.forAll());
   }
 
   /**
@@ -266,6 +254,18 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    */
   default long size(Predicate<MiStackItem<T>> predicate) {
     return this.stream(predicate).count();
+  }
+
+  /**
+   * Get stream of stack items meet predicate.
+   *
+   * @param predicate condition for elements, must not be null.
+   * @return created stream of all stacked elements meet predicate in their stack order, must not be null.
+   * @throws IllegalStateException if stack is closed
+   * @since 1.0.0
+   */
+  default Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate) {
+    return this.stream(predicate, this.forAll());
   }
 
   long size();

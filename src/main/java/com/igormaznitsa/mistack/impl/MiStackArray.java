@@ -12,25 +12,68 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+/**
+ * Implementation of thread-unsafe Mi-Stack based on internal array of objects (like ArrayList).
+ * Array can be either fixed size or dynamically growing.
+ *
+ * @param <T> type of item saved in the stack.
+ * @since 1.0.0
+ */
 public class MiStackArray<T> implements MiStack<T> {
 
-  private static final int CAPACITY_STEP = 16;
-  private final boolean dynamic;
+  public static final int CAPACITY_STEP = 16;
+  /**
+   * Flag shows that array can change its size for content.
+   */
+  protected final boolean dynamic;
   private final String name;
-  private Object[] array;
-  private int pointer;
-  private boolean closed;
+  /**
+   * Current array containing stack items.
+   */
+  protected Object[] array;
+  protected int pointer;
+  /**
+   * Flag shows that stack is closed.
+   */
+  protected boolean closed;
 
-  private int elementCounter;
+  /**
+   * Counter shows how many elements on stack.
+   */
+  protected int elementCounter;
 
+  /**
+   * Default constructor, dynamic one will be created with initial capacity in one capacity step,
+   * as name will be used random UUID text representation.
+   *
+   * @since 1.0.0
+   */
   public MiStackArray() {
     this(UUID.randomUUID().toString());
   }
 
+  /**
+   * Constructor allows to provide name for new stack, dynamic one will be created with
+   * initial capacity in one capacity step, as name will be used random UUID text representation.
+   *
+   * @param name text identifier of the stack, must not be null
+   * @since 1.0.0
+   */
   public MiStackArray(final String name) {
     this(name, CAPACITY_STEP, true);
   }
 
+  /**
+   * Constructor for new stack. It allows to define all main options.
+   *
+   * @param name     text identifier of the stack, must not be null
+   * @param capacity initial capacity for internal array, it must be greater tan zero
+   * @param dynamic  flag shows that internal array should be growing if its size is not
+   *                 enough or too big for saved elements.
+   * @throws IllegalArgumentException for inappropriate capacity value
+   * @see #CAPACITY_STEP
+   * @since 1.0.0
+   */
   public MiStackArray(final String name, final int capacity, final boolean dynamic) {
     if (capacity <= 0) {
       throw new IllegalArgumentException("Capacity can't be less or equals zero: " + capacity);
@@ -40,10 +83,6 @@ public class MiStackArray<T> implements MiStack<T> {
     this.elementCounter = 0;
     this.name = requireNonNull(name);
     this.dynamic = dynamic;
-  }
-
-  public boolean isDynamic() {
-    return this.dynamic;
   }
 
   @Override
@@ -56,12 +95,16 @@ public class MiStackArray<T> implements MiStack<T> {
     return this.name;
   }
 
-  private void assertNotClosed() {
-    if (this.closed) {
-      throw new IllegalStateException("Stack already closed");
-    }
-  }
-
+  /**
+   * Push single element on the stack.
+   *
+   * @param item element to be pushed on the stack, must not be null.
+   * @return the stack instance
+   * @throws IllegalStateException    if stack is closed
+   * @throws MiStackOverflowException if stack is not dynamic one and there is no space for new element.
+   * @see #push(MiStackItem[])
+   * @since 1.0.0
+   */
   @Override
   public MiStack<T> push(final MiStackItem<T> item) {
     this.assertNotClosed();
@@ -76,6 +119,35 @@ public class MiStackArray<T> implements MiStack<T> {
     this.array[this.pointer++] = requireNonNull(item);
     this.elementCounter++;
     return this;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public void clear(final Predicate<MiStackItem<T>> predicate) {
+    this.assertNotClosed();
+    int index = this.pointer - 1;
+    while (index >= 0) {
+      final MiStackItem<T> item = (MiStackItem<T>) this.array[index];
+      if (item != null && predicate.test(item)) {
+        this.array[index] = null;
+        this.elementCounter--;
+      }
+      index--;
+    }
+    if (this.isDynamic()) {
+      this.tryDynamicTrim();
+    }
+    tryPack();
+  }
+
+  private void assertNotClosed() {
+    if (this.closed) {
+      throw new IllegalStateException("Stack already closed");
+    }
+  }
+
+  public boolean isDynamic() {
+    return this.dynamic;
   }
 
   @Override
@@ -195,91 +267,12 @@ public class MiStackArray<T> implements MiStack<T> {
       while (this.pointer > 0 && this.array[this.pointer - 1] == null) {
         this.pointer--;
       }
+
+      if (this.dynamic) {
+        this.array =
+            Arrays.copyOf(this.array, ((this.pointer / CAPACITY_STEP) + 1) * CAPACITY_STEP);
+      }
     }
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public void clear(final Predicate<MiStackItem<T>> predicate) {
-    this.assertNotClosed();
-    int index = this.pointer - 1;
-    while (index >= 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) this.array[index];
-      if (item != null && predicate.test(item)) {
-        this.array[index] = null;
-        this.elementCounter--;
-      }
-      index--;
-    }
-    if (this.isDynamic()) {
-      this.tryDynamicTrim();
-    }
-    tryPack();
-  }
-
-  @Override
-  @SuppressWarnings("unchecked")
-  public Iterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                           final Predicate<MiStackItem<T>> takeWhile) {
-    this.assertNotClosed();
-
-    return new Iterator<MiStackItem<T>>() {
-      private boolean completed;
-      private int indexNext = this.findNextIndex(pointer - 1);
-      private int removeIndex = -1;
-
-      int findNextIndex(final int since) {
-        if (this.completed) {
-          return -1;
-        }
-        int foundIndex = -1;
-        int index = since;
-        while (!completed && index >= 0) {
-          final MiStackItem<T> value = (MiStackItem<T>) array[index];
-          if (value != null && predicate.test(value)) {
-            if (takeWhile.test(value)) {
-              foundIndex = index;
-              break;
-            } else {
-              this.completed = true;
-            }
-          }
-          index--;
-        }
-        return foundIndex;
-      }
-
-      @Override
-      public boolean hasNext() {
-        assertNotClosed();
-        return this.indexNext >= 0;
-      }
-
-      @Override
-      @SuppressWarnings("unchecked")
-      public MiStackItem<T> next() {
-        assertNotClosed();
-        if (this.completed || this.indexNext < 0) {
-          throw new NoSuchElementException();
-        } else {
-          this.removeIndex = this.indexNext;
-          this.indexNext = this.findNextIndex(this.indexNext - 1);
-          return (MiStackItem<T>) array[this.removeIndex];
-        }
-      }
-
-      @Override
-      public void remove() {
-        assertNotClosed();
-        if (this.completed || this.removeIndex < 0) {
-          throw new IllegalStateException();
-        } else {
-          array[this.removeIndex] = null;
-          elementCounter--;
-          this.removeIndex = -1;
-        }
-      }
-    };
   }
 
   @Override
@@ -307,24 +300,96 @@ public class MiStackArray<T> implements MiStack<T> {
   @Override
   public long size() {
     this.assertNotClosed();
-    this.tryPack();
     return this.elementCounter;
   }
 
   @Override
   public void close() {
-    if (this.closed) {
-      throw new IllegalStateException("Stack already closed");
-    } else {
-      this.elementCounter = 0;
-      this.closed = true;
-      this.pointer = 0;
-      this.array = new Object[0];
-    }
+    this.assertNotClosed();
+    this.elementCounter = 0;
+    this.closed = true;
+    this.pointer = 0;
+    this.array = new Object[0];
   }
 
   @Override
   public boolean isClosed() {
     return this.closed;
+  }
+
+  @Override
+  @SuppressWarnings("unchecked")
+  public Iterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
+                                           final Predicate<MiStackItem<T>> takeWhile) {
+    this.assertNotClosed();
+
+    return new Iterator<MiStackItem<T>>() {
+      private boolean completed;
+      private int indexNext = this.findNextIndex(pointer - 1);
+      private int removeIndex = -1;
+
+      @Override
+      public boolean hasNext() {
+        assertNotClosed();
+        return this.indexNext >= 0;
+      }
+
+      @Override
+      @SuppressWarnings("unchecked")
+      public MiStackItem<T> next() {
+        assertNotClosed();
+        if (this.completed || this.indexNext < 0) {
+          throw new NoSuchElementException();
+        } else {
+          this.removeIndex = this.indexNext;
+          this.indexNext = this.findNextIndex(this.indexNext - 1);
+          return (MiStackItem<T>) array[this.removeIndex];
+        }
+      }
+
+      int findNextIndex(final int since) {
+        if (this.completed) {
+          return -1;
+        }
+        int foundIndex = -1;
+        int index = since;
+        while (!completed && index >= 0) {
+          final MiStackItem<T> value = (MiStackItem<T>) array[index];
+          if (value != null && predicate.test(value)) {
+            if (takeWhile.test(value)) {
+              foundIndex = index;
+              break;
+            } else {
+              this.completed = true;
+            }
+          }
+          index--;
+        }
+        return foundIndex;
+      }
+
+      @Override
+      public void remove() {
+        assertNotClosed();
+        if (this.completed || this.removeIndex < 0) {
+          throw new IllegalStateException();
+        } else {
+          array[this.removeIndex] = null;
+          elementCounter--;
+          this.removeIndex = -1;
+        }
+      }
+    };
+  }
+
+  /**
+   * Force check, optimization and internal trimming of array.
+   * If stack uses dynamic array then internal array can be changed, otherwise only pack.
+   *
+   * @since 1.0.0
+   */
+  public void trim() {
+    this.assertNotClosed();
+    this.tryPack();
   }
 }

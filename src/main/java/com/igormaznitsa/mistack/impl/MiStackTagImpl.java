@@ -25,17 +25,6 @@ public class MiStackTagImpl<T> implements MiStackTag {
   }
 
   /**
-   * Make string based tag from text representation of object.
-   *
-   * @param value object which will be used as tag.
-   * @return generated tag, can't be null.
-   * @since 1.0.0
-   */
-  public static <T> MiStackTag tagOf(final T value) {
-    return new MiStackTagImpl<T>(value);
-  }
-
-  /**
    * Make set of tags from array of objects.
    *
    * @param values array of objects to be converted into tags.
@@ -47,15 +36,15 @@ public class MiStackTagImpl<T> implements MiStackTag {
     return Stream.of(values).map(MiStackTagImpl::tagOf).collect(Collectors.toSet());
   }
 
-  @Override
-  public boolean equals(final Object that) {
-    if (this == that) {
-      return true;
-    }
-    if (that instanceof MiStackTagImpl) {
-      return this.value.equals(((MiStackTagImpl<?>) that).value);
-    }
-    return false;
+  /**
+   * Make string based tag from text representation of object.
+   *
+   * @param value object which will be used as tag.
+   * @return generated tag, can't be null.
+   * @since 1.0.0
+   */
+  public static <T> MiStackTag tagOf(final T value) {
+    return new MiStackTagImpl<T>(value);
   }
 
   /**
@@ -71,6 +60,17 @@ public class MiStackTagImpl<T> implements MiStackTag {
   @Override
   public int hashCode() {
     return this.value.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object that) {
+    if (this == that) {
+      return true;
+    }
+    if (that instanceof MiStackTagImpl) {
+      return this.value.equals(((MiStackTagImpl<?>) that).value);
+    }
+    return false;
   }
 
   @Override

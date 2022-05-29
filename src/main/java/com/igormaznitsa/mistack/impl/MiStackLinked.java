@@ -10,6 +10,12 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Predicate;
 
+/**
+ * Implementation of thread-unsafe Mi-Stack with linked chained items (like LinkedList).
+ *
+ * @param <T> type of item saved in the stack.
+ * @since 1.0.0
+ */
 public class MiStackLinked<T> implements MiStack<T> {
 
   private final String name;
@@ -17,10 +23,21 @@ public class MiStackLinked<T> implements MiStack<T> {
   private long size;
   private StackChainNode<T> head;
 
+  /**
+   * Default constructor, as name will be used random UUID text representation.
+   *
+   * @since 1.0.0
+   */
   public MiStackLinked() {
     this(UUID.randomUUID().toString());
   }
 
+  /**
+   * Constructor allows to provide name for the stack.
+   *
+   * @param name the name will be used as the stack name, must not be null but no any restrictions for emptiness.
+   * @since 1.0.0
+   */
   public MiStackLinked(final String name) {
     this.name = requireNonNull(name);
     this.head = null;
@@ -40,9 +57,9 @@ public class MiStackLinked<T> implements MiStack<T> {
   public MiStack<T> push(final MiStackItem<T> item) {
     this.assertNotClosed();
     var newNode = new StackChainNode<>(item);
-    newNode.bottom = this.head;
+    newNode.next = this.head;
     if (this.head != null) {
-      this.head.top = newNode;
+      this.head.prev = newNode;
     }
     this.head = newNode;
     this.size++;
@@ -67,10 +84,8 @@ public class MiStackLinked<T> implements MiStack<T> {
         } else {
           depth--;
         }
-        node = node.bottom;
-      } else {
-        node = node.bottom;
       }
+      node = node.next;
     }
     return Optional.ofNullable(result);
   }
@@ -94,10 +109,10 @@ public class MiStackLinked<T> implements MiStack<T> {
           this.size--;
         } else {
           depth--;
-          node = node.bottom;
+          node = node.next;
         }
       } else {
-        node = node.bottom;
+        node = node.next;
       }
     }
     return Optional.ofNullable(result);
@@ -125,14 +140,8 @@ public class MiStackLinked<T> implements MiStack<T> {
         }
         this.size--;
       } else {
-        node = node.bottom;
+        node = node.next;
       }
-    }
-  }
-
-  private void assertNotClosed() {
-    if (this.closed) {
-      throw new IllegalStateException("Already closed");
     }
   }
 
@@ -144,6 +153,24 @@ public class MiStackLinked<T> implements MiStack<T> {
       private boolean completed;
       private StackChainNode<T> nextPointer = findNext(head);
       private StackChainNode<T> pointerForRemove = null;
+
+      @Override
+      public boolean hasNext() {
+        assertNotClosed();
+        return !this.completed && this.nextPointer != null;
+      }
+
+      @Override
+      public MiStackItem<T> next() {
+        assertNotClosed();
+        if (this.completed || this.nextPointer == null) {
+          throw new NoSuchElementException();
+        } else {
+          this.pointerForRemove = this.nextPointer;
+          this.nextPointer = findNext(this.nextPointer.next);
+          return this.pointerForRemove.item;
+        }
+      }
 
       private StackChainNode<T> findNext(StackChainNode<T> pointer) {
         if (this.completed) {
@@ -160,27 +187,9 @@ public class MiStackLinked<T> implements MiStack<T> {
             }
             break;
           }
-          pointer = pointer.bottom;
+          pointer = pointer.next;
         }
         return result;
-      }
-
-      @Override
-      public boolean hasNext() {
-        assertNotClosed();
-        return !this.completed && this.nextPointer != null;
-      }
-
-      @Override
-      public MiStackItem<T> next() {
-        assertNotClosed();
-        if (this.completed || this.nextPointer == null) {
-          throw new NoSuchElementException();
-        } else {
-          this.pointerForRemove = this.nextPointer;
-          this.nextPointer = findNext(this.nextPointer.bottom);
-          return this.pointerForRemove.item;
-        }
       }
 
       @Override
@@ -215,7 +224,7 @@ public class MiStackLinked<T> implements MiStack<T> {
       if (predicate.test(node.item)) {
         return false;
       }
-      node = node.bottom;
+      node = node.next;
     }
     return true;
   }
@@ -239,25 +248,46 @@ public class MiStackLinked<T> implements MiStack<T> {
     return this.closed;
   }
 
-  private static final class StackChainNode<T> {
-    final MiStackItem<T> item;
-    private StackChainNode<T> top;
-    private StackChainNode<T> bottom;
+  private void assertNotClosed() {
+    if (this.closed) {
+      throw new IllegalStateException("Already closed");
+    }
+  }
 
-    StackChainNode(final MiStackItem<T> item) {
-      this.item = item;
+  /**
+   * Internal auxiliary class describing one stack item saved in heap.
+   *
+   * @param <T> type of value saved by stack item
+   * @since 1.0.0
+   */
+  private static final class StackChainNode<T> {
+    /**
+     * Stack item value saved by the node. Must not be null.
+     */
+    private final MiStackItem<T> item;
+    /**
+     * Previous node in the stack (upper element).
+     */
+    private StackChainNode<T> prev;
+    /**
+     * Next node in the stack (underlying element).
+     */
+    private StackChainNode<T> next;
+
+    private StackChainNode(final MiStackItem<T> item) {
+      this.item = requireNonNull(item);
     }
 
-    StackChainNode<T> remove() {
-      if (this.top != null) {
-        this.top.bottom = this.bottom;
+    private StackChainNode<T> remove() {
+      if (this.prev != null) {
+        this.prev.next = this.next;
       }
-      if (this.bottom != null) {
-        this.bottom.top = this.top;
+      if (this.next != null) {
+        this.next.prev = this.prev;
       }
-      var nextNode = this.bottom;
-      this.bottom = null;
-      this.top = null;
+      var nextNode = this.next;
+      this.next = null;
+      this.prev = null;
       return nextNode;
     }
 

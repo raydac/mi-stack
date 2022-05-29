@@ -19,10 +19,6 @@ import org.junit.jupiter.api.Test;
 
 abstract class AbstractMiStackTest {
 
-  abstract MiStack<String> makeStack();
-
-  abstract MiStack<String> makeStack(String name);
-
   @Test
   void testExceptionAfterClose() {
     MiStack<String> stack = this.makeStack();
@@ -53,6 +49,8 @@ abstract class AbstractMiStackTest {
     assertThrows(IllegalStateException.class, () -> stack.push(item1));
     assertThrows(IllegalStateException.class, () -> stack.pop(stack.forAll()));
   }
+
+  abstract MiStack<String> makeStack();
 
   @Test
   void testIteratorWithTakeWhile() {
@@ -123,6 +121,8 @@ abstract class AbstractMiStackTest {
       assertEquals("hello", named.getName());
     }
   }
+
+  abstract MiStack<String> makeStack(String name);
 
   @Test
   void testRemove() {
@@ -424,13 +424,18 @@ abstract class AbstractMiStackTest {
     }
 
     @Override
+    public Set<MiStackTag> getTags() {
+      return this.tags;
+    }
+
+    @Override
     public String getValue() {
       return this.value;
     }
 
     @Override
-    public Set<MiStackTag> getTags() {
-      return this.tags;
+    public int hashCode() {
+      return Objects.hash(value, tags);
     }
 
     @Override
@@ -443,11 +448,6 @@ abstract class AbstractMiStackTest {
       }
       final MiStackItemImpl that = (MiStackItemImpl) obj;
       return this.value.equals(that.value) && this.tags.equals(that.tags);
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(value, tags);
     }
 
     @Override
