@@ -1,6 +1,6 @@
 package com.igormaznitsa.mistack;
 
-import static com.igormaznitsa.mistack.AbstractMiStackTest.MiStackItemImpl.itemOf;
+import static com.igormaznitsa.mistack.impl.MiStackItemImpl.itemOf;
 import static com.igormaznitsa.mistack.impl.MiStackTagImpl.tagOf;
 import static com.igormaznitsa.mistack.impl.MiStackTagImpl.tagsOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
@@ -13,7 +13,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
@@ -412,49 +411,4 @@ abstract class AbstractMiStackTest {
     }
   }
 
-  static final class MiStackItemImpl implements MiStackItem<String> {
-    private final String value;
-    private final Set<MiStackTag> tags;
-
-    private MiStackItemImpl(final String value, final Set<MiStackTag> tags) {
-      this.value = Objects.requireNonNull(value);
-      this.tags = Objects.requireNonNull(tags);
-    }
-
-    public static MiStackItemImpl itemOf(final String value, final Set<MiStackTag> tags) {
-      return new MiStackItemImpl(value, tags);
-    }
-
-    @Override
-    public Set<MiStackTag> getTags() {
-      return this.tags;
-    }
-
-    @Override
-    public String getValue() {
-      return this.value;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(value, tags);
-    }
-
-    @Override
-    public boolean equals(final Object obj) {
-      if (this == obj) {
-        return true;
-      }
-      if (obj == null || getClass() != obj.getClass()) {
-        return false;
-      }
-      final MiStackItemImpl that = (MiStackItemImpl) obj;
-      return this.value.equals(that.value) && this.tags.equals(that.tags);
-    }
-
-    @Override
-    public String toString() {
-      return this.value + ' ' + this.tags;
-    }
-  }
 }

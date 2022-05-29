@@ -30,7 +30,7 @@ public class MiStackArray<T> implements MiStack<T> {
   /**
    * Current array containing stack items.
    */
-  protected Object[] array;
+  private Object[] stackItemArray;
   protected int pointer;
   /**
    * Flag shows that stack is closed.
@@ -53,17 +53,6 @@ public class MiStackArray<T> implements MiStack<T> {
   }
 
   /**
-   * Constructor allows to provide name for new stack, dynamic one will be created with
-   * initial capacity in one capacity step, as name will be used random UUID text representation.
-   *
-   * @param name text identifier of the stack, must not be null
-   * @since 1.0.0
-   */
-  public MiStackArray(final String name) {
-    this(name, CAPACITY_STEP, true);
-  }
-
-  /**
    * Constructor for new stack. It allows to define all main options.
    *
    * @param name     text identifier of the stack, must not be null
@@ -78,16 +67,11 @@ public class MiStackArray<T> implements MiStack<T> {
     if (capacity <= 0) {
       throw new IllegalArgumentException("Capacity can't be less or equals zero: " + capacity);
     }
-    this.array = new Object[capacity];
+    this.stackItemArray = new Object[capacity];
     this.pointer = 0;
     this.elementCounter = 0;
     this.name = requireNonNull(name);
     this.dynamic = dynamic;
-  }
-
-  @Override
-  public String getName() {
-    return this.name;
   }
 
   /**
@@ -104,16 +88,94 @@ public class MiStackArray<T> implements MiStack<T> {
   public MiStack<T> push(final MiStackItem<T> item) {
     this.assertNotClosed();
     this.makeDefragmentation(false);
-    if (this.pointer < this.array.length) {
+
+    var workArray = this.getItemArray();
+
+    if (this.pointer == workArray.length) {
       if (this.isDynamic()) {
-        this.array = Arrays.copyOf(this.array, this.array.length + CAPACITY_STEP);
+        workArray = Arrays.copyOf(workArray, workArray.length + CAPACITY_STEP);
+        this.setItemArray(workArray);
       } else {
-        throw new MiStackOverflowException(this);
+        throw new MiStackOverflowException(this,
+            String.format("Stack is non-dynamic one, array size is %d but index is %d",
+                workArray.length, this.pointer));
       }
     }
-    this.array[this.pointer++] = requireNonNull(item);
+    workArray[this.pointer++] = requireNonNull(item);
     this.elementCounter++;
     return this;
+  }
+
+  /**
+   * Constructor allows to provide name for new stack, dynamic one will be created with
+   * initial capacity in one capacity step, as name will be used random UUID text representation.
+   *
+   * @param name text identifier of the stack, must not be null
+   * @since 1.0.0
+   */
+  public MiStackArray(final String name) {
+    this(name, CAPACITY_STEP, true);
+  }
+
+  /**
+   * Try to make defragmentation of underlying array and remove null cells.
+   *
+   * @param trim if true then try trimming of the underlying array after defragmentation, do nothing if false.
+   * @since 1.0.0
+   */
+  protected void makeDefragmentation(final boolean trim) {
+    var workArray = this.getItemArray();
+
+    while (this.pointer > 0 && workArray[this.pointer - 1] == null) {
+      this.pointer--;
+    }
+    if (!this.dynamic || this.pointer - this.elementCounter > (CAPACITY_STEP << 1)) {
+      int indexNull = -1;
+      int processedCounter = 0;
+
+      for (int i = 0; i < workArray.length && processedCounter < this.elementCounter; i++) {
+        if (workArray[i] == null) {
+          if (indexNull < 0) {
+            indexNull = i;
+          }
+        } else {
+          processedCounter++;
+          if (indexNull >= 0) {
+            workArray[indexNull] = workArray[i];
+            workArray[i] = null;
+            indexNull++;
+            indexNull = workArray[indexNull] == null ? indexNull : -1;
+          }
+        }
+      }
+      while (this.pointer > 0 && workArray[this.pointer - 1] == null) {
+        this.pointer--;
+      }
+
+      if (trim) {
+        final int diff = workArray.length - this.pointer;
+        if (diff > (CAPACITY_STEP << 1)) {
+          workArray =
+              Arrays.copyOf(workArray, ((this.pointer / CAPACITY_STEP) + 1) * CAPACITY_STEP);
+          this.setItemArray(workArray);
+        }
+      }
+    }
+  }
+
+  @Override
+  public String getName() {
+    return this.name;
+  }
+
+  /**
+   * Get current object array.
+   *
+   * @return the array, must not be null.
+   * @since 1.0.0
+   */
+  protected Object[] getItemArray() {
+    return this.stackItemArray;
   }
 
   /**
@@ -129,42 +191,13 @@ public class MiStackArray<T> implements MiStack<T> {
   }
 
   /**
-   * Try to make defragmentation of underlying array and remove null cells.
+   * Set working object array.
    *
-   * @param trim if true then try trimming of the underlying array after defragmentation, do nothing if false.
+   * @param array the array to be used to keep stack items, must not be null.
    * @since 1.0.0
    */
-  protected void makeDefragmentation(final boolean trim) {
-    while (this.pointer > 0 && this.array[this.pointer - 1] == null) {
-      this.pointer--;
-    }
-    if (this.pointer - this.elementCounter > (CAPACITY_STEP << 1)) {
-      int indexNull = -1;
-      int processedCounter = 0;
-      for (int i = 0; i < this.array.length && processedCounter < this.elementCounter; i++) {
-        if (this.array[i] == null) {
-          if (indexNull < 0) {
-            indexNull = i;
-          }
-        } else {
-          processedCounter++;
-          if (indexNull >= 0) {
-            this.array[indexNull] = this.array[i];
-            this.array[i] = null;
-            indexNull++;
-            indexNull = this.array[indexNull] == null ? indexNull : -1;
-          }
-        }
-      }
-      while (this.pointer > 0 && this.array[this.pointer - 1] == null) {
-        this.pointer--;
-      }
-
-      if (trim) {
-        this.array =
-            Arrays.copyOf(this.array, ((this.pointer / CAPACITY_STEP) + 1) * CAPACITY_STEP);
-      }
-    }
+  protected void setItemArray(final Object[] array) {
+    this.stackItemArray = requireNonNull(array);
   }
 
   public boolean isDynamic() {
@@ -175,16 +208,17 @@ public class MiStackArray<T> implements MiStack<T> {
   @SuppressWarnings("unchecked")
   public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
     this.assertNotClosed();
+    var workArray = this.getItemArray();
     final int lastElement = this.pointer - 1;
     int index = lastElement;
     MiStackItem<T> result = null;
     while (result == null && index >= 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) this.array[index];
+      final MiStackItem<T> item = (MiStackItem<T>) workArray[index];
       if (item != null && predicate.test(item)) {
         if (index == lastElement) {
           this.pointer--;
         }
-        this.array[index] = null;
+        workArray[index] = null;
         this.elementCounter--;
         result = item;
       }
@@ -198,10 +232,11 @@ public class MiStackArray<T> implements MiStack<T> {
   @SuppressWarnings("unchecked")
   public Optional<MiStackItem<T>> peek(final Predicate<MiStackItem<T>> predicate, long depth) {
     this.assertNotClosed();
+    var workArray = this.getItemArray();
     int index = this.pointer;
     MiStackItem<T> result = null;
     while (result == null && index > 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) this.array[--index];
+      final MiStackItem<T> item = (MiStackItem<T>) workArray[--index];
       if (item != null && predicate.test(item)) {
         if (depth <= 0L) {
           result = item;
@@ -218,16 +253,17 @@ public class MiStackArray<T> implements MiStack<T> {
   @SuppressWarnings("unchecked")
   public Optional<MiStackItem<T>> remove(final Predicate<MiStackItem<T>> predicate, long depth) {
     this.assertNotClosed();
+    var workArray = this.getItemArray();
     int index = this.pointer;
     MiStackItem<T> result = null;
     while (result == null && index > 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) this.array[--index];
+      final MiStackItem<T> item = (MiStackItem<T>) workArray[--index];
       if (item != null && predicate.test(item)) {
         if (depth <= 0L) {
           if (index == this.pointer - 1) {
             this.pointer--;
           }
-          this.array[index] = null;
+          workArray[index] = null;
           this.elementCounter--;
           result = item;
         } else {
@@ -242,12 +278,13 @@ public class MiStackArray<T> implements MiStack<T> {
   @Override
   public void clear() {
     this.assertNotClosed();
+    var workArray = this.getItemArray();
     this.pointer = 0;
     this.elementCounter = 0;
-    if (this.array.length > (CAPACITY_STEP << 4)) {
-      this.array = new Object[CAPACITY_STEP];
+    if (workArray.length > (CAPACITY_STEP << 3)) {
+      this.setItemArray(new Object[CAPACITY_STEP]);
     } else {
-      Arrays.fill(this.array, null);
+      Arrays.fill(workArray, null);
     }
   }
 
@@ -255,11 +292,12 @@ public class MiStackArray<T> implements MiStack<T> {
   @Override
   public void clear(final Predicate<MiStackItem<T>> predicate) {
     this.assertNotClosed();
+    var workArray = this.getItemArray();
     int index = this.pointer - 1;
     while (index >= 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) this.array[index];
+      final MiStackItem<T> item = (MiStackItem<T>) workArray[index];
       if (item != null && predicate.test(item)) {
-        this.array[index] = null;
+        workArray[index] = null;
         this.elementCounter--;
       }
       index--;
@@ -277,6 +315,8 @@ public class MiStackArray<T> implements MiStack<T> {
   public Iterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
                                            final Predicate<MiStackItem<T>> takeWhile) {
     this.assertNotClosed();
+
+    var workArray = this.getItemArray();
 
     return new Iterator<MiStackItem<T>>() {
       private boolean completed;
@@ -298,7 +338,7 @@ public class MiStackArray<T> implements MiStack<T> {
         } else {
           this.removeIndex = this.indexNext;
           this.indexNext = this.findNextIndex(this.indexNext - 1);
-          return (MiStackItem<T>) array[this.removeIndex];
+          return (MiStackItem<T>) workArray[this.removeIndex];
         }
       }
 
@@ -309,7 +349,7 @@ public class MiStackArray<T> implements MiStack<T> {
         int foundIndex = -1;
         int index = since;
         while (!completed && index >= 0) {
-          final MiStackItem<T> value = (MiStackItem<T>) array[index];
+          final MiStackItem<T> value = (MiStackItem<T>) workArray[index];
           if (value != null && predicate.test(value)) {
             if (takeWhile.test(value)) {
               foundIndex = index;
@@ -329,7 +369,7 @@ public class MiStackArray<T> implements MiStack<T> {
         if (this.completed || this.removeIndex < 0) {
           throw new IllegalStateException();
         } else {
-          array[this.removeIndex] = null;
+          workArray[this.removeIndex] = null;
           elementCounter--;
           this.removeIndex = -1;
         }
@@ -347,9 +387,10 @@ public class MiStackArray<T> implements MiStack<T> {
   @Override
   public boolean isEmpty(final Predicate<MiStackItem<T>> predicate) {
     this.assertNotClosed();
+    var workArray = this.getItemArray();
     int index = this.pointer - 1;
     while (index >= 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) this.array[index--];
+      final MiStackItem<T> item = (MiStackItem<T>) workArray[index--];
       if (item != null && predicate.test(item)) {
         return false;
       }
@@ -370,7 +411,7 @@ public class MiStackArray<T> implements MiStack<T> {
     this.elementCounter = 0;
     this.closed = true;
     this.pointer = 0;
-    this.array = new Object[0];
+    this.setItemArray(new Object[0]);
   }
 
   @Override
