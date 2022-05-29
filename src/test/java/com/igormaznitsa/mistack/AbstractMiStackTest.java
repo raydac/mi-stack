@@ -40,7 +40,9 @@ abstract class AbstractMiStackTest {
     assertTrue(iterator.hasNext());
     assertSame(item3, iterator.next());
 
+    assertFalse(stack.isClosed());
     assertDoesNotThrow(stack::close);
+    assertTrue(stack.isClosed());
 
     assertThrows(IllegalStateException.class, iterator::hasNext);
     assertThrows(IllegalStateException.class, iterator::next);
