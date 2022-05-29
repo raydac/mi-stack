@@ -50,14 +50,6 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public MiStack<T> push(MiStackItem<T>... items) {
-    for (final MiStackItem<T> item : items) {
-      this.push(item);
-    }
-    return this;
-  }
-
-  @Override
   public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
     return this.remove(predicate, 0);
   }

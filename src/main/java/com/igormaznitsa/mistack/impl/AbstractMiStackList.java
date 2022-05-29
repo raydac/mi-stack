@@ -70,16 +70,6 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
     return this;
   }
 
-  @SafeVarargs
-  @Override
-  public final MiStack<T> push(final MiStackItem<T>... items) {
-    this.assertNotClosed();
-    for (final MiStackItem<T> s : items) {
-      this.list.add(requireNonNull(s));
-    }
-    return this;
-  }
-
   @Override
   public Predicate<MiStackItem<T>> forAll() {
     return this.all;

@@ -107,7 +107,12 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException if stack is closed
    * @since 1.0.0
    */
-  MiStack<T> push(MiStackItem<T>... items);
+  default MiStack<T> push(final MiStackItem<T>... items) {
+    for (final MiStackItem<T> item : items) {
+      this.push(item);
+    }
+    return this;
+  }
 
   /**
    * Pop the first element from the stack which meet predicate condition.
