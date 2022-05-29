@@ -86,11 +86,6 @@ public class MiStackArray<T> implements MiStack<T> {
   }
 
   @Override
-  public Predicate<MiStackItem<T>> forAll() {
-    return e -> true;
-  }
-
-  @Override
   public String getName() {
     return this.name;
   }
@@ -108,7 +103,7 @@ public class MiStackArray<T> implements MiStack<T> {
   @Override
   public MiStack<T> push(final MiStackItem<T> item) {
     this.assertNotClosed();
-    this.tryPack();
+    this.makeDefragmentation(false);
     if (this.pointer < this.array.length) {
       if (this.isDynamic()) {
         this.array = Arrays.copyOf(this.array, this.array.length + CAPACITY_STEP);
@@ -121,28 +116,54 @@ public class MiStackArray<T> implements MiStack<T> {
     return this;
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public void clear(final Predicate<MiStackItem<T>> predicate) {
-    this.assertNotClosed();
-    int index = this.pointer - 1;
-    while (index >= 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) this.array[index];
-      if (item != null && predicate.test(item)) {
-        this.array[index] = null;
-        this.elementCounter--;
-      }
-      index--;
-    }
-    if (this.isDynamic()) {
-      this.tryDynamicTrim();
-    }
-    tryPack();
-  }
-
-  private void assertNotClosed() {
+  /**
+   * Check that the stack is not closed.
+   *
+   * @throws IllegalStateException thrown if stack is already closed
+   * @since 1.0.0
+   */
+  protected void assertNotClosed() {
     if (this.closed) {
       throw new IllegalStateException("Stack already closed");
+    }
+  }
+
+  /**
+   * Try to make defragmentation of underlying array and remove null cells.
+   *
+   * @param trim if true then try trimming of the underlying array after defragmentation, do nothing if false.
+   * @since 1.0.0
+   */
+  protected void makeDefragmentation(final boolean trim) {
+    while (this.pointer > 0 && this.array[this.pointer - 1] == null) {
+      this.pointer--;
+    }
+    if (this.pointer - this.elementCounter > (CAPACITY_STEP << 1)) {
+      int indexNull = -1;
+      int processedCounter = 0;
+      for (int i = 0; i < this.array.length && processedCounter < this.elementCounter; i++) {
+        if (this.array[i] == null) {
+          if (indexNull < 0) {
+            indexNull = i;
+          }
+        } else {
+          processedCounter++;
+          if (indexNull >= 0) {
+            this.array[indexNull] = this.array[i];
+            this.array[i] = null;
+            indexNull++;
+            indexNull = this.array[indexNull] == null ? indexNull : -1;
+          }
+        }
+      }
+      while (this.pointer > 0 && this.array[this.pointer - 1] == null) {
+        this.pointer--;
+      }
+
+      if (trim) {
+        this.array =
+            Arrays.copyOf(this.array, ((this.pointer / CAPACITY_STEP) + 1) * CAPACITY_STEP);
+      }
     }
   }
 
@@ -169,10 +190,7 @@ public class MiStackArray<T> implements MiStack<T> {
       }
       index--;
     }
-    if (this.dynamic) {
-      this.tryDynamicTrim();
-    }
-    this.tryPack();
+    this.makeDefragmentation(this.dynamic);
     return Optional.ofNullable(result);
   }
 
@@ -192,7 +210,7 @@ public class MiStackArray<T> implements MiStack<T> {
         }
       }
     }
-    this.tryPack();
+    this.makeDefragmentation(this.dynamic);
     return Optional.ofNullable(result);
   }
 
@@ -217,10 +235,7 @@ public class MiStackArray<T> implements MiStack<T> {
         }
       }
     }
-    if (this.dynamic) {
-      this.tryDynamicTrim();
-    }
-    this.tryPack();
+    this.makeDefragmentation(this.dynamic);
     return Optional.ofNullable(result);
   }
 
@@ -229,92 +244,32 @@ public class MiStackArray<T> implements MiStack<T> {
     this.assertNotClosed();
     this.pointer = 0;
     this.elementCounter = 0;
-    if (this.dynamic) {
-      this.tryDynamicTrim();
+    if (this.array.length > (CAPACITY_STEP << 4)) {
+      this.array = new Object[CAPACITY_STEP];
+    } else {
+      Arrays.fill(this.array, null);
     }
-    Arrays.fill(this.array, null);
-  }
-
-  private void tryDynamicTrim() {
-    final int delta = this.array.length - this.pointer;
-    if (delta > (CAPACITY_STEP << 1)) {
-      this.array = Arrays.copyOf(this.array, this.array.length - CAPACITY_STEP);
-    }
-  }
-
-  private void tryPack() {
-    while (this.pointer > 0 && this.array[this.pointer - 1] == null) {
-      this.pointer--;
-    }
-    if (this.pointer - this.elementCounter > (CAPACITY_STEP << 1)) {
-      int indexNull = -1;
-      int processedCounter = 0;
-      for (int i = 0; i < this.array.length && processedCounter < this.elementCounter; i++) {
-        if (this.array[i] == null) {
-          if (indexNull < 0) {
-            indexNull = i;
-          }
-        } else {
-          processedCounter++;
-          if (indexNull >= 0) {
-            this.array[indexNull] = this.array[i];
-            this.array[i] = null;
-            indexNull++;
-            indexNull = this.array[indexNull] == null ? indexNull : -1;
-          }
-        }
-      }
-      while (this.pointer > 0 && this.array[this.pointer - 1] == null) {
-        this.pointer--;
-      }
-
-      if (this.dynamic) {
-        this.array =
-            Arrays.copyOf(this.array, ((this.pointer / CAPACITY_STEP) + 1) * CAPACITY_STEP);
-      }
-    }
-  }
-
-  @Override
-  public boolean isEmpty() {
-    this.assertNotClosed();
-    this.tryPack();
-    return this.elementCounter == 0;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public boolean isEmpty(final Predicate<MiStackItem<T>> predicate) {
+  public void clear(final Predicate<MiStackItem<T>> predicate) {
     this.assertNotClosed();
     int index = this.pointer - 1;
     while (index >= 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) this.array[index--];
+      final MiStackItem<T> item = (MiStackItem<T>) this.array[index];
       if (item != null && predicate.test(item)) {
-        return false;
+        this.array[index] = null;
+        this.elementCounter--;
       }
+      index--;
     }
-    this.tryPack();
-    return true;
+    makeDefragmentation(this.dynamic);
   }
 
   @Override
-  public long size() {
-    this.assertNotClosed();
-    return this.elementCounter;
-  }
-
-  @Override
-  public void close() {
-    this.assertNotClosed();
-    this.elementCounter = 0;
-    this.closed = true;
-    this.pointer = 0;
-    this.array = new Object[0];
-  }
-
-  @Override
-  public boolean isClosed() {
-    return this.closed;
+  public Predicate<MiStackItem<T>> forAll() {
+    return e -> true;
   }
 
   @Override
@@ -382,6 +337,47 @@ public class MiStackArray<T> implements MiStack<T> {
     };
   }
 
+  @Override
+  public boolean isEmpty() {
+    this.assertNotClosed();
+    return this.elementCounter == 0;
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public boolean isEmpty(final Predicate<MiStackItem<T>> predicate) {
+    this.assertNotClosed();
+    int index = this.pointer - 1;
+    while (index >= 0) {
+      final MiStackItem<T> item = (MiStackItem<T>) this.array[index--];
+      if (item != null && predicate.test(item)) {
+        return false;
+      }
+    }
+    this.makeDefragmentation(this.dynamic);
+    return true;
+  }
+
+  @Override
+  public long size() {
+    this.assertNotClosed();
+    return this.elementCounter;
+  }
+
+  @Override
+  public void close() {
+    this.assertNotClosed();
+    this.elementCounter = 0;
+    this.closed = true;
+    this.pointer = 0;
+    this.array = new Object[0];
+  }
+
+  @Override
+  public boolean isClosed() {
+    return this.closed;
+  }
+
   /**
    * Force check, optimization and internal trimming of array.
    * If stack uses dynamic array then internal array can be changed, otherwise only pack.
@@ -390,6 +386,6 @@ public class MiStackArray<T> implements MiStack<T> {
    */
   public void trim() {
     this.assertNotClosed();
-    this.tryPack();
+    this.makeDefragmentation(this.dynamic);
   }
 }

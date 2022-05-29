@@ -5,9 +5,10 @@ import static java.util.Objects.requireNonNull;
 import com.igormaznitsa.mistack.MiStackItem;
 
 /**
- * Internal auxiliary class describing one stack item saved in heap.
+ * Auxiliary class describing one stack item saved in heap.
  *
  * @param <T> type of value saved by stack item
+ * @see MiStackLinked
  * @since 1.0.0
  */
 public final class StackChainNode<T> {
@@ -28,26 +29,62 @@ public final class StackChainNode<T> {
     this.item = requireNonNull(item);
   }
 
-  public StackChainNode<T> getPrev() {
+  /**
+   * Get previous chained node if presented.
+   *
+   * @return previous chained mode if presented or null.
+   * @since 1.0.0
+   */
+  public StackChainNode<T> getPrevious() {
     return this.prev;
   }
 
-  public void setPrev(final StackChainNode<T> prev) {
-    this.prev = prev;
+  /**
+   * Set previous chained node.
+   *
+   * @param value node to be linked as previous chain node, can be null.
+   * @since 1.0.0
+   */
+  public void setPrevious(final StackChainNode<T> value) {
+    this.prev = value;
   }
 
+  /**
+   * Get next chained node if presented.
+   *
+   * @return next chained mode if presented or null.
+   * @since 1.0.0
+   */
   public StackChainNode<T> getNext() {
     return this.next;
   }
 
-  public void setNext(final StackChainNode<T> next) {
-    this.next = next;
+  /**
+   * Set next chained node.
+   *
+   * @param value node to be linked as next chain node, can be null.
+   * @since 1.0.0
+   */
+  public void setNext(final StackChainNode<T> value) {
+    this.next = value;
   }
 
+  /**
+   * Get value saved by the node.
+   *
+   * @return the value saved by the node, can't be null
+   * @since 1.0.0
+   */
   public MiStackItem<T> getItem() {
     return this.item;
   }
 
+  /**
+   * Cut the node from chain and relink previous and next nodes to each other.
+   *
+   * @return the next node if present, else null
+   * @since 1.0.0
+   */
   public StackChainNode<T> remove() {
     if (this.prev != null) {
       this.prev.next = this.next;

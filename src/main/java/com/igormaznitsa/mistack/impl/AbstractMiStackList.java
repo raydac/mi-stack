@@ -47,11 +47,6 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   }
 
   @Override
-  public Predicate<MiStackItem<T>> forAll() {
-    return this.all;
-  }
-
-  @Override
   public String getName() {
     return this.name;
   }
@@ -61,6 +56,69 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
     this.assertNotClosed();
     this.list.add(requireNonNull(item));
     return this;
+  }
+
+  @Override
+  public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
+    this.assertNotClosed();
+    var iterator = this.makeItemIterator(this.list);
+    MiStackItem<T> result = null;
+    while (iterator.hasNext() && result == null) {
+      result = iterator.next();
+      if (predicate.test(result)) {
+        iterator.remove();
+      } else {
+        result = null;
+      }
+    }
+    return Optional.of(result);
+  }
+
+  @Override
+  public Optional<MiStackItem<T>> peek(final Predicate<MiStackItem<T>> predicate,
+                                       final long depth) {
+    this.assertNotClosed();
+    return this.stream(predicate).skip(depth).findFirst();
+  }
+
+  @Override
+  public Optional<MiStackItem<T>> remove(final Predicate<MiStackItem<T>> predicate, long depth) {
+    this.assertNotClosed();
+    MiStackItem<T> result = null;
+    var iterator = this.iterator(predicate);
+    while (depth >= 0 && iterator.hasNext()) {
+      result = iterator.next();
+      if (depth == 0) {
+        depth = -1L;
+        iterator.remove();
+      } else {
+        depth--;
+      }
+    }
+    return Optional.ofNullable(result);
+  }
+
+  @Override
+  public void clear() {
+    this.assertNotClosed();
+    this.list.clear();
+    this.afterClear();
+  }
+
+  @Override
+  public void clear(final Predicate<MiStackItem<T>> predicate) {
+    this.assertNotClosed();
+    final Iterator<MiStackItem<T>> iterator = this.iterator(predicate);
+    while (iterator.hasNext()) {
+      iterator.next();
+      iterator.remove();
+    }
+    this.afterClear();
+  }
+
+  @Override
+  public Predicate<MiStackItem<T>> forAll() {
+    return this.all;
   }
 
   @Override
@@ -126,69 +184,6 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   }
 
   @Override
-  public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
-    this.assertNotClosed();
-    var iterator = this.makeItemIterator(this.list);
-    MiStackItem<T> result = null;
-    while (iterator.hasNext() && result == null) {
-      result = iterator.next();
-      if (predicate.test(result)) {
-        iterator.remove();
-      } else {
-        result = null;
-      }
-    }
-    return Optional.of(result);
-  }
-
-  @Override
-  public Optional<MiStackItem<T>> peek(final Predicate<MiStackItem<T>> predicate,
-                                       final long depth) {
-    this.assertNotClosed();
-    return this.stream(predicate).skip(depth).findFirst();
-  }
-
-  @Override
-  public Optional<MiStackItem<T>> remove(final Predicate<MiStackItem<T>> predicate, long depth) {
-    this.assertNotClosed();
-    MiStackItem<T> result = null;
-    var iterator = this.iterator(predicate);
-    while (depth >= 0 && iterator.hasNext()) {
-      result = iterator.next();
-      if (depth == 0) {
-        depth = -1L;
-        iterator.remove();
-      } else {
-        depth--;
-      }
-    }
-    return Optional.ofNullable(result);
-  }
-
-  @Override
-  public void clear() {
-    this.assertNotClosed();
-    this.list.clear();
-    this.afterClear();
-  }
-
-  @Override
-  public void clear(final Predicate<MiStackItem<T>> predicate) {
-    this.assertNotClosed();
-    final Iterator<MiStackItem<T>> iterator = this.iterator(predicate);
-    while (iterator.hasNext()) {
-      iterator.next();
-      iterator.remove();
-    }
-    this.afterClear();
-  }
-
-  @Override
-  public boolean isClosed() {
-    return this.closed;
-  }
-
-  @Override
   public boolean isEmpty() {
     this.assertNotClosed();
     return this.list.isEmpty();
@@ -233,6 +228,11 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
       this.list.clear();
       this.afterClear();
     }
+  }
+
+  @Override
+  public boolean isClosed() {
+    return this.closed;
   }
 
   /**

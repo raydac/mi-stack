@@ -60,7 +60,7 @@ public class MiStackLinked<T> implements MiStack<T> {
     var newNode = new StackChainNode<>(item);
     newNode.setNext(this.head);
     if (this.head != null) {
-      this.head.setPrev(newNode);
+      this.head.setPrevious(newNode);
     }
     this.head = newNode;
     this.size++;
@@ -147,6 +147,11 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
+  public Predicate<MiStackItem<T>> forAll() {
+    return e -> true;
+  }
+
+  @Override
   public Iterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
                                            final Predicate<MiStackItem<T>> takeWhile) {
 
@@ -212,11 +217,6 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public Predicate<MiStackItem<T>> forAll() {
-    return e -> true;
-  }
-
-  @Override
   public boolean isEmpty() {
     this.assertNotClosed();
     return this.size == 0L;
@@ -254,7 +254,13 @@ public class MiStackLinked<T> implements MiStack<T> {
     return this.closed;
   }
 
-  private void assertNotClosed() {
+  /**
+   * Check that the stack is not closed.
+   *
+   * @throws IllegalStateException thrown if stack is already closed
+   * @since 1.0.0
+   */
+  protected void assertNotClosed() {
     if (this.closed) {
       throw new IllegalStateException("Already closed");
     }
