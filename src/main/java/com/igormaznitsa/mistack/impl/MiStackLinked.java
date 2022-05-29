@@ -19,9 +19,15 @@ import java.util.function.Predicate;
 public class MiStackLinked<T> implements MiStack<T> {
 
   private final String name;
-  private boolean closed;
-  private long size;
-  private StackChainNode<T> head;
+  protected boolean closed;
+  /**
+   * Counter of elements on the stack.
+   */
+  protected long size;
+  /**
+   * First element on the stack, can be null if stack empty.
+   */
+  protected StackChainNode<T> head;
 
   /**
    * Default constructor, as name will be used random UUID text representation.
@@ -41,11 +47,6 @@ public class MiStackLinked<T> implements MiStack<T> {
   public MiStackLinked(final String name) {
     this.name = requireNonNull(name);
     this.head = null;
-  }
-
-  @Override
-  public Predicate<MiStackItem<T>> forAll() {
-    return e -> true;
   }
 
   @Override
@@ -211,6 +212,11 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
+  public Predicate<MiStackItem<T>> forAll() {
+    return e -> true;
+  }
+
+  @Override
   public boolean isEmpty() {
     this.assertNotClosed();
     return this.size == 0L;
@@ -260,7 +266,7 @@ public class MiStackLinked<T> implements MiStack<T> {
    * @param <T> type of value saved by stack item
    * @since 1.0.0
    */
-  private static final class StackChainNode<T> {
+  public static final class StackChainNode<T> {
     /**
      * Stack item value saved by the node. Must not be null.
      */
@@ -274,11 +280,31 @@ public class MiStackLinked<T> implements MiStack<T> {
      */
     private StackChainNode<T> next;
 
-    private StackChainNode(final MiStackItem<T> item) {
+    public StackChainNode(final MiStackItem<T> item) {
       this.item = requireNonNull(item);
     }
 
-    private StackChainNode<T> remove() {
+    public StackChainNode<T> getPrev() {
+      return this.prev;
+    }
+
+    public void setPrev(final StackChainNode<T> prev) {
+      this.prev = prev;
+    }
+
+    public StackChainNode<T> getNext() {
+      return this.next;
+    }
+
+    public void setNext(final StackChainNode<T> next) {
+      this.next = next;
+    }
+
+    public MiStackItem<T> getItem() {
+      return this.item;
+    }
+
+    public StackChainNode<T> remove() {
       if (this.prev != null) {
         this.prev.next = this.next;
       }
