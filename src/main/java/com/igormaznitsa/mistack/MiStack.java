@@ -268,8 +268,20 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
     return this.stream(predicate, this.forAll());
   }
 
+  /**
+   * Get number of all stack elements.
+   *
+   * @return number of all stack elements, 0 for empty stack.
+   * @since 1.0.0
+   */
   long size();
 
+  /**
+   * Close the stack and dispose its internal resources. After call the method.
+   *
+   * @throws IllegalStateException thrown if stack already closed.
+   * @since 1.0.0
+   */
   @Override
   void close();
 
