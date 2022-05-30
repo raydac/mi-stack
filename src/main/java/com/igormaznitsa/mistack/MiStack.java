@@ -1,5 +1,22 @@
+/*
+ * Copyright 2022 Igor Maznitsa
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.igormaznitsa.mistack;
 
+import static com.igormaznitsa.mistack.MiStackPredicates.itemsAll;
 import static java.util.Spliterator.ORDERED;
 import static java.util.Spliterators.spliteratorUnknownSize;
 
@@ -166,7 +183,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @since 1.0.0
    */
   default Iterator<MiStackItem<T>> iterator() {
-    return this.iterator(this.forAll());
+    return this.iterator(itemsAll());
   }
 
   /**
@@ -178,7 +195,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @since 1.0.0
    */
   default Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate) {
-    return this.iterator(predicate, this.forAll());
+    return this.iterator(predicate, itemsAll());
   }
 
   /**
@@ -189,7 +206,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @since 1.0.0
    */
   default Stream<MiStackItem<T>> stream() {
-    return this.stream(this.forAll(), this.forAll());
+    return this.stream(itemsAll(), itemsAll());
   }
 
   /**
@@ -207,14 +224,6 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
     return StreamSupport.stream(
         spliteratorUnknownSize(this.iterator(predicate, takeWhile), ORDERED), false);
   }
-
-  /**
-   * Get predicate matches for all items in the stack.
-   *
-   * @return predicate matches for all items in the stack, must not be null.
-   * @since 1.0.0
-   */
-  Predicate<MiStackItem<T>> forAll();
 
   /**
    * Make iterator for stack elements which meet predicate with possibility to stop
@@ -270,7 +279,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @since 1.0.0
    */
   default Stream<MiStackItem<T>> stream(Predicate<MiStackItem<T>> predicate) {
-    return this.stream(predicate, this.forAll());
+    return this.stream(predicate, itemsAll());
   }
 
   /**

@@ -1,5 +1,6 @@
 package com.igormaznitsa.mistack;
 
+import static com.igormaznitsa.mistack.MiStackPredicates.itemsAll;
 import static com.igormaznitsa.mistack.impl.MiStackItemImpl.itemOf;
 import static com.igormaznitsa.mistack.impl.MiStackTagImpl.tagOf;
 import static com.igormaznitsa.mistack.impl.MiStackTagImpl.tagsOf;
@@ -48,7 +49,7 @@ abstract class AbstractMiStackTest {
     assertThrows(IllegalStateException.class, iterator::remove);
     assertThrows(IllegalStateException.class, stack::close);
     assertThrows(IllegalStateException.class, () -> stack.push(item1));
-    assertThrows(IllegalStateException.class, () -> stack.pop(stack.forAll()));
+    assertThrows(IllegalStateException.class, () -> stack.pop(itemsAll()));
   }
 
   abstract MiStack<String> makeStack();
@@ -67,7 +68,7 @@ abstract class AbstractMiStackTest {
 
       stack.push(item1, item2, item3, item4);
 
-      var iterator = stack.iterator(stack.forAll(), x -> x != item2);
+      var iterator = stack.iterator(itemsAll(), x -> x != item2);
       assertTrue(iterator.hasNext());
       assertSame(item4, iterator.next());
       assertTrue(iterator.hasNext());
@@ -348,9 +349,9 @@ abstract class AbstractMiStackTest {
       assertSame(stack, stack.push(item));
 
       assertEquals(1, stack.size());
-      assertEquals(1, stack.size(stack.forAll()));
+      assertEquals(1, stack.size(itemsAll()));
 
-      var poppedItem = stack.pop(stack.forAll());
+      var poppedItem = stack.pop(itemsAll());
 
       assertSame(item, poppedItem.orElseThrow());
 
@@ -387,7 +388,7 @@ abstract class AbstractMiStackTest {
       assertSame(stack, stack.push(item1, item2, item3, item4));
 
       assertArrayEquals(new MiStackItem[] {item4, item3},
-          stack.stream(stack.forAll(), e -> e != item2).toArray());
+          stack.stream(itemsAll(), e -> e != item2).toArray());
     }
   }
 
