@@ -88,6 +88,23 @@ public class MiStackItemImpl<T> implements MiStackItem<T>, Serializable {
   }
 
   @Override
+  public int hashCode() {
+    return this.value.hashCode();
+  }
+
+  @Override
+  public boolean equals(final Object that) {
+    if (this == that) {
+      return true;
+    }
+    if (that instanceof MiStackItem) {
+      return this.tags.equals(((MiStackItem<?>) that).getTags()) &&
+          this.value.equals(((MiStackItem<?>) that).getValue());
+    }
+    return false;
+  }
+
+  @Override
   public String toString() {
     return "MiStackItem(" + this.value + ";" + this.tags + ')';
   }
