@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.mistack.exception;
 
 import com.igormaznitsa.mistack.MiStack;

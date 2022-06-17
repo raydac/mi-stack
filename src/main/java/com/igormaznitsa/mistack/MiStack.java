@@ -137,6 +137,18 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   }
 
   /**
+   * Assert that the stack is not closed.
+   *
+   * @throws IllegalStateException thrown if stack already closed.
+   * @since 1.0.0
+   */
+  default void assertNotClosed() {
+    if (this.isClosed()) {
+      throw new IllegalStateException("Stack " + this.getName() + " is already closed");
+    }
+  }
+
+  /**
    * Make iterator for stack elements which meet predicate with possibility to stop
    * iteration by predicate.
    *
@@ -149,6 +161,22 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    */
   Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate,
                                     Predicate<MiStackItem<T>> takeWhile);
+
+  /**
+   * Allows to get information that the stack is closed.
+   *
+   * @return true if the stack is closed, false otherwise.
+   * @since 1.0.0
+   */
+  boolean isClosed();
+
+  /**
+   * Get stack name.
+   *
+   * @return the stack name, it can't be null
+   * @since 1.0.0
+   */
+  String getName();
 
   /**
    * Peek element on the stack which meet predicate condition.
@@ -175,34 +203,6 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
     }
     return Optional.ofNullable(result);
   }
-
-  /**
-   * Assert that the stack is not closed.
-   *
-   * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
-   */
-  default void assertNotClosed() {
-    if (this.isClosed()) {
-      throw new IllegalStateException("Stack " + this.getName() + " is already closed");
-    }
-  }
-
-  /**
-   * Allows to get information that the stack is closed.
-   *
-   * @return true if the stack is closed, false otherwise.
-   * @since 1.0.0
-   */
-  boolean isClosed();
-
-  /**
-   * Get stack name.
-   *
-   * @return the stack name, it can't be null
-   * @since 1.0.0
-   */
-  String getName();
 
   /**
    * Find and remove element on the stack which meet predicate condition.

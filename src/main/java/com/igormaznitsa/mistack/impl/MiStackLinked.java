@@ -67,11 +67,6 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public String getName() {
-    return this.name;
-  }
-
-  @Override
   public MiStack<T> push(final MiStackItem<T> item) {
     this.assertNotClosed();
     var newNode = new StackChainNode<>(item);
@@ -87,33 +82,6 @@ public class MiStackLinked<T> implements MiStack<T> {
   @Override
   public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
     return this.remove(predicate, 0);
-  }
-
-  @Override
-  public void clear() {
-    this.assertNotClosed();
-    this.head = null;
-    this.size = 0L;
-  }
-
-  @Override
-  public void clear(final Predicate<MiStackItem<T>> predicate) {
-    this.assertNotClosed();
-    StackChainNode<T> node = this.head;
-    while (node != null) {
-      var nodeValue = node.getItem();
-      if (predicate.test(nodeValue)) {
-        if (node == this.head) {
-          this.head = node.remove();
-          node = this.head;
-        } else {
-          node = node.remove();
-        }
-        this.size--;
-      } else {
-        node = node.getNext();
-      }
-    }
   }
 
   @Override
@@ -185,9 +153,40 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public boolean isEmpty() {
+  public boolean isClosed() {
+    return this.closed;
+  }
+
+  @Override
+  public String getName() {
+    return this.name;
+  }
+
+  @Override
+  public void clear() {
     this.assertNotClosed();
-    return this.size == 0L;
+    this.head = null;
+    this.size = 0L;
+  }
+
+  @Override
+  public void clear(final Predicate<MiStackItem<T>> predicate) {
+    this.assertNotClosed();
+    StackChainNode<T> node = this.head;
+    while (node != null) {
+      var nodeValue = node.getItem();
+      if (predicate.test(nodeValue)) {
+        if (node == this.head) {
+          this.head = node.remove();
+          node = this.head;
+        } else {
+          node = node.remove();
+        }
+        this.size--;
+      } else {
+        node = node.getNext();
+      }
+    }
   }
 
   @Override
@@ -204,6 +203,12 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
+  public boolean isEmpty() {
+    this.assertNotClosed();
+    return this.size == 0L;
+  }
+
+  @Override
   public long size() {
     this.assertNotClosed();
     return this.size;
@@ -215,11 +220,6 @@ public class MiStackLinked<T> implements MiStack<T> {
     this.closed = true;
     this.head = null;
     this.size = 0L;
-  }
-
-  @Override
-  public boolean isClosed() {
-    return this.closed;
   }
 
 }
