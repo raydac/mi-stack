@@ -41,13 +41,21 @@ public class MiStackConcurrentTest extends AbstractMiStackTest {
       final Runnable monkey = () -> {
         final Set<MiStackTag> tag = MiStackTagImpl.tagsOf(Thread.currentThread().getName());
         assertEquals(0, stack.size(allTags(tag)));
-        IntStream.range(0, ELEMENTS).forEach(x -> stack.push(MiStackItemImpl.itemOf(x, tag)));
+        IntStream.range(0, ELEMENTS).forEach(x -> {
+          if (System.nanoTime() % 2 == 0L) {
+            Thread.yield();
+          }
+          stack.push(MiStackItemImpl.itemOf(x, tag));
+        });
         assertEquals(ELEMENTS, stack.size(allTags(tag)));
 
         var iterator = stack.iterator(allTags(tag));
         for (int i = ELEMENTS - 1; i >= 0; i--) {
           assertTrue(iterator.hasNext());
           assertEquals(i, iterator.next().getValue());
+          if (System.nanoTime() % 2 == 0L) {
+            Thread.yield();
+          }
           iterator.remove();
         }
         assertFalse(iterator.hasNext());
