@@ -325,7 +325,10 @@ public class MiStackArray<T> implements MiStack<T> {
 
       @Override
       public boolean hasNext() {
-        assertNotClosed();
+        if (isClosed()) {
+          this.indexNext = -1;
+          this.completed = true;
+        }
         return this.indexNext >= 0;
       }
 

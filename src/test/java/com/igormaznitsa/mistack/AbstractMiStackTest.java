@@ -44,7 +44,7 @@ abstract class AbstractMiStackTest {
     assertDoesNotThrow(stack::close);
     assertTrue(stack.isClosed());
 
-    assertThrows(IllegalStateException.class, iterator::hasNext);
+    assertFalse(iterator::hasNext);
     assertThrows(IllegalStateException.class, iterator::next);
     assertThrows(IllegalStateException.class, iterator::remove);
     assertThrows(IllegalStateException.class, stack::close);

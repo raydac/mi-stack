@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.igormaznitsa.mistack.impl.MiStackArray;
+import com.igormaznitsa.mistack.impl.MiStackConcurrent;
 import com.igormaznitsa.mistack.impl.MiStackItemImpl;
 import com.igormaznitsa.mistack.impl.MiStackTagImpl;
 import java.util.Set;
@@ -13,25 +13,25 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
-@Disabled
-public class MiStackConcurrentLinkedTest extends AbstractMiStackTest {
+public class MiStackConcurrentTest extends AbstractMiStackTest {
   @Override
   MiStack<String> makeStack() {
-    return new MiStackArray<>();
+    return new MiStackConcurrent<>();
   }
 
   @Override
   MiStack<String> makeStack(final String name) {
-    return new MiStackArray<>(name);
+    return new MiStackConcurrent<>(name);
   }
 
   @Test
-  public void testConcurrentStackUse() {
-    try (final MiStack<Integer> stack = new MiStackArray<>()) {
-      final int threads = 50;
+  public void testConcurrentUse() {
+    final int ELEMENTS = 500_000;
+
+    try (final MiStack<Integer> stack = new MiStackConcurrent<>()) {
+      final int threads = (Runtime.getRuntime().availableProcessors() + 1) * 2;
 
       var latch = new CountDownLatch(threads);
       var barrier = new CyclicBarrier(threads);
@@ -41,11 +41,11 @@ public class MiStackConcurrentLinkedTest extends AbstractMiStackTest {
       final Runnable monkey = () -> {
         final Set<MiStackTag> tag = MiStackTagImpl.tagsOf(Thread.currentThread().getName());
         assertEquals(0, stack.size(allTags(tag)));
-        IntStream.range(0, 1000).forEach(x -> stack.push(MiStackItemImpl.itemOf(x, tag)));
-        assertEquals(1000, stack.size(allTags(tag)));
+        IntStream.range(0, ELEMENTS).forEach(x -> stack.push(MiStackItemImpl.itemOf(x, tag)));
+        assertEquals(ELEMENTS, stack.size(allTags(tag)));
 
         var iterator = stack.iterator(allTags(tag));
-        for (int i = 999; i >= 0; i--) {
+        for (int i = ELEMENTS - 1; i >= 0; i--) {
           assertTrue(iterator.hasNext());
           assertEquals(i, iterator.next().getValue());
           iterator.remove();

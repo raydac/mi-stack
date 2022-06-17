@@ -126,6 +126,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @since 1.0.0
    */
   default Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
+    this.assertNotClosed();
     MiStackItem<T> result = null;
     var iterator = this.iterator(predicate, itemsAll());
     if (iterator.hasNext()) {

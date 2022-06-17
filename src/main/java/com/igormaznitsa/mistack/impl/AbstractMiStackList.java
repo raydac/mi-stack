@@ -144,7 +144,11 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
 
       @Override
       public boolean hasNext() {
-        assertNotClosed();
+        if (isClosed()) {
+          this.foundItem = null;
+          this.completed = true;
+          return false;
+        }
         if (this.foundItem == null) {
           this.foundItem = findNext();
         }

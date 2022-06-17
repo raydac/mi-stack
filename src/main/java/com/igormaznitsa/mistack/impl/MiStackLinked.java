@@ -127,7 +127,10 @@ public class MiStackLinked<T> implements MiStack<T> {
 
       @Override
       public boolean hasNext() {
-        assertNotClosed();
+        if (isClosed()) {
+          this.completed = true;
+          this.nextPointer = null;
+        }
         return !this.completed && this.nextPointer != null;
       }
 
