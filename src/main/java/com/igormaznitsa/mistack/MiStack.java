@@ -125,7 +125,29 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException thrown if stack already closed.
    * @since 1.0.0
    */
-  Optional<MiStackItem<T>> pop(Predicate<MiStackItem<T>> predicate);
+  default Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
+    MiStackItem<T> result = null;
+    var iterator = this.iterator(predicate, itemsAll());
+    if (iterator.hasNext()) {
+      result = iterator.next();
+      iterator.remove();
+    }
+    return Optional.ofNullable(result);
+  }
+
+  /**
+   * Make iterator for stack elements which meet predicate with possibility to stop
+   * iteration by predicate.
+   *
+   * @param predicate condition for elements, must not be null.
+   * @param takeWhile condition predicate to take next element if true, if false then iteration
+   *                  stopped, must not be null.
+   * @return created iterator, must not be null.
+   * @throws IllegalStateException thrown if stack already closed.
+   * @since 1.0.0
+   */
+  Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate,
+                                    Predicate<MiStackItem<T>> takeWhile);
 
   /**
    * Peek element on the stack which meet predicate condition.
@@ -137,7 +159,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException thrown if stack already closed.
    * @since 1.0.0
    */
-  default Optional<MiStackItem<T>> peek(Predicate<MiStackItem<T>> predicate, long depth) {
+  default Optional<MiStackItem<T>> peek(final Predicate<MiStackItem<T>> predicate, long depth) {
     this.assertNotClosed();
     MiStackItem<T> result = null;
     final Iterator<MiStackItem<T>> iterator = this.iterator(predicate, itemsAll());
@@ -166,20 +188,6 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   }
 
   /**
-   * Make iterator for stack elements which meet predicate with possibility to stop
-   * iteration by predicate.
-   *
-   * @param predicate condition for elements, must not be null.
-   * @param takeWhile condition predicate to take next element if true, if false then iteration
-   *                  stopped, must not be null.
-   * @return created iterator, must not be null.
-   * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
-   */
-  Iterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate,
-                                    Predicate<MiStackItem<T>> takeWhile);
-
-  /**
    * Allows to get information that the stack is closed.
    *
    * @return true if the stack is closed, false otherwise.
@@ -204,7 +212,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException thrown if stack already closed.
    * @since 1.0.0
    */
-  default Optional<MiStackItem<T>> remove(Predicate<MiStackItem<T>> predicate, long depth) {
+  default Optional<MiStackItem<T>> remove(final Predicate<MiStackItem<T>> predicate, long depth) {
     this.assertNotClosed();
     MiStackItem<T> result = null;
     final Iterator<MiStackItem<T>> iterator = this.iterator(predicate, itemsAll());

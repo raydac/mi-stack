@@ -90,53 +90,6 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public Optional<MiStackItem<T>> peek(final Predicate<MiStackItem<T>> predicate, long depth) {
-    this.assertNotClosed();
-    MiStackItem<T> result = null;
-    StackChainNode<T> node = this.head;
-    while (node != null && result == null) {
-      var nodeValue = node.getItem();
-      if (predicate.test(nodeValue)) {
-        if (depth <= 0L) {
-          result = nodeValue;
-        } else {
-          depth--;
-        }
-      }
-      node = node.getNext();
-    }
-    return Optional.ofNullable(result);
-  }
-
-  @Override
-  public Optional<MiStackItem<T>> remove(final Predicate<MiStackItem<T>> predicate, long depth) {
-    this.assertNotClosed();
-    MiStackItem<T> result = null;
-    StackChainNode<T> node = this.head;
-    while (node != null && result == null) {
-      var nodeValue = node.getItem();
-      if (predicate.test(nodeValue)) {
-        if (depth <= 0L) {
-          result = nodeValue;
-          if (node == this.head) {
-            this.head = node.remove();
-            node = this.head;
-          } else {
-            node = node.remove();
-          }
-          this.size--;
-        } else {
-          depth--;
-          node = node.getNext();
-        }
-      } else {
-        node = node.getNext();
-      }
-    }
-    return Optional.ofNullable(result);
-  }
-
-  @Override
   public void clear() {
     this.assertNotClosed();
     this.head = null;
