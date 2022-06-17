@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.igormaznitsa.mistack.impl.MiStackConcurrentLinked;
+import com.igormaznitsa.mistack.impl.MiStackArray;
 import com.igormaznitsa.mistack.impl.MiStackItemImpl;
 import com.igormaznitsa.mistack.impl.MiStackTagImpl;
 import java.util.Set;
@@ -13,22 +13,24 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.IntStream;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+@Disabled
 public class MiStackConcurrentLinkedTest extends AbstractMiStackTest {
   @Override
   MiStack<String> makeStack() {
-    return new MiStackConcurrentLinked<>();
+    return new MiStackArray<>();
   }
 
   @Override
   MiStack<String> makeStack(final String name) {
-    return new MiStackConcurrentLinked<>(name);
+    return new MiStackArray<>(name);
   }
 
   @Test
   public void testConcurrentStackUse() {
-    try (final MiStackConcurrentLinked<Integer> stack = new MiStackConcurrentLinked<>()) {
+    try (final MiStack<Integer> stack = new MiStackArray<>()) {
       final int threads = 50;
 
       var latch = new CountDownLatch(threads);

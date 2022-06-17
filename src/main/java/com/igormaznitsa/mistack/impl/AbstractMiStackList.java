@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
@@ -199,17 +200,6 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
     return this.list.isEmpty();
   }
 
-  @Override
-  public boolean isEmpty(final Predicate<MiStackItem<T>> predicate) {
-    this.assertNotClosed();
-    for (final MiStackItem<T> i : this.list) {
-      if (predicate.test(i)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
   /**
    * Find number of all elements on the stack.
    *
@@ -231,13 +221,10 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
    */
   @Override
   public void close() {
-    if (this.closed) {
-      this.assertNotClosed();
-    } else {
-      this.closed = true;
-      this.list.clear();
-      this.afterClear();
-    }
+    this.assertNotClosed();
+    this.closed = true;
+    this.list.clear();
+    this.afterClear();
   }
 
   @Override
@@ -261,18 +248,6 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
    */
   protected void afterClear() {
 
-  }
-
-  /**
-   * Assert that the stack is not closed yet.
-   *
-   * @throws IllegalStateException if stack is closed
-   * @since 1.0.0
-   */
-  protected void assertNotClosed() {
-    if (this.closed) {
-      throw new IllegalStateException("Stack '" + this.name + "' is closed");
-    }
   }
 
 }

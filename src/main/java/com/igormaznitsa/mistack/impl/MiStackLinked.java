@@ -266,16 +266,4 @@ public class MiStackLinked<T> implements MiStack<T> {
     return this.closed;
   }
 
-  /**
-   * Check that the stack is not closed.
-   *
-   * @throws IllegalStateException thrown if stack is already closed
-   * @since 1.0.0
-   */
-  protected void assertNotClosed() {
-    if (this.closed) {
-      throw new IllegalStateException("Already closed");
-    }
-  }
-
 }

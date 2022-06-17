@@ -196,18 +196,6 @@ public class MiStackArray<T> implements MiStack<T> {
   }
 
   /**
-   * Check that the stack is not closed.
-   *
-   * @throws IllegalStateException thrown if stack is already closed
-   * @since 1.0.0
-   */
-  protected void assertNotClosed() {
-    if (this.closed) {
-      throw new IllegalStateException("Stack already closed");
-    }
-  }
-
-  /**
    * Set working object array.
    *
    * @param array the array to be used to keep stack items, must not be null.
