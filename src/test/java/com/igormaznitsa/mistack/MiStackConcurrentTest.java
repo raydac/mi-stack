@@ -3,6 +3,7 @@ package com.igormaznitsa.mistack;
 import static com.igormaznitsa.mistack.MiStack.allTags;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.igormaznitsa.mistack.impl.MiStackConcurrent;
@@ -47,6 +48,10 @@ public class MiStackConcurrentTest extends AbstractMiStackTest {
           }
           stack.push(MiStackItemImpl.itemOf(x, tag));
         });
+
+        var aloneItem = MiStackItemImpl.itemOf(92837432, tag);
+        stack.push(aloneItem);
+        assertSame(aloneItem, stack.pop(allTags(tag)).orElseThrow());
 
         assertEquals(ELEMENTS, stack.size(allTags(tag)));
         assertTrue(stack.size() >= ELEMENTS);
