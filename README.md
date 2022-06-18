@@ -10,11 +10,7 @@
 
 Just abstract stack allows to mark its items by tags and get elements through either stream or iterator.
 
-# IMplementations
-
-## Thread safe
-
- - __MiStackConcurrent__, it uses as base _java.util.concurrent.ConcurrentLinkedDeque_.
+# IImplementations
 
 ## Thread unsafe
 
@@ -23,11 +19,14 @@ Just abstract stack allows to mark its items by tags and get elements through ei
  - __MiStackLinked__, it uses own internal implementation of linked list. 
  - __MiStackLinkedList__, based on java.util.LinkedList. 
 
-## Abstract classes
- - __AbstractMiStackList__, it allows build MiStack implementation around a _java.util.List_ collection.
+## Thread safe
 
-## Wrapper
- - __MiStackDeque__, it allows provide some _java.util.Deque_ collection to be used as base for MiStack
+ - __MiStackConcurrent__, it uses as base _java.util.concurrent.ConcurrentLinkedDeque_.
+
+## Abstract ones
+
+ - __AbstractMiStackList__, it allows build MiStack implementation around a _java.util.List_ collection.
+ - __AbstractMiStackDeque__, it allows build MiStack implementation around a _java.util.Deque_ collection.
 
 # Example
 

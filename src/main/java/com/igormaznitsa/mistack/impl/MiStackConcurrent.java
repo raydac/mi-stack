@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * @see ConcurrentLinkedDeque
  * @since 1.0.0
  */
-public class MiStackConcurrent<T> extends MiStackDeque<T> {
+public class MiStackConcurrent<T> extends AbstractMiStackDeque<T> {
 
   public MiStackConcurrent() {
     this(UUID.randomUUID().toString());

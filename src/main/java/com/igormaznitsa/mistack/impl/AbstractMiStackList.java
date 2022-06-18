@@ -28,14 +28,14 @@ import java.util.function.Predicate;
 
 
 /**
- * Internal base class for list based mi-stacks.
+ * Class allows to build MiStacks based on java.util.List collections.
  *
  * @param <T> type of values placed on stack
+ * @see java.util.List
  * @since 1.0.0
  */
 public abstract class AbstractMiStackList<T> implements MiStack<T> {
 
-  protected final Predicate<MiStackItem<T>> all = e -> true;
   protected final List<MiStackItem<T>> list;
   private final String name;
   private boolean closed = false;

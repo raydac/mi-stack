@@ -23,32 +23,20 @@ import com.igormaznitsa.mistack.MiStackItem;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
 
 /**
- * MiStack implementation allows use java.util.Deque collection as base to keep stack items.
+ * Class allows to build MiStacks based on java.util.Deque collections.
  *
- * @param <T> type of objects saved on stack
+ * @param <T> type of values placed on stack
  * @since 1.0.0
  */
-public class MiStackDeque<T> implements MiStack<T> {
+public abstract class AbstractMiStackDeque<T> implements MiStack<T> {
 
-  private final Deque<MiStackItem<T>> deque;
+  protected final Deque<MiStackItem<T>> deque;
   private final String name;
   private final AtomicBoolean closed = new AtomicBoolean();
-
-  /**
-   * Constructor requires only base deque, name for stack will be generated automatically.
-   *
-   * @param deque base deque, must not be null
-   * @throws NullPointerException if base deque is null
-   * @since 1.0.0
-   */
-  public MiStackDeque(final Deque<MiStackItem<T>> deque) {
-    this(UUID.randomUUID().toString(), deque);
-  }
 
   /**
    * Constructor requires name and base deque.
@@ -58,7 +46,7 @@ public class MiStackDeque<T> implements MiStack<T> {
    * @throws NullPointerException if any parameter is null
    * @since 1.0.0
    */
-  public MiStackDeque(final String name, final Deque<MiStackItem<T>> deque) {
+  public AbstractMiStackDeque(final String name, final Deque<MiStackItem<T>> deque) {
     this.name = requireNonNull(name);
     this.deque = requireNonNull(deque);
   }
