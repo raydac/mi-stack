@@ -13,7 +13,7 @@ __1.0.0 (18-jun-2022)__
 
 # What is it?
 
-Just abstract stack allows to mark its items by tags and get elements through either stream or iterator.
+Just abstract stack allows to mark its items by tags and get elements through either stream or iterator with possibility to filter items and stop iterator.
 
 # Implementations
 
