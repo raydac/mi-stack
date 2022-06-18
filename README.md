@@ -10,7 +10,7 @@
 
 Just abstract stack allows to mark its items by tags and get elements through either stream or iterator.
 
-# IImplementations
+# Implementations
 
 ## Thread unsafe
 
