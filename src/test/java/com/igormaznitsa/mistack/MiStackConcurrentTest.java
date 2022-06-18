@@ -29,12 +29,12 @@ public class MiStackConcurrentTest extends AbstractMiStackTest {
   @Test
   public void testConcurrentUse() {
     final int ELEMENTS = 500_000;
+    final int THREADS = 32;
 
     try (final MiStack<Integer> stack = new MiStackConcurrent<>()) {
-      final int threads = (Runtime.getRuntime().availableProcessors() + 1) * 2;
 
-      var latch = new CountDownLatch(threads);
-      var barrier = new CyclicBarrier(threads);
+      var latch = new CountDownLatch(THREADS);
+      var barrier = new CyclicBarrier(THREADS);
 
       final AtomicLong successful = new AtomicLong();
 
@@ -47,7 +47,9 @@ public class MiStackConcurrentTest extends AbstractMiStackTest {
           }
           stack.push(MiStackItemImpl.itemOf(x, tag));
         });
+
         assertEquals(ELEMENTS, stack.size(allTags(tag)));
+        assertTrue(stack.size() >= ELEMENTS);
 
         var iterator = stack.iterator(allTags(tag));
         for (int i = ELEMENTS - 1; i >= 0; i--) {
@@ -64,7 +66,7 @@ public class MiStackConcurrentTest extends AbstractMiStackTest {
         assertTrue(stack.isEmpty(allTags(tag)));
       };
 
-      for (int i = 0; i < threads; i++) {
+      for (int i = 0; i < THREADS; i++) {
         final Thread testThread = new Thread(() -> {
           try {
             barrier.await();
@@ -86,7 +88,7 @@ public class MiStackConcurrentTest extends AbstractMiStackTest {
         Thread.currentThread().interrupt();
       }
 
-      assertEquals(threads, successful.get());
+      assertEquals(THREADS, successful.get());
     }
   }
 

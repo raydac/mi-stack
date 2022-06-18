@@ -67,6 +67,11 @@ public class MiStackArrayList<T> extends AbstractMiStackList<T> {
   }
 
   @Override
+  protected void afterClear() {
+    ((ArrayList<?>) this.list).trimToSize();
+  }
+
+  @Override
   protected Iterator<MiStackItem<T>> makeItemIterator(final List<MiStackItem<T>> list) {
     var listIterator = list.listIterator(list.size());
     return new Iterator<>() {
@@ -85,11 +90,6 @@ public class MiStackArrayList<T> extends AbstractMiStackList<T> {
         listIterator.remove();
       }
     };
-  }
-
-  @Override
-  protected void afterClear() {
-    ((ArrayList<?>) this.list).trimToSize();
   }
 
 }

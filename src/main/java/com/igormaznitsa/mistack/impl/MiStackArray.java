@@ -299,6 +299,16 @@ public class MiStackArray<T> implements MiStack<T> {
   }
 
   @Override
+  public boolean isClosed() {
+    return this.closed;
+  }
+
+  @Override
+  public String getName() {
+    return this.name;
+  }
+
+  @Override
   @SuppressWarnings("unchecked")
   public Optional<MiStackItem<T>> peek(final Predicate<MiStackItem<T>> predicate, long depth) {
     this.assertNotClosed();
@@ -317,16 +327,6 @@ public class MiStackArray<T> implements MiStack<T> {
     }
     this.makeDefragmentation(this.dynamic);
     return Optional.ofNullable(result);
-  }
-
-  @Override
-  public boolean isClosed() {
-    return this.closed;
-  }
-
-  @Override
-  public String getName() {
-    return this.name;
   }
 
   @Override
