@@ -6,6 +6,11 @@
 [![PayPal donation](https://img.shields.io/badge/donation-PayPal-cyan.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=AHWJHJFBAWGL2)
 [![YooMoney donation](https://img.shields.io/badge/donation-Yoo.money-blue.svg)](https://yoomoney.ru/to/41001158080699)
 
+# Changelog
+
+__1.0.0 (18-jun-2022)__
+ - initial version
+
 # What is it?
 
 Just abstract stack allows to mark its items by tags and get elements through either stream or iterator.

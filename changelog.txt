@@ -1,0 +1,2 @@
+__1.0.0 (18-jun-2022)__
+ - initial version
