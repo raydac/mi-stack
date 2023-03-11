@@ -78,7 +78,7 @@ public class MiStackItemImpl<T> implements MiStackItem<T>, Serializable {
   }
 
   @Override
-  public Set<MiStackTag> getTags() {
+  public Set<? extends MiStackTag> getTags() {
     return this.tags;
   }
 

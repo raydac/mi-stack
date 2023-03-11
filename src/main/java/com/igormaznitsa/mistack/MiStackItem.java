@@ -32,7 +32,7 @@ public interface MiStackItem<T> {
    * @return all tags as a set, the set can be empty but can't be null.
    * @since 1.0.0
    */
-  Set<MiStackTag> getTags();
+  Set<? extends MiStackTag> getTags();
 
   /**
    * Get value carried by the item.
