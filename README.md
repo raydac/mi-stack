@@ -8,6 +8,9 @@
 
 # Changelog
 
+__1.0.1 (26-apr-2023)__
+ - improved bounded generic in MiStackItem 
+
 __1.0.0 (18-jun-2022)__
  - initial version
 
