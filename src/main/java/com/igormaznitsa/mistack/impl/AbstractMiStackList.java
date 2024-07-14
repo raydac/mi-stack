@@ -18,9 +18,9 @@ package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.igormaznitsa.mistack.CuttableIterator;
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.TruncatedIterator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -87,14 +87,14 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   }
 
   @Override
-  public CuttableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                                   final Predicate<MiStackItem<T>> takeWhile) {
+  public TruncatedIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
+                                                    final Predicate<MiStackItem<T>> takeWhile) {
 
     var listIterator = this.makeItemIterator(this.list);
-    return new CuttableIterator<>() {
+    return new TruncatedIterator<>() {
 
       private boolean completed = false;
-      private boolean cut = false;
+      private boolean truncated = false;
       private MiStackItem<T> foundItem = null;
 
       @Override
@@ -121,7 +121,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
           if (predicate.test(result)) {
             if (!takeWhile.test(result)) {
               result = null;
-              this.cut = true;
+              this.truncated = true;
               this.completed = true;
               break;
             }
@@ -133,8 +133,8 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
       }
 
       @Override
-      public boolean isCut() {
-        return this.cut;
+      public boolean isTruncated() {
+        return this.truncated;
       }
 
       @Override

@@ -159,8 +159,8 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException thrown if stack already closed.
    * @since 1.0.0
    */
-  CuttableIterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate,
-                                    Predicate<MiStackItem<T>> takeWhile);
+  TruncatedIterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate,
+                                             Predicate<MiStackItem<T>> takeWhile);
 
   /**
    * Allows to get information that the stack is closed.
@@ -263,7 +263,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException thrown if stack already closed.
    * @since 1.0.0
    */
-  default CuttableIterator<MiStackItem<T>> iterator() {
+  default TruncatedIterator<MiStackItem<T>> iterator() {
     this.assertNotClosed();
     return this.iterator(itemsAll());
   }
@@ -276,7 +276,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
    * @throws IllegalStateException thrown if stack already closed.
    * @since 1.0.0
    */
-  default CuttableIterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate) {
+  default TruncatedIterator<MiStackItem<T>> iterator(Predicate<MiStackItem<T>> predicate) {
     this.assertNotClosed();
     return this.iterator(predicate, itemsAll());
   }

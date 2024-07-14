@@ -18,9 +18,9 @@ package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.igormaznitsa.mistack.CuttableIterator;
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.TruncatedIterator;
 import com.igormaznitsa.mistack.exception.MiStackOverflowException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -230,15 +230,15 @@ public class MiStackArray<T> implements MiStack<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public CuttableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                                   final Predicate<MiStackItem<T>> takeWhile) {
+  public TruncatedIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
+                                                    final Predicate<MiStackItem<T>> takeWhile) {
     this.assertNotClosed();
 
     var workArray = this.getItemArray();
 
-    return new CuttableIterator<MiStackItem<T>>() {
+    return new TruncatedIterator<MiStackItem<T>>() {
       private boolean completed;
-      private boolean cut;
+      private boolean truncated;
       private int indexNext = this.findNextIndex(pointer - 1);
       private int removeIndex = -1;
 
@@ -277,7 +277,7 @@ public class MiStackArray<T> implements MiStack<T> {
               foundIndex = index;
               break;
             } else {
-              this.cut = true;
+              this.truncated = true;
               this.completed = true;
             }
           }
@@ -287,8 +287,8 @@ public class MiStackArray<T> implements MiStack<T> {
       }
 
       @Override
-      public boolean isCut() {
-        return this.cut;
+      public boolean isTruncated() {
+        return this.truncated;
       }
 
       @Override

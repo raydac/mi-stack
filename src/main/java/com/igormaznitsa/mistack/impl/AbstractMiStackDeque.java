@@ -18,9 +18,9 @@ package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.igormaznitsa.mistack.CuttableIterator;
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.TruncatedIterator;
 import java.util.Deque;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -86,8 +86,8 @@ public abstract class AbstractMiStackDeque<T> implements MiStack<T> {
   }
 
   @Override
-  public CuttableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> filter,
-                                                   final Predicate<MiStackItem<T>> takeWhile) {
+  public TruncatedIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> filter,
+                                                    final Predicate<MiStackItem<T>> takeWhile) {
     return new FilterableIterator<>(this.deque.iterator(), filter, takeWhile, this.closed::get,
         x -> {
         });

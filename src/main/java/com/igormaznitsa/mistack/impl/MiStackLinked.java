@@ -18,9 +18,9 @@ package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.igormaznitsa.mistack.CuttableIterator;
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.TruncatedIterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,12 +85,12 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public CuttableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                                   final Predicate<MiStackItem<T>> takeWhile) {
+  public TruncatedIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
+                                                    final Predicate<MiStackItem<T>> takeWhile) {
 
-    return new CuttableIterator<>() {
+    return new TruncatedIterator<>() {
       private boolean completed;
-      private boolean cut;
+      private boolean truncated;
       private StackChainNode<T> nextPointer = findNext(head);
       private StackChainNode<T> pointerForRemove = null;
 
@@ -104,8 +104,8 @@ public class MiStackLinked<T> implements MiStack<T> {
       }
 
       @Override
-      public boolean isCut() {
-        return this.cut;
+      public boolean isTruncated() {
+        return this.truncated;
       }
 
       @Override
@@ -131,7 +131,7 @@ public class MiStackLinked<T> implements MiStack<T> {
             if (takeWhile.test(value)) {
               result = pointer;
             } else {
-              this.cut = true;
+              this.truncated = true;
               this.completed = true;
             }
             break;
