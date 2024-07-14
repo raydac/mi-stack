@@ -18,11 +18,11 @@ package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.igormaznitsa.mistack.CuttableIterator;
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
 import com.igormaznitsa.mistack.exception.MiStackOverflowException;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -230,14 +230,15 @@ public class MiStackArray<T> implements MiStack<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Iterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                           final Predicate<MiStackItem<T>> takeWhile) {
+  public CuttableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
+                                                   final Predicate<MiStackItem<T>> takeWhile) {
     this.assertNotClosed();
 
     var workArray = this.getItemArray();
 
-    return new Iterator<MiStackItem<T>>() {
+    return new CuttableIterator<MiStackItem<T>>() {
       private boolean completed;
+      private boolean cut;
       private int indexNext = this.findNextIndex(pointer - 1);
       private int removeIndex = -1;
 
@@ -276,12 +277,18 @@ public class MiStackArray<T> implements MiStack<T> {
               foundIndex = index;
               break;
             } else {
+              this.cut = true;
               this.completed = true;
             }
           }
           index--;
         }
         return foundIndex;
+      }
+
+      @Override
+      public boolean isCut() {
+        return this.cut;
       }
 
       @Override

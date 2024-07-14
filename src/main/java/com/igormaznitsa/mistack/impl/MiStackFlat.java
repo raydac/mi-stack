@@ -1,5 +1,6 @@
 package com.igormaznitsa.mistack.impl;
 
+import com.igormaznitsa.mistack.CuttableIterator;
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
 import java.util.ArrayList;
@@ -78,27 +79,33 @@ public class MiStackFlat<T> implements MiStack<T> {
   }
 
   @Override
-  public Iterator<MiStackItem<T>> iterator() {
+  public CuttableIterator<MiStackItem<T>> iterator() {
     return this.iterator(x -> true, x -> true);
   }
 
   @Override
-  public Iterator<MiStackItem<T>> iterator(
+  public CuttableIterator<MiStackItem<T>> iterator(
       final Predicate<MiStackItem<T>> predicate,
       final Predicate<MiStackItem<T>> takeWhile) {
 
     final Iterator<MiStack<T>> iterator = this.stackList.iterator();
 
-    return new Iterator<>() {
+    return new CuttableIterator<>() {
 
       private MiStack<T> currentList = null;
-      private Iterator<MiStackItem<T>> currentListIterator = null;
+      private CuttableIterator<MiStackItem<T>> currentListIterator = null;
       private boolean completed;
+      private boolean cut;
 
       private void doComplete() {
         this.completed = true;
         this.currentList = null;
         this.currentListIterator = null;
+      }
+
+      @Override
+      public boolean isCut() {
+        return this.cut;
       }
 
       @Override
@@ -111,7 +118,13 @@ public class MiStackFlat<T> implements MiStack<T> {
       }
 
       private void tryInitNextListIterator() {
-        if (this.completed) {
+        if (this.completed || this.cut) {
+          return;
+        }
+
+        if (this.currentListIterator != null && this.currentListIterator.isCut()) {
+          this.completed = true;
+          this.cut = true;
           return;
         }
 
@@ -137,20 +150,32 @@ public class MiStackFlat<T> implements MiStack<T> {
 
       @Override
       public boolean hasNext() {
-        if (this.completed || closed) {
+        if (this.completed || closed || this.cut) {
           return false;
         } else {
-          if (this.currentListIterator == null || !this.currentListIterator.hasNext()) {
+          if (this.currentListIterator == null) {
+            this.tryInitNextListIterator();
+          } else if (this.currentListIterator.isCut()) {
+            this.cut = true;
+            this.completed = true;
+            return false;
+          } else if (!this.currentListIterator.hasNext()) {
             this.tryInitNextListIterator();
           }
         }
-        return !this.completed && this.currentListIterator.hasNext();
+        if (this.completed || this.cut) {
+          return false;
+        } else {
+          final boolean next = this.currentListIterator.hasNext();
+          this.cut = this.currentListIterator.isCut();
+          return next && !this.cut;
+        }
       }
 
       @Override
       public MiStackItem<T> next() {
         assertNotClosed();
-        if (this.completed) {
+        if (this.completed || this.cut) {
           throw new NoSuchElementException();
         } else {
           if (this.currentListIterator == null) {
@@ -159,7 +184,9 @@ public class MiStackFlat<T> implements MiStack<T> {
           if (this.completed) {
             throw new NoSuchElementException();
           } else {
-            return this.currentListIterator.next();
+            final MiStackItem<T> result = this.currentListIterator.next();
+            this.cut = this.currentListIterator.isCut();
+            return result;
           }
         }
       }

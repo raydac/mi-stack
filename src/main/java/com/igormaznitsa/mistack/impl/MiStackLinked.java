@@ -18,9 +18,9 @@ package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.igormaznitsa.mistack.CuttableIterator;
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,11 +85,12 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public Iterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                           final Predicate<MiStackItem<T>> takeWhile) {
+  public CuttableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
+                                                   final Predicate<MiStackItem<T>> takeWhile) {
 
-    return new Iterator<>() {
+    return new CuttableIterator<>() {
       private boolean completed;
+      private boolean cut;
       private StackChainNode<T> nextPointer = findNext(head);
       private StackChainNode<T> pointerForRemove = null;
 
@@ -100,6 +101,11 @@ public class MiStackLinked<T> implements MiStack<T> {
           this.nextPointer = null;
         }
         return !this.completed && this.nextPointer != null;
+      }
+
+      @Override
+      public boolean isCut() {
+        return this.cut;
       }
 
       @Override
@@ -125,6 +131,7 @@ public class MiStackLinked<T> implements MiStack<T> {
             if (takeWhile.test(value)) {
               result = pointer;
             } else {
+              this.cut = true;
               this.completed = true;
             }
             break;

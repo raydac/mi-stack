@@ -18,6 +18,7 @@ package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
 
+import com.igormaznitsa.mistack.CuttableIterator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.BooleanSupplier;
@@ -30,7 +31,7 @@ import java.util.function.Predicate;
  * @param <T> type of elements returned by wrapped iterator
  * @since 1.0.0
  */
-public class FilterableIterator<T> implements Iterator<T> {
+public class FilterableIterator<T> implements CuttableIterator<T> {
   private final Iterator<T> baseIterator;
   private final Predicate<T> filter;
   private final Predicate<T> takeWhile;
@@ -38,6 +39,7 @@ public class FilterableIterator<T> implements Iterator<T> {
   private final BooleanSupplier supplierClose;
   private final Consumer<T> consumerRemove;
   private boolean completed;
+  private boolean cut;
   private T item;
   private T itemForRemove;
 
@@ -203,10 +205,16 @@ public class FilterableIterator<T> implements Iterator<T> {
         if (this.takeWhile.test(item)) {
           result = item;
         } else {
+          this.cut = true;
           this.completed = true;
         }
       }
     }
     return result;
+  }
+
+  @Override
+  public boolean isCut() {
+    return this.cut;
   }
 }
