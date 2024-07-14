@@ -78,6 +78,11 @@ public class MiStackFlat<T> implements MiStack<T> {
   }
 
   @Override
+  public Iterator<MiStackItem<T>> iterator() {
+    return this.iterator(x -> true, x -> true);
+  }
+
+  @Override
   public Iterator<MiStackItem<T>> iterator(
       final Predicate<MiStackItem<T>> predicate,
       final Predicate<MiStackItem<T>> takeWhile) {
@@ -135,7 +140,7 @@ public class MiStackFlat<T> implements MiStack<T> {
         if (this.completed || closed) {
           return false;
         } else {
-          if (this.currentListIterator == null) {
+          if (this.currentListIterator == null || !this.currentListIterator.hasNext()) {
             this.tryInitNextListIterator();
           }
         }
