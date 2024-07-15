@@ -58,15 +58,14 @@ public class MiStackFlat<T> implements MiStack<T> {
     }
   }
 
-  public MiStack<T> popupStack(final MiStack<T> stack) {
+  public Optional<MiStack<T>> popStack(final MiStack<T> stack) {
     this.assertNotClosed();
     this.assertNotEmpty();
 
     if (this.stackList.remove(stack)) {
-      this.stackList.add(0, stack);
-      return this;
+      return Optional.of(stack);
     } else {
-      throw new IllegalArgumentException("Stack not found");
+      return Optional.empty();
     }
   }
 

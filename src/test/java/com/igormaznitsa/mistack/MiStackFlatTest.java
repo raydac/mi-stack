@@ -5,6 +5,7 @@ import static com.igormaznitsa.mistack.impl.MiStackTagImpl.tagOf;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import com.igormaznitsa.mistack.impl.MiStackArrayList;
 import com.igormaznitsa.mistack.impl.MiStackFlat;
@@ -29,6 +30,38 @@ class MiStackFlatTest extends AbstractMiStackTest {
   void testIterateOverEmpty() {
     try (final MiStackFlat<String> flatStack = new MiStackFlat<>("testFlat", null)) {
       assertFalse(flatStack.iterator().hasNext());
+    }
+  }
+
+  @Test
+  void testPopStack() {
+    try (final MiStackFlat<String> flatStack = new MiStackFlat<>("testFlat", null)) {
+      final MiStack<String> stack1 = new MiStackArrayList<>("stack1");
+      stack1.push(itemOf("item3", tagOf("A")));
+      stack1.push(itemOf("item2", tagOf("A")));
+      stack1.push(itemOf("item1", tagOf("A")));
+
+      final MiStack<String> stack2 = new MiStackArrayList<>("stack2");
+      stack2.push(itemOf("item6", tagOf("B")));
+      stack2.push(itemOf("item5", tagOf("B")));
+      stack2.push(itemOf("item4", tagOf("B")));
+
+      final MiStack<String> stack3 = new MiStackArrayList<>("stack3");
+      stack3.push(itemOf("item9", tagOf("C")));
+      stack3.push(itemOf("item8", tagOf("C")));
+      stack3.push(itemOf("item7", tagOf("C")));
+
+      flatStack.pushStack(stack3).pushStack(stack2).pushStack(stack1);
+      assertSame(stack1, flatStack.popStack(stack1).orElseThrow());
+      assertSame(stack2, flatStack.popStack().orElseThrow());
+
+      final List<String> found = new ArrayList<>();
+      var iterator = flatStack.iterator();
+      while (iterator.hasNext()) {
+        found.add(iterator.next().getValue());
+      }
+      assertArrayEquals(new String[] {"item7", "item8", "item9"}, found.toArray(
+          String[]::new));
     }
   }
 
