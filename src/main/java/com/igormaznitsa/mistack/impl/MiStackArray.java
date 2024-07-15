@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
-import com.igormaznitsa.mistack.TruncatedIterator;
+import com.igormaznitsa.mistack.TruncableIterator;
 import com.igormaznitsa.mistack.exception.MiStackOverflowException;
 import java.util.Arrays;
 import java.util.NoSuchElementException;
@@ -230,13 +230,13 @@ public class MiStackArray<T> implements MiStack<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public TruncatedIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
+  public TruncableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
                                                     final Predicate<MiStackItem<T>> takeWhile) {
     this.assertNotClosed();
 
     var workArray = this.getItemArray();
 
-    return new TruncatedIterator<MiStackItem<T>>() {
+    return new TruncableIterator<MiStackItem<T>>() {
       private boolean completed;
       private boolean truncated;
       private int indexNext = this.findNextIndex(pointer - 1);

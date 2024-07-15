@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
-import com.igormaznitsa.mistack.TruncatedIterator;
+import com.igormaznitsa.mistack.TruncableIterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.UUID;
@@ -85,10 +85,10 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public TruncatedIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
+  public TruncableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
                                                     final Predicate<MiStackItem<T>> takeWhile) {
 
-    return new TruncatedIterator<>() {
+    return new TruncableIterator<>() {
       private boolean completed;
       private boolean truncated;
       private StackChainNode<T> nextPointer = findNext(head);

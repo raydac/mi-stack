@@ -18,7 +18,7 @@ package com.igormaznitsa.mistack.impl;
 
 import static java.util.Objects.requireNonNull;
 
-import com.igormaznitsa.mistack.TruncatedIterator;
+import com.igormaznitsa.mistack.TruncableIterator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.BooleanSupplier;
@@ -31,7 +31,7 @@ import java.util.function.Predicate;
  * @param <T> type of elements returned by wrapped iterator
  * @since 1.0.0
  */
-public class FilterableIterator<T> implements TruncatedIterator<T> {
+public class FilterableIterator<T> implements TruncableIterator<T> {
   private final Iterator<T> baseIterator;
   private final Predicate<T> filter;
   private final Predicate<T> takeWhile;

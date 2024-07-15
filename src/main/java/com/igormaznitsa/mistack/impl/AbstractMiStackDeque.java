@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
-import com.igormaznitsa.mistack.TruncatedIterator;
+import com.igormaznitsa.mistack.TruncableIterator;
 import java.util.Deque;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -86,7 +86,7 @@ public abstract class AbstractMiStackDeque<T> implements MiStack<T> {
   }
 
   @Override
-  public TruncatedIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> filter,
+  public TruncableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> filter,
                                                     final Predicate<MiStackItem<T>> takeWhile) {
     return new FilterableIterator<>(this.deque.iterator(), filter, takeWhile, this.closed::get,
         x -> {

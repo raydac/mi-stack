@@ -8,9 +8,10 @@ import java.util.Iterator;
  * @param <T> type of iterable items
  * @since 1.0.2
  */
-public interface TruncatedIterator<T> extends Iterator<T> {
+public interface TruncableIterator<T> extends Iterator<T> {
   /**
-   * If true then iterator was truncated by some external condition.
+   * If true then iterator was truncated by some external condition or internal logic.
+   * Iterator in the state should have the same behavior like iterator with no elements.
    *
    * @return true if iteration was truncated by some condition or false if not
    */

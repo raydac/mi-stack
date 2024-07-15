@@ -2,7 +2,7 @@ package com.igormaznitsa.mistack.impl;
 
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
-import com.igormaznitsa.mistack.TruncatedIterator;
+import com.igormaznitsa.mistack.TruncableIterator;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -79,21 +79,21 @@ public class MiStackFlat<T> implements MiStack<T> {
   }
 
   @Override
-  public TruncatedIterator<MiStackItem<T>> iterator() {
+  public TruncableIterator<MiStackItem<T>> iterator() {
     return this.iterator(x -> true, x -> true);
   }
 
   @Override
-  public TruncatedIterator<MiStackItem<T>> iterator(
+  public TruncableIterator<MiStackItem<T>> iterator(
       final Predicate<MiStackItem<T>> predicate,
       final Predicate<MiStackItem<T>> takeWhile) {
 
     final Iterator<MiStack<T>> iterator = this.stackList.iterator();
 
-    return new TruncatedIterator<>() {
+    return new TruncableIterator<>() {
 
       private MiStack<T> currentList = null;
-      private TruncatedIterator<MiStackItem<T>> currentListIterator = null;
+      private TruncableIterator<MiStackItem<T>> currentListIterator = null;
       private boolean completed;
       private boolean truncated;
 
