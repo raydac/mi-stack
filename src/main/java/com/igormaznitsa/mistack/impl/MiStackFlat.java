@@ -1,5 +1,7 @@
 package com.igormaznitsa.mistack.impl;
 
+import static java.util.Objects.requireNonNull;
+
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
 import com.igormaznitsa.mistack.TruncableIterator;
@@ -7,42 +9,96 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 /**
  * Implements stack of stacks with solid iterating their elements.
  * <b<Non Thread Safe</b>
- * @param <T> type of wrapped stacks.
  *
+ * @param <T> type of wrapped stacks.
  * @since 1.0.2
  */
 public class MiStackFlat<T> implements MiStack<T> {
 
   private final List<MiStack<T>> stackList;
-  private boolean closed;
   private final String name;
   private final BiPredicate<MiStack<T>, MiStack<T>> predicateSwitchNext;
+  private boolean closed;
 
+  /**
+   * Constructor.
+   *
+   * @param name                name of the flat stack, must not be null
+   * @param predicateSwitchNext nullable predicate allows to control switch next stacks during iterable operations
+   */
   public MiStackFlat(final String name,
                      final BiPredicate<MiStack<T>, MiStack<T>> predicateSwitchNext) {
-    this.name = Objects.requireNonNull(name);
+    this.name = requireNonNull(name);
     this.stackList = new ArrayList<>();
     this.predicateSwitchNext = predicateSwitchNext == null ? (a, b) -> true : predicateSwitchNext;
   }
 
+  /**
+   * Check that the stack store contains the stack.
+   * @param stack stack to find
+   * @return true if contains the stack internally
+   */
   public boolean contains(final MiStack<T> stack) {
     this.assertNotClosed();
     return this.stackList.contains(stack);
   }
 
+  /**
+   * Get an iterator to iterate over all wrapped stack objects instead of the elements of those stacks.
+   *
+   * @return iterator of wrapped stacks as iterable items.
+   */
+  public FilterableIterator<MiStack<T>> iteratorStacks() {
+    return this.iteratorStacks(
+        iterator -> new FilterableIterator<>(iterator, x -> true, x -> true));
+  }
+
+  /**
+   * Get an iterator to iterate over all wrapped stack objects instead of the elements of those stacks.
+   *
+   * @param filter    filter to get iterable elements
+   * @param takeWhile filter to truncate iteration
+   * @return iterator of wrapped stacks as iterable items.
+   */
+  public FilterableIterator<MiStack<T>> iteratorStacks(final Predicate<MiStack<T>> filter,
+                                                       final Predicate<MiStack<T>> takeWhile) {
+    return this.iteratorStacks(iterator -> new FilterableIterator<>(iterator, filter, takeWhile));
+  }
+
+  /**
+   * Get an iterator to iterate over all wrapped stack objects instead of the elements of those stacks.
+   *
+   * @param iteratorFunction function to create a filterable iterator
+   * @return iterator of wrapped stacks as iterable items.
+   */
+  public FilterableIterator<MiStack<T>> iteratorStacks(
+      final Function<Iterator<MiStack<T>>, FilterableIterator<MiStack<T>>> iteratorFunction) {
+    this.assertNotClosed();
+    return iteratorFunction.apply(this.stackList.iterator());
+  }
+
+  /**
+   * Pop the first stack from the internal stack store.
+   * @return optional stack item, can be empty
+   */
   public Optional<MiStack<T>> popStack() {
     this.assertNotClosed();
     return this.stackList.isEmpty() ? Optional.empty() : Optional.of(this.stackList.remove(0));
   }
 
+  /**
+   * Push stack to the top of internal stack store. If the stack already presented then it is moved to the top of stack
+   * @param stack stack to push, can be null.
+   * @return this instance
+   */
   public MiStackFlat<T> pushStack(final MiStack<T> stack) {
     this.assertNotClosed();
     if (stack != null) {
@@ -58,7 +114,13 @@ public class MiStackFlat<T> implements MiStack<T> {
     }
   }
 
-  public Optional<MiStack<T>> popStack(final MiStack<T> stack) {
+  /**
+   * Remove stack from internal store.
+   *
+   * @param stack stack to be removed, must not be null
+   * @return optional wrapper for removed stack, empty if not found
+   */
+  public Optional<MiStack<T>> removeStack(final MiStack<T> stack) {
     this.assertNotClosed();
     this.assertNotEmpty();
 

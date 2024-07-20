@@ -32,7 +32,7 @@ import java.util.function.Predicate;
  * @since 1.0.0
  */
 public class FilterableIterator<T> implements TruncableIterator<T> {
-  private final Iterator<T> baseIterator;
+  private final Iterator<T> delegate;
   private final Predicate<T> filter;
   private final Predicate<T> takeWhile;
 
@@ -46,19 +46,19 @@ public class FilterableIterator<T> implements TruncableIterator<T> {
   /**
    * Constructor requires only base iterator.
    *
-   * @param baseIterator base iterator, must not be null
+   * @param delegate base iterator, must not be null
    * @throws NullPointerException if base iterator is null
    * @since 1.0.0
    */
-  public FilterableIterator(final Iterator<T> baseIterator) {
-    this(baseIterator, x -> true, x -> true, () -> false, x -> {
+  public FilterableIterator(final Iterator<T> delegate) {
+    this(delegate, x -> true, x -> true, () -> false, x -> {
     });
   }
 
   /**
    * Full main constructor.
    *
-   * @param baseIterator   base iterator, must not be null
+   * @param delegate   base iterator, must not be null
    * @param filter         predicate to filter values, must not be null
    * @param takeWhile      predicate to take values from base iterator, must not be null
    * @param supplierClose  supplier which allows provide control signal that source is closed, if source is closed then true must be return, false otherwise, can't be null
@@ -67,13 +67,13 @@ public class FilterableIterator<T> implements TruncableIterator<T> {
    * @since 1.0.0
    */
   public FilterableIterator(
-      final Iterator<T> baseIterator,
+      final Iterator<T> delegate,
       final Predicate<T> filter,
       final Predicate<T> takeWhile,
       final BooleanSupplier supplierClose,
       final Consumer<T> consumerRemove
   ) {
-    this.baseIterator = requireNonNull(baseIterator);
+    this.delegate = requireNonNull(delegate);
     this.filter = requireNonNull(filter);
     this.takeWhile = requireNonNull(takeWhile);
     this.supplierClose = requireNonNull(supplierClose);
@@ -83,18 +83,18 @@ public class FilterableIterator<T> implements TruncableIterator<T> {
   /**
    * Constructor requires only base iterator and predicates.
    *
-   * @param baseIterator base iterator, must not be null
+   * @param delegate base iterator, must not be null
    * @param filter       predicate to filter values, must not be null
    * @param takeWhile    predicate to take values from base iterator, must not be null
    * @throws NullPointerException if any parameter is null
    * @since 1.0.0
    */
   public FilterableIterator(
-      final Iterator<T> baseIterator,
+      final Iterator<T> delegate,
       final Predicate<T> filter,
       final Predicate<T> takeWhile
   ) {
-    this(baseIterator, filter, takeWhile, () -> false, x -> {
+    this(delegate, filter, takeWhile, () -> false, x -> {
     });
   }
 
@@ -114,8 +114,8 @@ public class FilterableIterator<T> implements TruncableIterator<T> {
     return this.takeWhile;
   }
 
-  public Iterator<T> getBaseIterator() {
-    return this.baseIterator;
+  public Iterator<T> getDelegate() {
+    return this.delegate;
   }
 
   @Override
@@ -181,7 +181,7 @@ public class FilterableIterator<T> implements TruncableIterator<T> {
       throw new IllegalStateException();
     }
 
-    this.baseIterator.remove();
+    this.delegate.remove();
     this.consumerRemove.accept(this.itemForRemove);
     this.itemForRemove = null;
     this.item = null;
@@ -199,8 +199,8 @@ public class FilterableIterator<T> implements TruncableIterator<T> {
     }
 
     T result = null;
-    while (!this.completed && this.baseIterator.hasNext() && result == null) {
-      var item = this.baseIterator.next();
+    while (!this.completed && this.delegate.hasNext() && result == null) {
+      var item = this.delegate.next();
       if (this.filter.test(item)) {
         if (this.takeWhile.test(item)) {
           result = item;
