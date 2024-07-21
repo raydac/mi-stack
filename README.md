@@ -10,7 +10,7 @@
 
 __1.0.2 (21-jul-2024)__
 
-- added MiStackFlat for combination of several stacks in single chain
+- added MiStackFlat to combine several stacks as a single chain
 
 __1.0.1 (26-apr-2023)__
  - improved bounded generic in MiStackItem 
