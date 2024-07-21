@@ -22,6 +22,7 @@ import java.util.Set;
 /**
  * Tagged item of stack.
  *
+ * @param <T> type of wrapped data
  * @see MiStackArrayList
  * @since 1.0.0
  */

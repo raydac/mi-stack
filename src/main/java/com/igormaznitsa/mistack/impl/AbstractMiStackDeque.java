@@ -46,7 +46,7 @@ public abstract class AbstractMiStackDeque<T> implements MiStack<T> {
    * @throws NullPointerException if any parameter is null
    * @since 1.0.0
    */
-  public AbstractMiStackDeque(final String name, final Deque<MiStackItem<T>> deque) {
+  AbstractMiStackDeque(final String name, final Deque<MiStackItem<T>> deque) {
     this.name = requireNonNull(name);
     this.deque = requireNonNull(deque);
   }

@@ -25,6 +25,7 @@ import java.util.stream.Stream;
 /**
  * Parametrized Mi-Stack tag implementation.
  *
+ * @param <T> type of wrapped data object
  * @since 1.0.0
  */
 public class MiStackTagImpl<T> implements MiStackTag {

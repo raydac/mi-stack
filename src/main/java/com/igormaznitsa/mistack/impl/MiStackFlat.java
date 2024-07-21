@@ -16,7 +16,7 @@ import java.util.function.Predicate;
 
 /**
  * Implements stack of stacks with solid iterating their elements.
- * <b<Non Thread Safe</b>
+ * <b>Non Thread Safe</b>
  *
  * @param <T> type of wrapped stacks.
  * @since 1.0.2

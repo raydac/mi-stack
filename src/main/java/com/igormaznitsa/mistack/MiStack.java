@@ -312,6 +312,7 @@ public interface MiStack<T> extends Iterable<MiStackItem<T>>, AutoCloseable {
   /**
    * Check that there is no any element on the stack for predicate.
    *
+   * @param  predicate it allows to select items which should take part in search
    * @return true if the stack is empty, false elsewhere
    * @throws IllegalStateException thrown if stack already closed.
    * @since 1.0.0
