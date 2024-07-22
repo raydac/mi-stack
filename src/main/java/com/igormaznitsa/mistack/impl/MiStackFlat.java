@@ -43,6 +43,7 @@ public class MiStackFlat<T> implements MiStack<T> {
 
   /**
    * Check that the stack store contains the stack.
+   *
    * @param stack stack to find
    * @return true if contains the stack internally
    */
@@ -87,6 +88,7 @@ public class MiStackFlat<T> implements MiStack<T> {
 
   /**
    * Pop the first stack from the internal stack store.
+   *
    * @return optional stack item, can be empty
    */
   public Optional<MiStack<T>> popStack() {
@@ -96,6 +98,7 @@ public class MiStackFlat<T> implements MiStack<T> {
 
   /**
    * Push stack to the top of internal stack store. If the stack already presented then it is moved to the top of stack
+   *
    * @param stack stack to push, can be null.
    * @return this instance
    */
@@ -204,8 +207,8 @@ public class MiStackFlat<T> implements MiStack<T> {
           } else {
             this.doComplete();
           }
-        } while (!this.completed && this.currentListIterator != null &&
-            !this.currentListIterator.hasNext());
+        } while (!this.completed &&
+            (this.currentListIterator == null || !this.currentListIterator.hasNext()));
       }
 
 

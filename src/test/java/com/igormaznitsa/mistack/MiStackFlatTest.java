@@ -14,11 +14,19 @@ import com.igormaznitsa.mistack.impl.MiStackFlat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiPredicate;
 import org.junit.jupiter.api.Test;
 
 class MiStackFlatTest extends AbstractMiStackTest {
+
   private static MiStackFlat<String> makePrefilledFlatStack() {
-    final MiStackFlat<String> flatStack = new MiStackFlat<>("testFlat", null);
+    return makePrefilledFlatStack((x, y) -> true);
+  }
+
+  private static MiStackFlat<String> makePrefilledFlatStack(
+      final BiPredicate<MiStack<String>, MiStack<String>> switchPredicate) {
+    final MiStackFlat<String> flatStack = new MiStackFlat<>("testFlat", switchPredicate);
 
     final MiStack<String> stack1 = new MiStackArrayList<>("stack1");
     stack1.push(itemOf("item3", tagOf("A")));
@@ -57,14 +65,14 @@ class MiStackFlatTest extends AbstractMiStackTest {
 
   @Override
   MiStack<String> makeStack(String name) {
-    final MiStackFlat<String> result = new MiStackFlat<>(name, null);
+    final MiStackFlat<String> result = new MiStackFlat<>(name, (x, y) -> true);
     result.pushStack(new MiStackArrayList<>("test1"));
     return result;
   }
 
   @Test
   void testIterateOverEmpty() {
-    try (final MiStackFlat<String> flatStack = new MiStackFlat<>("testFlat", null)) {
+    try (final MiStackFlat<String> flatStack = new MiStackFlat<>("testFlat", (x, y) -> true)) {
       assertFalse(flatStack.iterator().hasNext());
     }
   }
@@ -86,6 +94,22 @@ class MiStackFlatTest extends AbstractMiStackTest {
       assertArrayEquals(new String[] {"item7", "item8", "item9"}, found.toArray(
           String[]::new));
     }
+  }
+
+  @Test
+  void testSwitchStack() {
+    final AtomicInteger stacks = new AtomicInteger();
+    try (final MiStackFlat<String> flatStack = makePrefilledFlatStack((x, y) -> {
+      if (x != null) {
+        stacks.incrementAndGet();
+        assertFalse(x.getName().endsWith("2"));
+      }
+      assertNotNull(y);
+      return !y.getName().endsWith("2");
+    })) {
+      assertAllItems(flatStack, "item1", "item2", "item3", "item7", "item8", "item9");
+    }
+    assertEquals(2, stacks.get());
   }
 
   @Test
