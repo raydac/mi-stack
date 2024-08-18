@@ -1,3 +1,6 @@
+__1.0.3 (18-aug-2024)__
+- fixes and test improve
+
 __1.0.2 (21-jul-2024)__
 - added MiStackFlat to combine several stacks as a single chain
 
