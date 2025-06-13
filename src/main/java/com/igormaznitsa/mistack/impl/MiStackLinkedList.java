@@ -17,6 +17,7 @@
 package com.igormaznitsa.mistack.impl;
 
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.MiStackTag;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,10 +26,11 @@ import java.util.UUID;
 /**
  * Linked list based implementation of Mi-Stack. <b>It is not thread safe</b>
  *
- * @param <T> item type to be saved on stack
+ * @param <V> item type to be saved on stack
  * @since 1.0.0
  */
-public class MiStackLinkedList<T, V extends MiStackItem<T>> extends AbstractMiStackList<T, V> {
+public class MiStackLinkedList<V, I extends MiStackItem<V, T>, T extends MiStackTag>
+    extends AbstractMiStackList<V, I, T> {
 
   /**
    * Default constructor, as name will be used random UUID text representation.
@@ -51,7 +53,7 @@ public class MiStackLinkedList<T, V extends MiStackItem<T>> extends AbstractMiSt
   }
 
   @Override
-  protected Iterator<V> makeItemIterator(List<V> list) {
-    return ((LinkedList<V>) list).descendingIterator();
+  protected Iterator<I> makeItemIterator(List<I> list) {
+    return ((LinkedList<I>) list).descendingIterator();
   }
 }

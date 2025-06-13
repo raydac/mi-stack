@@ -32,22 +32,26 @@ import java.util.stream.StreamSupport;
 /**
  * A multi-context stack. It provides way to make iterations through tag marked elements.
  *
- * @param <T> type of item values on the stack
+ * @param <V> value type for the stack
+ * @param <I> container for values for the stack
+ * @param <T> type of stack item tags
  * @author Igor Maznitsa
- * @since 1.0.0
+ * @since 2.0.0
  */
-public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoCloseable {
+public interface MiStack<V, I extends MiStackItem<V, T>, T extends MiStackTag>
+    extends Iterable<I>, AutoCloseable {
 
   /**
    * Make predicate to check all tags presented for stack item.
    *
    * @param tags array of tags, must not contain null or be null
-   * @param <V>  type of stack item types.
+   * @param <I>  type of stack items.
+   * @param <T>  type of stack item tag.
    * @return predicate returns true only if all tags presented for stack item.
-   * @since 1.0.0
+   * @since 2.0.0
    */
   @SafeVarargs
-  static <V extends MiStackItem<?>, G extends MiStackTag> Predicate<V> allTags(final G... tags) {
+  static <I extends MiStackItem<?, T>, T extends MiStackTag> Predicate<I> allTags(final T... tags) {
     return allTags(List.of(tags));
   }
 
@@ -55,13 +59,14 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * Make predicate to check all tags presented for stack item.
    *
    * @param tags array of tag collections, must not contain null or be null
-   * @param <V>  type of stack item types.
+   * @param <I>  type of stack items.
+   * @param <T>  type of stack item tag.
    * @return predicate returns true only if all tags presented for stack item.
-   * @since 1.0.0
+   * @since 2.0.0
    */
   @SafeVarargs
-  static <V extends MiStackItem<?>, G extends MiStackTag> Predicate<V> allTags(
-      final Collection<G>... tags) {
+  static <I extends MiStackItem<?, T>, T extends MiStackTag> Predicate<I> allTags(
+      final Collection<T>... tags) {
     var setOfAllTags = Stream.of(tags).flatMap(Collection::stream).collect(Collectors.toSet());
     return e -> e.getTags().containsAll(setOfAllTags);
   }
@@ -70,12 +75,12 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * Make predicate to check any tag presented for stack item.
    *
    * @param tags array of tags, must not contain null or be null
-   * @param <V>  type of stack itemS.
+   * @param <I> type of stack items.
    * @return predicate returns true only if all tags presented for stack item.
-   * @since 1.0.0
+   * @since 2.0.0
    */
   @SafeVarargs
-  static <V extends MiStackItem<?>, G extends MiStackTag> Predicate<V> anyTag(final G... tags) {
+  static <I extends MiStackItem<?, T>, T extends MiStackTag> Predicate<I> anyTag(final T... tags) {
     return anyTag(List.of(tags));
   }
 
@@ -83,13 +88,13 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * Make predicate to check any tag presented for stack item.
    *
    * @param tags array of tag collections, must not contain null or be null
-   * @param <V>  type of stack itemS.
+   * @param <I>  type of stack itemS.
    * @return predicate returns true only if all tags presented for stack item.
-   * @since 1.0.0
+   * @since 2.0.0
    */
   @SafeVarargs
-  static <V extends MiStackItem<?>, G extends MiStackTag> Predicate<V> anyTag(
-      final Collection<G>... tags) {
+  static <I extends MiStackItem<?, T>, T extends MiStackTag> Predicate<I> anyTag(
+      final Collection<T>... tags) {
     var setOfTags = Stream.of(tags).flatMap(Collection::stream).collect(Collectors.toSet());
     return e -> e.getTags().stream().anyMatch(setOfTags::contains);
   }
@@ -100,11 +105,11 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @param items elements to be pushed on the stack, must not contain any null element.
    * @return the stack instance
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
   @SuppressWarnings("unchecked")
-  default MiStack<T, V> push(final V... items) {
-    for (final V item : items) {
+  default MiStack<V, I, T> push(final I... items) {
+    for (final I item : items) {
       this.push(item);
     }
     return this;
@@ -116,9 +121,9 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @param item element to be pushed on the stack, must not be null.
    * @return the stack instance
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  MiStack<T, V> push(V item);
+  MiStack<V, I, T> push(I item);
 
   /**
    * Pop the first element from the stack which meet predicate condition.
@@ -127,11 +132,11 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @param predicate condition for element search, must not be null
    * @return condition for element search, must not be null
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default Optional<V> pop(final Predicate<V> predicate) {
+  default Optional<I> pop(final Predicate<I> predicate) {
     this.assertNotClosed();
-    V result = null;
+    I result = null;
     var iterator = this.iterator(predicate, itemsAll());
     if (iterator.hasNext()) {
       result = iterator.next();
@@ -144,7 +149,7 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * Assert that the stack is not closed.
    *
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
   default void assertNotClosed() {
     if (this.isClosed()) {
@@ -161,16 +166,16 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    *                  stopped, must not be null.
    * @return created iterator, must not be null.
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  TruncableIterator<V> iterator(Predicate<V> predicate,
-                                Predicate<V> takeWhile);
+  TruncableIterator<I> iterator(Predicate<I> predicate,
+                                Predicate<I> takeWhile);
 
   /**
    * Allows to get information that the stack is closed.
    *
    * @return true if the stack is closed, false otherwise.
-   * @since 1.0.0
+   * @since 2.0.0
    */
   boolean isClosed();
 
@@ -178,7 +183,7 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * Get stack name.
    *
    * @return the stack name, it can't be null
-   * @since 1.0.0
+   * @since 2.0.0
    */
   String getName();
 
@@ -190,12 +195,12 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @param depth     how many elements must be skipped during search
    * @return found element
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default Optional<V> peek(final Predicate<V> predicate, long depth) {
+  default Optional<I> peek(final Predicate<I> predicate, long depth) {
     this.assertNotClosed();
-    V result = null;
-    final Iterator<V> iterator = this.iterator(predicate, itemsAll());
+    I result = null;
+    final Iterator<I> iterator = this.iterator(predicate, itemsAll());
     while (iterator.hasNext() && result == null) {
       result = iterator.next();
       if (predicate.test(result)) {
@@ -215,12 +220,12 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @param depth     how many elements must be skipped during search
    * @return removed element
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default Optional<V> remove(final Predicate<V> predicate, long depth) {
+  default Optional<I> remove(final Predicate<I> predicate, long depth) {
     this.assertNotClosed();
-    V result = null;
-    final Iterator<V> iterator = this.iterator(predicate, itemsAll());
+    I result = null;
+    final Iterator<I> iterator = this.iterator(predicate, itemsAll());
     while (iterator.hasNext() && result == null) {
       result = iterator.next();
       if (predicate.test(result)) {
@@ -248,9 +253,9 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    *
    * @param predicate condition for elements, must not be null.
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default void clear(final Predicate<V> predicate) {
+  default void clear(final Predicate<I> predicate) {
     this.assertNotClosed();
     var iterator = this.iterator();
     while (iterator.hasNext()) {
@@ -265,9 +270,9 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    *
    * @return created iterator, must not be null.
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default TruncableIterator<V> iterator() {
+  default TruncableIterator<I> iterator() {
     this.assertNotClosed();
     return this.iterator(itemsAll());
   }
@@ -278,9 +283,9 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @param predicate condition for elements, must not be null.
    * @return created iterator, must not be null.
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default TruncableIterator<V> iterator(Predicate<V> predicate) {
+  default TruncableIterator<I> iterator(Predicate<I> predicate) {
     this.assertNotClosed();
     return this.iterator(predicate, itemsAll());
   }
@@ -290,9 +295,9 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    *
    * @return stream with all stacked elements in their order on the stack, must not be null.
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default Stream<V> stream() {
+  default Stream<I> stream() {
     this.assertNotClosed();
     return this.stream(itemsAll(), itemsAll());
   }
@@ -305,10 +310,10 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @return created stream of all stacked elements meet predicate in their stack order, must
    * not be null.
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default Stream<V> stream(Predicate<V> predicate,
-                           Predicate<V> takeWhile) {
+  default Stream<I> stream(Predicate<I> predicate,
+                           Predicate<I> takeWhile) {
     return StreamSupport.stream(
         spliteratorUnknownSize(this.iterator(predicate, takeWhile), ORDERED), false);
   }
@@ -319,9 +324,9 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @param  predicate it allows to select items which should take part in search
    * @return true if the stack is empty, false elsewhere
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default boolean isEmpty(Predicate<V> predicate) {
+  default boolean isEmpty(Predicate<I> predicate) {
     if (this.isEmpty()) {
       return true;
     }
@@ -348,9 +353,9 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @param predicate condition for elements, must not be null
    * @return number of found elements on the stack
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default long size(Predicate<V> predicate) {
+  default long size(Predicate<I> predicate) {
     this.assertNotClosed();
     return this.stream(predicate).count();
   }
@@ -362,9 +367,9 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @return created stream of all stacked elements meet predicate in their stack order, must
    * not be null.
    * @throws IllegalStateException thrown if stack already closed.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  default Stream<V> stream(Predicate<V> predicate) {
+  default Stream<I> stream(Predicate<I> predicate) {
     this.assertNotClosed();
     return this.stream(predicate, itemsAll());
   }

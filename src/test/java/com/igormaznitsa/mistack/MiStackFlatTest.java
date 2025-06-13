@@ -20,26 +20,29 @@ import org.junit.jupiter.api.Test;
 
 class MiStackFlatTest extends AbstractMiStackTest {
 
-  private static MiStackFlat<String, MiStackItem<String>> makePrefilledFlatStack() {
+  private static MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> makePrefilledFlatStack() {
     return makePrefilledFlatStack((x, y) -> true);
   }
 
-  private static MiStackFlat<String, MiStackItem<String>> makePrefilledFlatStack(
-      final BiPredicate<MiStack<String, MiStackItem<String>>, MiStack<String, MiStackItem<String>>> switchPredicate) {
-    final MiStackFlat<String, MiStackItem<String>> flatStack =
+  private static MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> makePrefilledFlatStack(
+      final BiPredicate<MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag>, MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag>> switchPredicate) {
+    final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> flatStack =
         new MiStackFlat<>("testFlat", switchPredicate);
 
-    final MiStack<String, MiStackItem<String>> stack1 = new MiStackArrayList<>("stack1");
+    final MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> stack1 =
+        new MiStackArrayList<>("stack1");
     stack1.push(itemOf("item3", tagOf("A")));
     stack1.push(itemOf("item2", tagOf("A")));
     stack1.push(itemOf("item1", tagOf("A")));
 
-    final MiStack<String, MiStackItem<String>> stack2 = new MiStackArrayList<>("stack2");
+    final MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> stack2 =
+        new MiStackArrayList<>("stack2");
     stack2.push(itemOf("item6", tagOf("B")));
     stack2.push(itemOf("item5", tagOf("B")));
     stack2.push(itemOf("item4", tagOf("B")));
 
-    final MiStack<String, MiStackItem<String>> stack3 = new MiStackArrayList<>("stack3");
+    final MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> stack3 =
+        new MiStackArrayList<>("stack3");
     stack3.push(itemOf("item9", tagOf("C")));
     stack3.push(itemOf("item8", tagOf("C")));
     stack3.push(itemOf("item7", tagOf("C")));
@@ -49,7 +52,8 @@ class MiStackFlatTest extends AbstractMiStackTest {
     return flatStack;
   }
 
-  private static void assertAllItems(final MiStackFlat<String, MiStackItem<String>> stack,
+  private static void assertAllItems(
+      final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> stack,
                                      String... expectedItems) {
     var iterator = stack.iterator();
     final List<String> found = new ArrayList<>();
@@ -61,29 +65,34 @@ class MiStackFlatTest extends AbstractMiStackTest {
   }
 
   @Override
-  MiStack<String, MiStackItem<String>> makeStack() {
+  MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> makeStack() {
     return this.makeStack("");
   }
 
   @Override
-  MiStack<String, MiStackItem<String>> makeStack(String name) {
-    final MiStackFlat<String, MiStackItem<String>> result = new MiStackFlat<>(name, (x, y) -> true);
+  MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> makeStack(String name) {
+    final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> result =
+        new MiStackFlat<>(name, (x, y) -> true);
     result.pushStack(new MiStackArrayList<>("test1"));
     return result;
   }
 
   @Test
   void testIterateOverEmpty() {
-    try (final MiStackFlat<String, MiStackItem<String>> flatStack = new MiStackFlat<>("testFlat",
-        (x, y) -> true)) {
+    try (
+        final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> flatStack = new MiStackFlat<>(
+            "testFlat",
+            (x, y) -> true)) {
       assertFalse(flatStack.iterator().hasNext());
     }
   }
 
   @Test
   void testPopStack() {
-    try (final MiStackFlat<String, MiStackItem<String>> flatStack = makePrefilledFlatStack()) {
-      final List<MiStack<String, MiStackItem<String>>> stacks = new ArrayList<>();
+    try (
+        final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> flatStack = makePrefilledFlatStack()) {
+      final List<MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag>> stacks =
+          new ArrayList<>();
       flatStack.iteratorStacks().forEachRemaining(stacks::add);
 
       assertSame(stacks.get(0), flatStack.removeStack(stacks.get(0)).orElseThrow());
@@ -102,15 +111,16 @@ class MiStackFlatTest extends AbstractMiStackTest {
   @Test
   void testSwitchStack() {
     final AtomicInteger stacks = new AtomicInteger();
-    try (final MiStackFlat<String, MiStackItem<String>> flatStack = makePrefilledFlatStack(
-        (x, y) -> {
-      if (x != null) {
-        stacks.incrementAndGet();
-        assertFalse(x.getName().endsWith("2"));
-      }
-      assertNotNull(y);
-      return !y.getName().endsWith("2");
-    })) {
+    try (
+        final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> flatStack = makePrefilledFlatStack(
+            (x, y) -> {
+              if (x != null) {
+                stacks.incrementAndGet();
+                assertFalse(x.getName().endsWith("2"));
+              }
+              assertNotNull(y);
+              return !y.getName().endsWith("2");
+            })) {
       assertAllItems(flatStack, "item1", "item2", "item3", "item7", "item8", "item9");
     }
     assertEquals(2, stacks.get());
@@ -118,8 +128,9 @@ class MiStackFlatTest extends AbstractMiStackTest {
 
   @Test
   void testRemoveItemsDuringIteration() {
-    try (final MiStackFlat<String, MiStackItem<String>> flatStack = makePrefilledFlatStack()) {
-      final Iterator<MiStackItem<String>> iterator = flatStack.iterator();
+    try (
+        final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> flatStack = makePrefilledFlatStack()) {
+      final Iterator<MiStackItem<String, MiStackTag>> iterator = flatStack.iterator();
       int index = 1;
       while (iterator.hasNext()) {
         assertNotNull(iterator.next());
@@ -134,9 +145,10 @@ class MiStackFlatTest extends AbstractMiStackTest {
 
   @Test
   void testPopItems() {
-    try (final MiStackFlat<String, MiStackItem<String>> flatStack = makePrefilledFlatStack()) {
+    try (
+        final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> flatStack = makePrefilledFlatStack()) {
       for (int i = 1; i < 10; i++) {
-        final MiStackItem<String> item = flatStack.pop(x -> true).orElseThrow();
+        final MiStackItem<String, MiStackTag> item = flatStack.pop(x -> true).orElseThrow();
         assertEquals("item" + i, item.getValue());
       }
       assertTrue(flatStack.isEmpty());
@@ -145,7 +157,8 @@ class MiStackFlatTest extends AbstractMiStackTest {
 
   @Test
   void testIterateWithCut() {
-    try (final MiStackFlat<String, MiStackItem<String>> flatStack = makePrefilledFlatStack()) {
+    try (
+        final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> flatStack = makePrefilledFlatStack()) {
       final List<String> found = new ArrayList<>();
       var iterator = flatStack.iterator(x -> true, x -> !x.getValue().equals("item5"));
       while (iterator.hasNext()) {
@@ -158,7 +171,8 @@ class MiStackFlatTest extends AbstractMiStackTest {
 
   @Test
   void testIterateWithFiltering() {
-    try (final MiStackFlat<String, MiStackItem<String>> flatStack = makePrefilledFlatStack()) {
+    try (
+        final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> flatStack = makePrefilledFlatStack()) {
       final MiStackTag filteredTag = tagOf("B");
 
       final List<String> found = new ArrayList<>();
@@ -175,11 +189,12 @@ class MiStackFlatTest extends AbstractMiStackTest {
 
   @Test
   void testIterateOverAllFlattenStacks() {
-    try (final MiStackFlat<String, MiStackItem<String>> flatStack = makePrefilledFlatStack()) {
+    try (
+        final MiStackFlat<String, MiStackItem<String, MiStackTag>, MiStackTag> flatStack = makePrefilledFlatStack()) {
       var iterator = flatStack.iterator();
       int index = 1;
       while (iterator.hasNext()) {
-        final MiStackItem<String> nextValue = iterator.next();
+        final MiStackItem<String, MiStackTag> nextValue = iterator.next();
         assertEquals("item" + index, nextValue.getValue());
         index++;
       }

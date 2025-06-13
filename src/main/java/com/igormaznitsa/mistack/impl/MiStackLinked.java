@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.MiStackTag;
 import com.igormaznitsa.mistack.TruncableIterator;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -29,10 +30,11 @@ import java.util.function.Predicate;
 /**
  * Implementation of thread-unsafe Mi-Stack with linked chained items (like LinkedList).
  *
- * @param <T> type of item saved in the stack.
+ * @param <V> type of item saved in the stack.
  * @since 1.0.0
  */
-public class MiStackLinked<T, V extends MiStackItem<T>> implements MiStack<T, V> {
+public class MiStackLinked<V, I extends MiStackItem<V, T>, T extends MiStackTag>
+    implements MiStack<V, I, T> {
 
   private final String name;
   protected boolean closed;
@@ -43,7 +45,7 @@ public class MiStackLinked<T, V extends MiStackItem<T>> implements MiStack<T, V>
   /**
    * First element on the stack, can be null if stack empty.
    */
-  protected StackChainNode<T, V> head;
+  protected StackChainNode<V, I, T> head;
 
   /**
    * Default constructor, as name will be used random UUID text representation.
@@ -67,7 +69,7 @@ public class MiStackLinked<T, V extends MiStackItem<T>> implements MiStack<T, V>
   }
 
   @Override
-  public MiStack<T, V> push(final V item) {
+  public MiStack<V, I, T> push(final I item) {
     this.assertNotClosed();
     var newNode = new StackChainNode<>(item);
     newNode.setNext(this.head);
@@ -80,19 +82,19 @@ public class MiStackLinked<T, V extends MiStackItem<T>> implements MiStack<T, V>
   }
 
   @Override
-  public Optional<V> pop(final Predicate<V> predicate) {
+  public Optional<I> pop(final Predicate<I> predicate) {
     return this.remove(predicate, 0);
   }
 
   @Override
-  public TruncableIterator<V> iterator(final Predicate<V> predicate,
-                                       final Predicate<V> takeWhile) {
+  public TruncableIterator<I> iterator(final Predicate<I> predicate,
+                                       final Predicate<I> takeWhile) {
 
     return new TruncableIterator<>() {
       private boolean completed;
       private boolean truncated;
-      private StackChainNode<T, V> nextPointer = findNext(head);
-      private StackChainNode<T, V> pointerForRemove = null;
+      private StackChainNode<V, I, T> nextPointer = findNext(head);
+      private StackChainNode<V, I, T> pointerForRemove = null;
 
       @Override
       public boolean hasNext() {
@@ -109,7 +111,7 @@ public class MiStackLinked<T, V extends MiStackItem<T>> implements MiStack<T, V>
       }
 
       @Override
-      public V next() {
+      public I next() {
         assertNotClosed();
         if (this.completed || this.nextPointer == null) {
           throw new NoSuchElementException();
@@ -120,11 +122,11 @@ public class MiStackLinked<T, V extends MiStackItem<T>> implements MiStack<T, V>
         }
       }
 
-      private StackChainNode<T, V> findNext(StackChainNode<T, V> pointer) {
+      private StackChainNode<V, I, T> findNext(StackChainNode<V, I, T> pointer) {
         if (this.completed) {
           return null;
         }
-        StackChainNode<T, V> result = null;
+        StackChainNode<V, I, T> result = null;
         while (pointer != null) {
           var value = pointer.getItem();
           if (predicate.test(value)) {
@@ -177,9 +179,9 @@ public class MiStackLinked<T, V extends MiStackItem<T>> implements MiStack<T, V>
   }
 
   @Override
-  public void clear(final Predicate<V> predicate) {
+  public void clear(final Predicate<I> predicate) {
     this.assertNotClosed();
-    StackChainNode<T, V> node = this.head;
+    StackChainNode<V, I, T> node = this.head;
     while (node != null) {
       var nodeValue = node.getItem();
       if (predicate.test(nodeValue)) {
@@ -197,9 +199,9 @@ public class MiStackLinked<T, V extends MiStackItem<T>> implements MiStack<T, V>
   }
 
   @Override
-  public boolean isEmpty(final Predicate<V> predicate) {
+  public boolean isEmpty(final Predicate<I> predicate) {
     this.assertNotClosed();
-    StackChainNode<T, V> node = this.head;
+    StackChainNode<V, I, T> node = this.head;
     while (node != null) {
       if (predicate.test(node.getItem())) {
         return false;

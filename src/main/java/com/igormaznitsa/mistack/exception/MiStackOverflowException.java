@@ -24,15 +24,15 @@ import com.igormaznitsa.mistack.MiStack;
  * @since 1.0.0
  */
 public class MiStackOverflowException extends MiStackRuntimeException {
-  public MiStackOverflowException(MiStack<?, ?> source) {
+  public MiStackOverflowException(MiStack<?, ?, ?> source) {
     this(source, null);
   }
 
-  public MiStackOverflowException(MiStack<?, ?> source, String message) {
+  public MiStackOverflowException(MiStack<?, ?, ?> source, String message) {
     this(source, message, null);
   }
 
-  public MiStackOverflowException(MiStack<?, ?> source, String message,
+  public MiStackOverflowException(MiStack<?, ?, ?> source, String message,
                                   Throwable cause) {
     super(source, message, cause);
   }

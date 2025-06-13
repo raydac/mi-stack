@@ -19,29 +19,30 @@ package com.igormaznitsa.mistack.impl;
 import static java.util.Objects.requireNonNull;
 
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.MiStackTag;
 
 /**
  * Auxiliary class describing one stack item saved in heap.
  *
- * @param <T> type of value saved by stack item
+ * @param <V> type of value saved by stack item
  * @see MiStackLinked
  * @since 1.0.0
  */
-public final class StackChainNode<T, V extends MiStackItem<T>> {
+public final class StackChainNode<V, I extends MiStackItem<V, T>, T extends MiStackTag> {
   /**
    * Stack item value saved by the node. Must not be null.
    */
-  private final V item;
+  private final I item;
   /**
    * Previous node in the stack (upper element).
    */
-  private StackChainNode<T, V> prev;
+  private StackChainNode<V, I, T> prev;
   /**
    * Next node in the stack (underlying element).
    */
-  private StackChainNode<T, V> next;
+  private StackChainNode<V, I, T> next;
 
-  public StackChainNode(final V item) {
+  public StackChainNode(final I item) {
     this.item = requireNonNull(item);
   }
 
@@ -51,7 +52,7 @@ public final class StackChainNode<T, V extends MiStackItem<T>> {
    * @return previous chained mode if presented or null.
    * @since 1.0.0
    */
-  public StackChainNode<T, V> getPrevious() {
+  public StackChainNode<V, I, T> getPrevious() {
     return this.prev;
   }
 
@@ -61,7 +62,7 @@ public final class StackChainNode<T, V extends MiStackItem<T>> {
    * @param value node to be linked as previous chain node, can be null.
    * @since 1.0.0
    */
-  public void setPrevious(final StackChainNode<T, V> value) {
+  public void setPrevious(final StackChainNode<V, I, T> value) {
     this.prev = value;
   }
 
@@ -71,7 +72,7 @@ public final class StackChainNode<T, V extends MiStackItem<T>> {
    * @return next chained mode if presented or null.
    * @since 1.0.0
    */
-  public StackChainNode<T, V> getNext() {
+  public StackChainNode<V, I, T> getNext() {
     return this.next;
   }
 
@@ -81,7 +82,7 @@ public final class StackChainNode<T, V extends MiStackItem<T>> {
    * @param value node to be linked as next chain node, can be null.
    * @since 1.0.0
    */
-  public void setNext(final StackChainNode<T, V> value) {
+  public void setNext(final StackChainNode<V, I, T> value) {
     this.next = value;
   }
 
@@ -91,7 +92,7 @@ public final class StackChainNode<T, V extends MiStackItem<T>> {
    * @return the value saved by the node, can't be null
    * @since 1.0.0
    */
-  public V getItem() {
+  public I getItem() {
     return this.item;
   }
 
@@ -101,7 +102,7 @@ public final class StackChainNode<T, V extends MiStackItem<T>> {
    * @return the next node if present, else null
    * @since 1.0.0
    */
-  public StackChainNode<T, V> remove() {
+  public StackChainNode<V, I, T> remove() {
     if (this.prev != null) {
       this.prev.next = this.next;
     }

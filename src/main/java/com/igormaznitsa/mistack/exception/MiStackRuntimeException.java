@@ -24,7 +24,7 @@ import com.igormaznitsa.mistack.MiStack;
  * @since 1.0.0
  */
 public abstract class MiStackRuntimeException extends RuntimeException {
-  private final MiStack<?, ?> source;
+  private final MiStack<?, ?, ?> source;
 
   /**
    * Constructor to provide only source mi-stack.
@@ -32,7 +32,7 @@ public abstract class MiStackRuntimeException extends RuntimeException {
    * @param source source mi-stack, can be null.
    * @since 1.0.0
    */
-  public MiStackRuntimeException(final MiStack<?, ?> source) {
+  public MiStackRuntimeException(final MiStack<?, ?, ?> source) {
     this(source, null);
   }
 
@@ -43,7 +43,7 @@ public abstract class MiStackRuntimeException extends RuntimeException {
    * @param message message describes error, can be null.
    * @since 1.0.0
    */
-  public MiStackRuntimeException(final MiStack<?, ?> source, final String message) {
+  public MiStackRuntimeException(final MiStack<?, ?, ?> source, final String message) {
     this(source, message, null);
   }
 
@@ -55,7 +55,7 @@ public abstract class MiStackRuntimeException extends RuntimeException {
    * @param cause   root cause of the exception, can be null
    * @since 1.0.0
    */
-  public MiStackRuntimeException(final MiStack<?, ?> source, final String message,
+  public MiStackRuntimeException(final MiStack<?, ?, ?> source, final String message,
                                  final Throwable cause) {
     super(message, cause);
     this.source = source;
@@ -67,7 +67,7 @@ public abstract class MiStackRuntimeException extends RuntimeException {
    * @return the source mi-stack, can be null.
    * @since 1.0.0
    */
-  public MiStack<?, ?> getSource() {
+  public MiStack<?, ?, ?> getSource() {
     return this.source;
   }
 }

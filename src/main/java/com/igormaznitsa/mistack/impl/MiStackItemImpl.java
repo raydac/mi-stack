@@ -29,13 +29,13 @@ import java.util.stream.Stream;
 /**
  * Parametrized implementation of mi-stack item.
  *
- * @param <T> type of object carried by item
+ * @param <V> type of object carried by item
  * @since 1.0.0
  */
-public class MiStackItemImpl<T> implements MiStackItem<T>, Serializable {
+public class MiStackItemImpl<V, T extends MiStackTag> implements MiStackItem<V, T>, Serializable {
 
-  private final Set<? extends MiStackTag> tags;
-  private final T value;
+  private final Set<T> tags;
+  private final V value;
 
   /**
    * Constructor.
@@ -44,7 +44,7 @@ public class MiStackItemImpl<T> implements MiStackItem<T>, Serializable {
    * @param tags  tags associated with th item, must not be null but can be empty
    * @since 1.0.0
    */
-  public MiStackItemImpl(final T value, final Set<? extends MiStackTag> tags) {
+  public MiStackItemImpl(final V value, final Set<T> tags) {
     this.tags = requireNonNull(tags);
     this.value = requireNonNull(value);
   }
@@ -58,7 +58,9 @@ public class MiStackItemImpl<T> implements MiStackItem<T>, Serializable {
    * @return generated created mi-stack item with value and tags, can't be null
    * @since 1.0.0
    */
-  public static <T, V extends MiStackItem<T>> V itemOf(final T value, final MiStackTag... tags) {
+  @SafeVarargs
+  public static <T, V extends MiStackItem<T, G>, G extends MiStackTag> V itemOf(final T value,
+                                                                                final G... tags) {
     return itemOf(value, Set.of(tags));
   }
 
@@ -72,19 +74,20 @@ public class MiStackItemImpl<T> implements MiStackItem<T>, Serializable {
    * @since 1.0.0
    */
   @SafeVarargs
-  public static <T, V extends MiStackItem<T>> V itemOf(final T value,
-                                                       final Collection<? extends MiStackTag>... tags) {
+  @SuppressWarnings("unchecked")
+  public static <T, V extends MiStackItem<T, G>, G extends MiStackTag> V itemOf(final T value,
+                                                                                final Collection<G>... tags) {
     return (V) new MiStackItemImpl<>(value,
         Stream.of(tags).flatMap(Collection::stream).collect(Collectors.toSet()));
   }
 
   @Override
-  public Set<? extends MiStackTag> getTags() {
+  public Set<T> getTags() {
     return this.tags;
   }
 
   @Override
-  public T getValue() {
+  public V getValue() {
     return this.value;
   }
 
@@ -99,8 +102,8 @@ public class MiStackItemImpl<T> implements MiStackItem<T>, Serializable {
       return true;
     }
     if (that instanceof MiStackItem) {
-      return this.tags.equals(((MiStackItem<?>) that).getTags()) &&
-          this.value.equals(((MiStackItem<?>) that).getValue());
+      return this.tags.equals(((MiStackItem<?, ?>) that).getTags()) &&
+          this.value.equals(((MiStackItem<?, ?>) that).getValue());
     }
     return false;
   }

@@ -17,17 +17,19 @@
 package com.igormaznitsa.mistack.impl;
 
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.MiStackTag;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
 /**
  * Concurrent thread safe version of MiStack. As base collection it uses ConcurrentLinkedDeque.
  *
- * @param <T> type of data items kept on stack
+ * @param <V> type of data items kept on stack
  * @see ConcurrentLinkedDeque
  * @since 1.0.0
  */
-public class MiStackConcurrent<T, V extends MiStackItem<T>> extends AbstractMiStackDeque<T, V> {
+public class MiStackConcurrent<V, I extends MiStackItem<V, T>, T extends MiStackTag>
+    extends AbstractMiStackDeque<V, I, T> {
 
   public MiStackConcurrent() {
     this(UUID.randomUUID().toString());

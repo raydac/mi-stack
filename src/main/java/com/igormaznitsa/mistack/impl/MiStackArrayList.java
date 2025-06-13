@@ -17,6 +17,7 @@
 package com.igormaznitsa.mistack.impl;
 
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.MiStackTag;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -27,10 +28,11 @@ import java.util.function.Predicate;
 /**
  * Array list based implementation of Mi-Stack. <b>It is not thread safe</b>
  *
- * @param <T> item type to be saved on stack
+ * @param <V> item type to be saved on stack
  * @since 1.0.0
  */
-public class MiStackArrayList<T, V extends MiStackItem<T>> extends AbstractMiStackList<T, V> {
+public class MiStackArrayList<V, I extends MiStackItem<V, T>, T extends MiStackTag>
+    extends AbstractMiStackList<V, I, T> {
 
   /**
    * Default constructor, as name will be used random UUID text representation.
@@ -53,11 +55,11 @@ public class MiStackArrayList<T, V extends MiStackItem<T>> extends AbstractMiSta
   }
 
   @Override
-  public Optional<V> pop(final Predicate<V> predicate) {
+  public Optional<I> pop(final Predicate<I> predicate) {
     this.assertNotClosed();
-    V result = null;
+    I result = null;
     for (int i = this.list.size() - 1; result == null && i >= 0; i--) {
-      final V item = this.list.get(i);
+      final I item = this.list.get(i);
       if (predicate.test(item)) {
         result = item;
         this.list.remove(i);
@@ -72,7 +74,7 @@ public class MiStackArrayList<T, V extends MiStackItem<T>> extends AbstractMiSta
   }
 
   @Override
-  protected Iterator<V> makeItemIterator(final List<V> list) {
+  protected Iterator<I> makeItemIterator(final List<I> list) {
     var listIterator = list.listIterator(list.size());
     return new Iterator<>() {
       @Override
@@ -81,7 +83,7 @@ public class MiStackArrayList<T, V extends MiStackItem<T>> extends AbstractMiSta
       }
 
       @Override
-      public V next() {
+      public I next() {
         return listIterator.previous();
       }
 

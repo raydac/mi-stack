@@ -23,6 +23,7 @@ import java.util.function.Predicate;
  *
  * @since 1.0.0
  */
+@SuppressWarnings("unused")
 public final class MiStackPredicates {
   private MiStackPredicates() {
   }
@@ -30,11 +31,11 @@ public final class MiStackPredicates {
   /**
    * Get predicate which matches with all items.
    *
-   * @param <T> type of stack values
+   * @param <I> type of stack items.
    * @return predicate matched with all items, can't be null
    * @since 1.0.0
    */
-  public static <V extends MiStackItem<?>> Predicate<V> itemsAll() {
+  public static <I extends MiStackItem<?, ?>> Predicate<I> itemsAll() {
     return e -> true;
   }
 
@@ -43,12 +44,15 @@ public final class MiStackPredicates {
    *
    * @param alpha the left predicate, must not be null.
    * @param beta  the right predicate, must not be null.
-   * @param <T>   type of stack values.
+   * @param <V>   type of stack values.
+   * @param <T>   type of stack value tags.
+   * @param <I>   type of stack items
    * @return predicate joining two predicates by logical AND.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  public static <V extends MiStackItem<?>> Predicate<V> itemsAnd(final Predicate<V> alpha,
-                                                                 final Predicate<V> beta) {
+  public static <V, T extends MiStackTag, I extends MiStackItem<V, T>> Predicate<I> itemsAnd(
+      final Predicate<I> alpha,
+      final Predicate<I> beta) {
     return e -> alpha.test(e) && beta.test(e);
   }
 
@@ -57,12 +61,15 @@ public final class MiStackPredicates {
    *
    * @param alpha the left predicate, must not be null.
    * @param beta  the right predicate, must not be null.
-   * @param <T>   type of stack values.
+   * @param <V>   type of stack values.
+   * @param <T>   type of stack value tags.
+   * @param <I>   type of stack items
    * @return predicate joining two predicates by logical OR.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  public static <V extends MiStackItem<?>> Predicate<V> itemsOr(final Predicate<V> alpha,
-                                                                final Predicate<V> beta) {
+  public static <V, T extends MiStackTag, I extends MiStackItem<V, T>> Predicate<I> itemsOr(
+      final Predicate<I> alpha,
+      final Predicate<I> beta) {
     return e -> alpha.test(e) || beta.test(e);
   }
 
@@ -71,12 +78,15 @@ public final class MiStackPredicates {
    *
    * @param alpha the left predicate, must not be null
    * @param beta  the right predicate, must not be null
-   * @param <T>   type of stack values
+   * @param <V>   type of stack values.
+   * @param <T>   type of stack value tags.
+   * @param <I>   type of stack items
    * @return predicate joining two predicates by logical XOR.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  public static <V extends MiStackItem<?>> Predicate<V> itemsXor(final Predicate<V> alpha,
-                                                                 final Predicate<V> beta) {
+  public static <V, T extends MiStackTag, I extends MiStackItem<V, T>> Predicate<I> itemsXor(
+      final Predicate<I> alpha,
+      final Predicate<I> beta) {
     return e -> alpha.test(e) ^ beta.test(e);
   }
 
@@ -84,11 +94,14 @@ public final class MiStackPredicates {
    * Make predicate inverses result of base predicate.
    *
    * @param alpha the base predicate, must not be null
-   * @param <T>   type of stack values
+   * @param <V>   type of stack values.
+   * @param <T>   type of stack value tags.
+   * @param <I>   type of stack items
    * @return predicate which result will be inverted, can't be null.
-   * @since 1.0.0
+   * @since 2.0.0
    */
-  public static <V extends MiStackItem<?>> Predicate<V> itemsNot(final Predicate<V> alpha) {
+  public static <V, T extends MiStackTag, I extends MiStackItem<V, T>> Predicate<I> itemsNot(
+      final Predicate<I> alpha) {
     return e -> !alpha.test(e);
   }
 }

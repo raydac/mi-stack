@@ -13,19 +13,20 @@ import org.junit.jupiter.api.Test;
 
 class MiStackArrayTest extends AbstractMiStackTest {
   @Override
-  MiStack<String, MiStackItem<String>> makeStack() {
+  MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> makeStack() {
     return new TestMiStackArray<>();
   }
 
   @Override
-  MiStack<String, MiStackItem<String>> makeStack(final String name) {
+  MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> makeStack(final String name) {
     return new TestMiStackArray<>(name);
   }
 
   @Test
   void testStaticSize() {
     final int elements = 16384;
-    try (var stack = new TestMiStackArray<Integer, MiStackItem<Integer>>("test", elements, false)) {
+    try (var stack = new TestMiStackArray<Integer, MiStackItem<Integer, MiStackTag>, MiStackTag>(
+        "test", elements, false)) {
       var tagEven = MiStackTagImpl.tagOf("even");
       var tagOdd = MiStackTagImpl.tagOf("odd");
       var tagThird = MiStackTagImpl.tagOf("third");
@@ -48,7 +49,8 @@ class MiStackArrayTest extends AbstractMiStackTest {
   @Test
   void testDynamicSize() {
     final int elements = 16384;
-    try (var stack = new TestMiStackArray<Integer, MiStackItem<Integer>>("test", elements, true)) {
+    try (var stack = new TestMiStackArray<Integer, MiStackItem<Integer, MiStackTag>, MiStackTag>(
+        "test", elements, true)) {
       var tagEven = MiStackTagImpl.tagOf("even");
       var tagOdd = MiStackTagImpl.tagOf("odd");
       var tagThird = MiStackTagImpl.tagOf("third");
@@ -68,8 +70,8 @@ class MiStackArrayTest extends AbstractMiStackTest {
     }
   }
 
-  private static final class TestMiStackArray<T, V extends MiStackItem<T>>
-      extends MiStackArray<T, V> {
+  private static final class TestMiStackArray<T, V extends MiStackItem<T, G>, G extends MiStackTag>
+      extends MiStackArray<T, V, G> {
 
     public TestMiStackArray() {
       super();

@@ -25,11 +25,11 @@ import java.util.stream.Stream;
 /**
  * Parametrized Mi-Stack tag implementation.
  *
- * @param <T> type of wrapped data object
+ * @param <V> type of wrapped data object
  * @since 1.0.0
  */
-public class MiStackTagImpl<T> implements MiStackTag {
-  private final T value;
+public class MiStackTagImpl<V> implements MiStackTag {
+  private final V value;
 
   /**
    * Constructor.
@@ -37,7 +37,7 @@ public class MiStackTagImpl<T> implements MiStackTag {
    * @param value value to be used as tag. Must not be null.
    * @since 1.0.0
    */
-  public MiStackTagImpl(final T value) {
+  public MiStackTagImpl(final V value) {
     this.value = Objects.requireNonNull(value);
   }
 
@@ -70,7 +70,7 @@ public class MiStackTagImpl<T> implements MiStackTag {
    * @return value of the tag, can't be null.
    * @since 1.0.0
    */
-  public T getValue() {
+  public V getValue() {
     return this.value;
   }
 

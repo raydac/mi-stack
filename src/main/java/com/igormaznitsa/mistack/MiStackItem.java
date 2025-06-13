@@ -22,18 +22,19 @@ import java.util.Set;
 /**
  * Tagged item of stack.
  *
- * @param <T> type of wrapped data
+ * @param <V> type of wrapped data
+ * @param <T> type of tags
  * @see MiStackArrayList
- * @since 1.0.0
+ * @since 2.0.0
  */
-public interface MiStackItem<T> {
+public interface MiStackItem<V, T extends MiStackTag> {
   /**
    * Get all tags for the item.
    *
    * @return all tags as a set, the set can be empty but can't be null.
    * @since 1.0.0
    */
-  Set<? extends MiStackTag> getTags();
+  Set<T> getTags();
 
   /**
    * Get value carried by the item.
@@ -41,5 +42,5 @@ public interface MiStackItem<T> {
    * @return value in the item, must not be null.
    * @since 1.0.0
    */
-  T getValue();
+  V getValue();
 }

@@ -20,6 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 import com.igormaznitsa.mistack.MiStack;
 import com.igormaznitsa.mistack.MiStackItem;
+import com.igormaznitsa.mistack.MiStackTag;
 import com.igormaznitsa.mistack.TruncableIterator;
 import java.util.Deque;
 import java.util.Optional;
@@ -29,12 +30,13 @@ import java.util.function.Predicate;
 /**
  * Class allows to build MiStacks based on java.util.Deque collections.
  *
- * @param <T> type of values placed on stack
+ * @param <V> type of values placed on stack
  * @since 1.0.0
  */
-public abstract class AbstractMiStackDeque<T, V extends MiStackItem<T>> implements MiStack<T, V> {
+public abstract class AbstractMiStackDeque<V, I extends MiStackItem<V, T>, T extends MiStackTag>
+    implements MiStack<V, I, T> {
 
-  protected final Deque<V> deque;
+  protected final Deque<I> deque;
   private final String name;
   private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -46,7 +48,7 @@ public abstract class AbstractMiStackDeque<T, V extends MiStackItem<T>> implemen
    * @throws NullPointerException if any parameter is null
    * @since 1.0.0
    */
-  AbstractMiStackDeque(final String name, final Deque<V> deque) {
+  AbstractMiStackDeque(final String name, final Deque<I> deque) {
     this.name = requireNonNull(name);
     this.deque = requireNonNull(deque);
   }
@@ -57,22 +59,22 @@ public abstract class AbstractMiStackDeque<T, V extends MiStackItem<T>> implemen
    * @return the base deque, can't be null
    * @since 1.0.0
    */
-  protected Deque<V> getDeque() {
+  protected Deque<I> getDeque() {
     return this.deque;
   }
 
   @Override
-  public MiStack<T, V> push(final V item) {
+  public MiStack<V, I, T> push(final I item) {
     this.assertNotClosed();
     this.deque.addFirst(requireNonNull(item));
     return this;
   }
 
   @Override
-  public Optional<V> pop(final Predicate<V> predicate) {
+  public Optional<I> pop(final Predicate<I> predicate) {
     this.assertNotClosed();
 
-    V result = null;
+    I result = null;
     var iterator = this.deque.iterator();
     while (iterator.hasNext() && result == null) {
       var item = iterator.next();
@@ -86,8 +88,8 @@ public abstract class AbstractMiStackDeque<T, V extends MiStackItem<T>> implemen
   }
 
   @Override
-  public TruncableIterator<V> iterator(final Predicate<V> filter,
-                                       final Predicate<V> takeWhile) {
+  public TruncableIterator<I> iterator(final Predicate<I> filter,
+                                       final Predicate<I> takeWhile) {
     return new FilterableIterator<>(this.deque.iterator(), filter, takeWhile, this.closed::get,
         x -> {
         });

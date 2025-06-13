@@ -18,12 +18,12 @@ import org.junit.jupiter.api.Test;
 
 public class MiStackConcurrentTest extends AbstractMiStackTest {
   @Override
-  MiStack<String, MiStackItem<String>> makeStack() {
+  MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> makeStack() {
     return new MiStackConcurrent<>();
   }
 
   @Override
-  MiStack<String, MiStackItem<String>> makeStack(final String name) {
+  MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> makeStack(final String name) {
     return new MiStackConcurrent<>(name);
   }
 
@@ -32,7 +32,8 @@ public class MiStackConcurrentTest extends AbstractMiStackTest {
     final int ELEMENTS = 500_000;
     final int THREADS = 32;
 
-    try (final MiStack<Integer, MiStackItem<Integer>> stack = new MiStackConcurrent<>()) {
+    try (
+        final MiStack<Integer, MiStackItem<Integer, MiStackTag>, MiStackTag> stack = new MiStackConcurrent<>()) {
 
       var latch = new CountDownLatch(THREADS);
       var barrier = new CyclicBarrier(THREADS);
