@@ -32,7 +32,7 @@ import java.util.function.Predicate;
  * @param <T> type of item saved in the stack.
  * @since 1.0.0
  */
-public class MiStackLinked<T> implements MiStack<T> {
+public class MiStackLinked<T, V extends MiStackItem<T>> implements MiStack<T, V> {
 
   private final String name;
   protected boolean closed;
@@ -43,7 +43,7 @@ public class MiStackLinked<T> implements MiStack<T> {
   /**
    * First element on the stack, can be null if stack empty.
    */
-  protected StackChainNode<T> head;
+  protected StackChainNode<T, V> head;
 
   /**
    * Default constructor, as name will be used random UUID text representation.
@@ -67,7 +67,7 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public MiStack<T> push(final MiStackItem<T> item) {
+  public MiStack<T, V> push(final V item) {
     this.assertNotClosed();
     var newNode = new StackChainNode<>(item);
     newNode.setNext(this.head);
@@ -80,19 +80,19 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
+  public Optional<V> pop(final Predicate<V> predicate) {
     return this.remove(predicate, 0);
   }
 
   @Override
-  public TruncableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                                    final Predicate<MiStackItem<T>> takeWhile) {
+  public TruncableIterator<V> iterator(final Predicate<V> predicate,
+                                       final Predicate<V> takeWhile) {
 
     return new TruncableIterator<>() {
       private boolean completed;
       private boolean truncated;
-      private StackChainNode<T> nextPointer = findNext(head);
-      private StackChainNode<T> pointerForRemove = null;
+      private StackChainNode<T, V> nextPointer = findNext(head);
+      private StackChainNode<T, V> pointerForRemove = null;
 
       @Override
       public boolean hasNext() {
@@ -109,7 +109,7 @@ public class MiStackLinked<T> implements MiStack<T> {
       }
 
       @Override
-      public MiStackItem<T> next() {
+      public V next() {
         assertNotClosed();
         if (this.completed || this.nextPointer == null) {
           throw new NoSuchElementException();
@@ -120,11 +120,11 @@ public class MiStackLinked<T> implements MiStack<T> {
         }
       }
 
-      private StackChainNode<T> findNext(StackChainNode<T> pointer) {
+      private StackChainNode<T, V> findNext(StackChainNode<T, V> pointer) {
         if (this.completed) {
           return null;
         }
-        StackChainNode<T> result = null;
+        StackChainNode<T, V> result = null;
         while (pointer != null) {
           var value = pointer.getItem();
           if (predicate.test(value)) {
@@ -177,9 +177,9 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public void clear(final Predicate<MiStackItem<T>> predicate) {
+  public void clear(final Predicate<V> predicate) {
     this.assertNotClosed();
-    StackChainNode<T> node = this.head;
+    StackChainNode<T, V> node = this.head;
     while (node != null) {
       var nodeValue = node.getItem();
       if (predicate.test(nodeValue)) {
@@ -197,9 +197,9 @@ public class MiStackLinked<T> implements MiStack<T> {
   }
 
   @Override
-  public boolean isEmpty(final Predicate<MiStackItem<T>> predicate) {
+  public boolean isEmpty(final Predicate<V> predicate) {
     this.assertNotClosed();
-    StackChainNode<T> node = this.head;
+    StackChainNode<T, V> node = this.head;
     while (node != null) {
       if (predicate.test(node.getItem())) {
         return false;

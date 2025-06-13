@@ -35,7 +35,7 @@ import java.util.function.Predicate;
  * @param <T> type of item saved in the stack.
  * @since 1.0.0
  */
-public class MiStackArray<T> implements MiStack<T> {
+public class MiStackArray<T, V extends MiStackItem<T>> implements MiStack<T, V> {
 
   public static final int CAPACITY_STEP = 16;
   /**
@@ -112,7 +112,7 @@ public class MiStackArray<T> implements MiStack<T> {
    * @since 1.0.0
    */
   @Override
-  public MiStack<T> push(final MiStackItem<T> item) {
+  public MiStack<T, V> push(final V item) {
     this.assertNotClosed();
     this.makeDefragmentation(false);
 
@@ -206,14 +206,14 @@ public class MiStackArray<T> implements MiStack<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
+  public Optional<V> pop(final Predicate<V> predicate) {
     this.assertNotClosed();
     var workArray = this.getItemArray();
     final int lastElement = this.pointer - 1;
     int index = lastElement;
-    MiStackItem<T> result = null;
+    V result = null;
     while (result == null && index >= 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) workArray[index];
+      final V item = (V) workArray[index];
       if (item != null && predicate.test(item)) {
         if (index == lastElement) {
           this.pointer--;
@@ -230,13 +230,13 @@ public class MiStackArray<T> implements MiStack<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public TruncableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                                    final Predicate<MiStackItem<T>> takeWhile) {
+  public TruncableIterator<V> iterator(final Predicate<V> predicate,
+                                       final Predicate<V> takeWhile) {
     this.assertNotClosed();
 
     var workArray = this.getItemArray();
 
-    return new TruncableIterator<MiStackItem<T>>() {
+    return new TruncableIterator<V>() {
       private boolean completed;
       private boolean truncated;
       private int indexNext = this.findNextIndex(pointer - 1);
@@ -253,14 +253,14 @@ public class MiStackArray<T> implements MiStack<T> {
 
       @Override
       @SuppressWarnings("unchecked")
-      public MiStackItem<T> next() {
+      public V next() {
         assertNotClosed();
         if (this.completed || this.indexNext < 0) {
           throw new NoSuchElementException();
         } else {
           this.removeIndex = this.indexNext;
           this.indexNext = this.findNextIndex(this.indexNext - 1);
-          return (MiStackItem<T>) workArray[this.removeIndex];
+          return (V) workArray[this.removeIndex];
         }
       }
 
@@ -271,7 +271,7 @@ public class MiStackArray<T> implements MiStack<T> {
         int foundIndex = -1;
         int index = since;
         while (!completed && index >= 0) {
-          final MiStackItem<T> value = (MiStackItem<T>) workArray[index];
+          final V value = (V) workArray[index];
           if (value != null && predicate.test(value)) {
             if (takeWhile.test(value)) {
               foundIndex = index;
@@ -317,13 +317,13 @@ public class MiStackArray<T> implements MiStack<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Optional<MiStackItem<T>> peek(final Predicate<MiStackItem<T>> predicate, long depth) {
+  public Optional<V> peek(final Predicate<V> predicate, long depth) {
     this.assertNotClosed();
     var workArray = this.getItemArray();
     int index = this.pointer;
-    MiStackItem<T> result = null;
+    V result = null;
     while (result == null && index > 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) workArray[--index];
+      final V item = (V) workArray[--index];
       if (item != null && predicate.test(item)) {
         if (depth <= 0L) {
           result = item;
@@ -338,13 +338,13 @@ public class MiStackArray<T> implements MiStack<T> {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Optional<MiStackItem<T>> remove(final Predicate<MiStackItem<T>> predicate, long depth) {
+  public Optional<V> remove(final Predicate<V> predicate, long depth) {
     this.assertNotClosed();
     var workArray = this.getItemArray();
     int index = this.pointer;
-    MiStackItem<T> result = null;
+    V result = null;
     while (result == null && index > 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) workArray[--index];
+      final V item = (V) workArray[--index];
       if (item != null && predicate.test(item)) {
         if (depth <= 0L) {
           if (index == this.pointer - 1) {
@@ -377,12 +377,12 @@ public class MiStackArray<T> implements MiStack<T> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public void clear(final Predicate<MiStackItem<T>> predicate) {
+  public void clear(final Predicate<V> predicate) {
     this.assertNotClosed();
     var workArray = this.getItemArray();
     int index = this.pointer - 1;
     while (index >= 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) workArray[index];
+      final V item = (V) workArray[index];
       if (item != null && predicate.test(item)) {
         workArray[index] = null;
         this.elementCounter--;
@@ -394,12 +394,12 @@ public class MiStackArray<T> implements MiStack<T> {
 
   @SuppressWarnings("unchecked")
   @Override
-  public boolean isEmpty(final Predicate<MiStackItem<T>> predicate) {
+  public boolean isEmpty(final Predicate<V> predicate) {
     this.assertNotClosed();
     var workArray = this.getItemArray();
     int index = this.pointer - 1;
     while (index >= 0) {
-      final MiStackItem<T> item = (MiStackItem<T>) workArray[index--];
+      final V item = (V) workArray[index--];
       if (item != null && predicate.test(item)) {
         return false;
       }

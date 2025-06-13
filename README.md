@@ -8,13 +8,13 @@
 
 # Changelog
 
-__1.0.3 (18-aug-2024)__
+__2.0.0 (SNAPSHOT)__
+
+- became more flexible by providing a way to define the MiStackItem type for MiStack
+
+- __1.0.3 (18-aug-2024)__
 
 - fix and test improvements
-
-__1.0.2 (21-jul-2024)__
-
-- added MiStackFlat to combine several stacks as a single chain
 
 
 # What is it?

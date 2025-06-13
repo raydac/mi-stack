@@ -30,7 +30,7 @@ import java.util.function.Predicate;
  * @param <T> item type to be saved on stack
  * @since 1.0.0
  */
-public class MiStackArrayList<T> extends AbstractMiStackList<T> {
+public class MiStackArrayList<T, V extends MiStackItem<T>> extends AbstractMiStackList<T, V> {
 
   /**
    * Default constructor, as name will be used random UUID text representation.
@@ -53,11 +53,11 @@ public class MiStackArrayList<T> extends AbstractMiStackList<T> {
   }
 
   @Override
-  public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
+  public Optional<V> pop(final Predicate<V> predicate) {
     this.assertNotClosed();
-    MiStackItem<T> result = null;
+    V result = null;
     for (int i = this.list.size() - 1; result == null && i >= 0; i--) {
-      final MiStackItem<T> item = this.list.get(i);
+      final V item = this.list.get(i);
       if (predicate.test(item)) {
         result = item;
         this.list.remove(i);
@@ -72,7 +72,7 @@ public class MiStackArrayList<T> extends AbstractMiStackList<T> {
   }
 
   @Override
-  protected Iterator<MiStackItem<T>> makeItemIterator(final List<MiStackItem<T>> list) {
+  protected Iterator<V> makeItemIterator(final List<V> list) {
     var listIterator = list.listIterator(list.size());
     return new Iterator<>() {
       @Override
@@ -81,7 +81,7 @@ public class MiStackArrayList<T> extends AbstractMiStackList<T> {
       }
 
       @Override
-      public MiStackItem<T> next() {
+      public V next() {
         return listIterator.previous();
       }
 

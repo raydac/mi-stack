@@ -32,9 +32,9 @@ import java.util.function.Predicate;
  * @param <T> type of values placed on stack
  * @since 1.0.0
  */
-public abstract class AbstractMiStackDeque<T> implements MiStack<T> {
+public abstract class AbstractMiStackDeque<T, V extends MiStackItem<T>> implements MiStack<T, V> {
 
-  protected final Deque<MiStackItem<T>> deque;
+  protected final Deque<V> deque;
   private final String name;
   private final AtomicBoolean closed = new AtomicBoolean();
 
@@ -46,7 +46,7 @@ public abstract class AbstractMiStackDeque<T> implements MiStack<T> {
    * @throws NullPointerException if any parameter is null
    * @since 1.0.0
    */
-  AbstractMiStackDeque(final String name, final Deque<MiStackItem<T>> deque) {
+  AbstractMiStackDeque(final String name, final Deque<V> deque) {
     this.name = requireNonNull(name);
     this.deque = requireNonNull(deque);
   }
@@ -57,22 +57,22 @@ public abstract class AbstractMiStackDeque<T> implements MiStack<T> {
    * @return the base deque, can't be null
    * @since 1.0.0
    */
-  protected Deque<MiStackItem<T>> getDeque() {
+  protected Deque<V> getDeque() {
     return this.deque;
   }
 
   @Override
-  public MiStack<T> push(final MiStackItem<T> item) {
+  public MiStack<T, V> push(final V item) {
     this.assertNotClosed();
     this.deque.addFirst(requireNonNull(item));
     return this;
   }
 
   @Override
-  public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
+  public Optional<V> pop(final Predicate<V> predicate) {
     this.assertNotClosed();
 
-    MiStackItem<T> result = null;
+    V result = null;
     var iterator = this.deque.iterator();
     while (iterator.hasNext() && result == null) {
       var item = iterator.next();
@@ -86,8 +86,8 @@ public abstract class AbstractMiStackDeque<T> implements MiStack<T> {
   }
 
   @Override
-  public TruncableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> filter,
-                                                    final Predicate<MiStackItem<T>> takeWhile) {
+  public TruncableIterator<V> iterator(final Predicate<V> filter,
+                                       final Predicate<V> takeWhile) {
     return new FilterableIterator<>(this.deque.iterator(), filter, takeWhile, this.closed::get,
         x -> {
         });

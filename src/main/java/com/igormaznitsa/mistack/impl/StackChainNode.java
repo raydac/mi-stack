@@ -27,21 +27,21 @@ import com.igormaznitsa.mistack.MiStackItem;
  * @see MiStackLinked
  * @since 1.0.0
  */
-public final class StackChainNode<T> {
+public final class StackChainNode<T, V extends MiStackItem<T>> {
   /**
    * Stack item value saved by the node. Must not be null.
    */
-  private final MiStackItem<T> item;
+  private final V item;
   /**
    * Previous node in the stack (upper element).
    */
-  private StackChainNode<T> prev;
+  private StackChainNode<T, V> prev;
   /**
    * Next node in the stack (underlying element).
    */
-  private StackChainNode<T> next;
+  private StackChainNode<T, V> next;
 
-  public StackChainNode(final MiStackItem<T> item) {
+  public StackChainNode(final V item) {
     this.item = requireNonNull(item);
   }
 
@@ -51,7 +51,7 @@ public final class StackChainNode<T> {
    * @return previous chained mode if presented or null.
    * @since 1.0.0
    */
-  public StackChainNode<T> getPrevious() {
+  public StackChainNode<T, V> getPrevious() {
     return this.prev;
   }
 
@@ -61,7 +61,7 @@ public final class StackChainNode<T> {
    * @param value node to be linked as previous chain node, can be null.
    * @since 1.0.0
    */
-  public void setPrevious(final StackChainNode<T> value) {
+  public void setPrevious(final StackChainNode<T, V> value) {
     this.prev = value;
   }
 
@@ -71,7 +71,7 @@ public final class StackChainNode<T> {
    * @return next chained mode if presented or null.
    * @since 1.0.0
    */
-  public StackChainNode<T> getNext() {
+  public StackChainNode<T, V> getNext() {
     return this.next;
   }
 
@@ -81,7 +81,7 @@ public final class StackChainNode<T> {
    * @param value node to be linked as next chain node, can be null.
    * @since 1.0.0
    */
-  public void setNext(final StackChainNode<T> value) {
+  public void setNext(final StackChainNode<T, V> value) {
     this.next = value;
   }
 
@@ -91,7 +91,7 @@ public final class StackChainNode<T> {
    * @return the value saved by the node, can't be null
    * @since 1.0.0
    */
-  public MiStackItem<T> getItem() {
+  public V getItem() {
     return this.item;
   }
 
@@ -101,7 +101,7 @@ public final class StackChainNode<T> {
    * @return the next node if present, else null
    * @since 1.0.0
    */
-  public StackChainNode<T> remove() {
+  public StackChainNode<T, V> remove() {
     if (this.prev != null) {
       this.prev.next = this.next;
     }

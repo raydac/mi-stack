@@ -35,9 +35,9 @@ import java.util.function.Predicate;
  * @see java.util.List
  * @since 1.0.0
  */
-public abstract class AbstractMiStackList<T> implements MiStack<T> {
+public abstract class AbstractMiStackList<T, V extends MiStackItem<T>> implements MiStack<T, V> {
 
-  protected final List<MiStackItem<T>> list;
+  protected final List<V> list;
   private final String name;
   private boolean closed = false;
 
@@ -48,7 +48,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
    * @param list internal storage for items, can't be null
    * @since 1.0.0
    */
-  public AbstractMiStackList(final String name, final List<MiStackItem<T>> list) {
+  public AbstractMiStackList(final String name, final List<V> list) {
     this.name = requireNonNull(name);
     this.list = requireNonNull(list);
   }
@@ -59,22 +59,22 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
    * @return the base list store, can't be null
    * @since 1.0.0
    */
-  protected List<MiStackItem<T>> getList() {
+  protected List<V> getList() {
     return this.list;
   }
 
   @Override
-  public MiStack<T> push(final MiStackItem<T> item) {
+  public MiStack<T, V> push(final V item) {
     this.assertNotClosed();
     this.list.add(requireNonNull(item));
     return this;
   }
 
   @Override
-  public Optional<MiStackItem<T>> pop(final Predicate<MiStackItem<T>> predicate) {
+  public Optional<V> pop(final Predicate<V> predicate) {
     this.assertNotClosed();
     var iterator = this.makeItemIterator(this.list);
-    MiStackItem<T> result = null;
+    V result = null;
     while (iterator.hasNext() && result == null) {
       result = iterator.next();
       if (predicate.test(result)) {
@@ -87,15 +87,15 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   }
 
   @Override
-  public TruncableIterator<MiStackItem<T>> iterator(final Predicate<MiStackItem<T>> predicate,
-                                                    final Predicate<MiStackItem<T>> takeWhile) {
+  public TruncableIterator<V> iterator(final Predicate<V> predicate,
+                                       final Predicate<V> takeWhile) {
 
     var listIterator = this.makeItemIterator(this.list);
     return new TruncableIterator<>() {
 
       private boolean completed = false;
       private boolean truncated = false;
-      private MiStackItem<T> foundItem = null;
+      private V foundItem = null;
 
       @Override
       public boolean hasNext() {
@@ -110,12 +110,12 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
         return this.foundItem != null;
       }
 
-      private MiStackItem<T> findNext() {
+      private V findNext() {
         assertNotClosed();
         if (this.completed) {
           return null;
         }
-        MiStackItem<T> result = null;
+        V result = null;
         while (result == null && listIterator.hasNext()) {
           result = listIterator.next();
           if (predicate.test(result)) {
@@ -138,7 +138,7 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
       }
 
       @Override
-      public MiStackItem<T> next() {
+      public V next() {
         assertNotClosed();
         if (this.foundItem == null) {
           this.foundItem = this.findNext();
@@ -170,16 +170,16 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   }
 
   @Override
-  public Optional<MiStackItem<T>> peek(final Predicate<MiStackItem<T>> predicate,
+  public Optional<V> peek(final Predicate<V> predicate,
                                        final long depth) {
     this.assertNotClosed();
     return this.stream(predicate).skip(depth).findFirst();
   }
 
   @Override
-  public Optional<MiStackItem<T>> remove(final Predicate<MiStackItem<T>> predicate, long depth) {
+  public Optional<V> remove(final Predicate<V> predicate, long depth) {
     this.assertNotClosed();
-    MiStackItem<T> result = null;
+    V result = null;
     var iterator = this.iterator(predicate);
     while (depth >= 0 && iterator.hasNext()) {
       result = iterator.next();
@@ -201,9 +201,9 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
   }
 
   @Override
-  public void clear(final Predicate<MiStackItem<T>> predicate) {
+  public void clear(final Predicate<V> predicate) {
     this.assertNotClosed();
-    final Iterator<MiStackItem<T>> iterator = this.iterator(predicate);
+    final Iterator<V> iterator = this.iterator(predicate);
     while (iterator.hasNext()) {
       iterator.next();
       iterator.remove();
@@ -260,6 +260,6 @@ public abstract class AbstractMiStackList<T> implements MiStack<T> {
    * @return created iterator for the list, must not be null
    * @since 1.0.0
    */
-  protected abstract Iterator<MiStackItem<T>> makeItemIterator(final List<MiStackItem<T>> list);
+  protected abstract Iterator<V> makeItemIterator(final List<V> list);
 
 }

@@ -21,7 +21,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testExceptionAfterClose() {
-    MiStack<String> stack = this.makeStack();
+    MiStack<String, MiStackItem<String>> stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -52,11 +52,11 @@ abstract class AbstractMiStackTest {
     assertThrows(IllegalStateException.class, () -> stack.pop(itemsAll()));
   }
 
-  abstract MiStack<String> makeStack();
+  abstract MiStack<String, MiStackItem<String>> makeStack();
 
   @Test
   void testIteratorWithTakeWhile() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags1 = tagsOf("hello", "world");
       var tags2 = tagsOf("universe");
@@ -80,7 +80,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testIsEmpty() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       assertTrue(stack.isEmpty());
 
@@ -97,7 +97,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testIsEmptyForPredicate() {
-    final MiStack<String> stack = this.makeStack();
+    final MiStack<String, MiStackItem<String>> stack = this.makeStack();
 
     var tags1 = tagsOf("hello", "world");
     var tags2 = tagsOf("universe");
@@ -116,19 +116,19 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testName() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
       assertNotNull(stack.getName());
     }
-    try (MiStack<String> named = this.makeStack("hello")) {
+    try (MiStack<String, MiStackItem<String>> named = this.makeStack("hello")) {
       assertEquals("hello", named.getName());
     }
   }
 
-  abstract MiStack<String> makeStack(String name);
+  abstract MiStack<String, MiStackItem<String>> makeStack(String name);
 
   @Test
   void testRemove() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags1 = tagsOf("hello", "world");
       var tags2 = tagsOf("universe");
@@ -153,7 +153,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testIteratorAll() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags1 = tagsOf("hello", "world");
       var tags2 = tagsOf("universe");
@@ -185,7 +185,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testIteratorForPredicate() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags1 = tagsOf("hello", "world");
       var tags2 = tagsOf("universe");
@@ -214,7 +214,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testIteratorForPredicateWithRemoveCall() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags1 = tagsOf("hello", "world");
       var tags2 = tagsOf("universe");
@@ -246,7 +246,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testPeek() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags1 = tagsOf("hello", "world");
       var tags2 = tagsOf("universe");
@@ -272,7 +272,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testClear() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags1 = tagsOf("hello", "world");
       var tags2 = tagsOf("universe");
@@ -292,7 +292,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testClearForPredicate() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags1 = tagsOf("hello", "world");
       var tags2 = tagsOf("universe");
@@ -321,7 +321,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testSize() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags1 = tagsOf("hello", "world");
       var tags2 = tagsOf("universe");
@@ -341,7 +341,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testPushPopSingleElement() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var item = itemOf("Test", tagsOf("Hello", "World"));
 
@@ -361,7 +361,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testStreamAllElements() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags = tagsOf("hello", "world");
       var item1 = itemOf("item1", tags);
@@ -377,7 +377,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testStreamAllElementsWithTakeWhile() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags = tagsOf("hello", "world");
       var item1 = itemOf("item1", tags);
@@ -394,7 +394,7 @@ abstract class AbstractMiStackTest {
 
   @Test
   void testStreamForPredicate() {
-    try (MiStack<String> stack = this.makeStack()) {
+    try (MiStack<String, MiStackItem<String>> stack = this.makeStack()) {
 
       var tags = tagsOf("hello", "world");
       var item1 = itemOf("item1", tags);

@@ -16,6 +16,7 @@
 
 package com.igormaznitsa.mistack.impl;
 
+import com.igormaznitsa.mistack.MiStackItem;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
@@ -26,7 +27,7 @@ import java.util.concurrent.ConcurrentLinkedDeque;
  * @see ConcurrentLinkedDeque
  * @since 1.0.0
  */
-public class MiStackConcurrent<T> extends AbstractMiStackDeque<T> {
+public class MiStackConcurrent<T, V extends MiStackItem<T>> extends AbstractMiStackDeque<T, V> {
 
   public MiStackConcurrent() {
     this(UUID.randomUUID().toString());

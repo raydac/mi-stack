@@ -34,7 +34,7 @@ public final class MiStackPredicates {
    * @return predicate matched with all items, can't be null
    * @since 1.0.0
    */
-  public static <T> Predicate<MiStackItem<T>> itemsAll() {
+  public static <V extends MiStackItem<?>> Predicate<V> itemsAll() {
     return e -> true;
   }
 
@@ -47,8 +47,8 @@ public final class MiStackPredicates {
    * @return predicate joining two predicates by logical AND.
    * @since 1.0.0
    */
-  public static <T> Predicate<MiStackItem<T>> itemsAnd(final Predicate<MiStackItem<T>> alpha,
-                                                       final Predicate<MiStackItem<T>> beta) {
+  public static <V extends MiStackItem<?>> Predicate<V> itemsAnd(final Predicate<V> alpha,
+                                                                 final Predicate<V> beta) {
     return e -> alpha.test(e) && beta.test(e);
   }
 
@@ -61,8 +61,8 @@ public final class MiStackPredicates {
    * @return predicate joining two predicates by logical OR.
    * @since 1.0.0
    */
-  public static <T> Predicate<MiStackItem<T>> itemsOr(final Predicate<MiStackItem<T>> alpha,
-                                                      final Predicate<MiStackItem<T>> beta) {
+  public static <V extends MiStackItem<?>> Predicate<V> itemsOr(final Predicate<V> alpha,
+                                                                final Predicate<V> beta) {
     return e -> alpha.test(e) || beta.test(e);
   }
 
@@ -75,8 +75,8 @@ public final class MiStackPredicates {
    * @return predicate joining two predicates by logical XOR.
    * @since 1.0.0
    */
-  public static <T> Predicate<MiStackItem<T>> itemsXor(final Predicate<MiStackItem<T>> alpha,
-                                                       final Predicate<MiStackItem<T>> beta) {
+  public static <V extends MiStackItem<?>> Predicate<V> itemsXor(final Predicate<V> alpha,
+                                                                 final Predicate<V> beta) {
     return e -> alpha.test(e) ^ beta.test(e);
   }
 
@@ -88,7 +88,7 @@ public final class MiStackPredicates {
    * @return predicate which result will be inverted, can't be null.
    * @since 1.0.0
    */
-  public static <T> Predicate<MiStackItem<T>> itemsNot(final Predicate<MiStackItem<T>> alpha) {
+  public static <V extends MiStackItem<?>> Predicate<V> itemsNot(final Predicate<V> alpha) {
     return e -> !alpha.test(e);
   }
 }

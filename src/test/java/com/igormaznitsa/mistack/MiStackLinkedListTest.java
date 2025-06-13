@@ -4,12 +4,12 @@ import com.igormaznitsa.mistack.impl.MiStackLinkedList;
 
 class MiStackLinkedListTest extends AbstractMiStackTest {
   @Override
-  MiStack<String> makeStack() {
+  MiStack<String, MiStackItem<String>> makeStack() {
     return new MiStackLinkedList<>();
   }
 
   @Override
-  MiStack<String> makeStack(final String name) {
+  MiStack<String, MiStackItem<String>> makeStack(final String name) {
     return new MiStackLinkedList<>(name);
   }
 }

@@ -21,11 +21,11 @@ import java.util.function.Predicate;
  * @param <T> type of wrapped stacks.
  * @since 1.0.2
  */
-public class MiStackFlat<T> implements MiStack<T> {
+public class MiStackFlat<T, V extends MiStackItem<T>> implements MiStack<T, V> {
 
-  private final List<MiStack<T>> stackList;
+  private final List<MiStack<T, V>> stackList;
   private final String name;
-  private final BiPredicate<MiStack<T>, MiStack<T>> predicateSwitchNext;
+  private final BiPredicate<MiStack<T, V>, MiStack<T, V>> predicateSwitchNext;
   private boolean closed;
 
   /**
@@ -35,7 +35,7 @@ public class MiStackFlat<T> implements MiStack<T> {
    * @param predicateSwitchNext nullable predicate allows to control switch next stacks during iterable operations
    */
   public MiStackFlat(final String name,
-                     final BiPredicate<MiStack<T>, MiStack<T>> predicateSwitchNext) {
+                     final BiPredicate<MiStack<T, V>, MiStack<T, V>> predicateSwitchNext) {
     this.name = requireNonNull(name);
     this.stackList = new ArrayList<>();
     this.predicateSwitchNext = predicateSwitchNext == null ? (a, b) -> true : predicateSwitchNext;
@@ -47,7 +47,7 @@ public class MiStackFlat<T> implements MiStack<T> {
    * @param stack stack to find
    * @return true if contains the stack internally
    */
-  public boolean contains(final MiStack<T> stack) {
+  public boolean contains(final MiStack<T, V> stack) {
     this.assertNotClosed();
     return this.stackList.contains(stack);
   }
@@ -57,7 +57,7 @@ public class MiStackFlat<T> implements MiStack<T> {
    *
    * @return iterator of wrapped stacks as iterable items.
    */
-  public FilterableIterator<MiStack<T>> iteratorStacks() {
+  public FilterableIterator<MiStack<T, V>> iteratorStacks() {
     return this.iteratorStacks(
         iterator -> new FilterableIterator<>(iterator, x -> true, x -> true));
   }
@@ -69,8 +69,8 @@ public class MiStackFlat<T> implements MiStack<T> {
    * @param takeWhile filter to truncate iteration
    * @return iterator of wrapped stacks as iterable items.
    */
-  public FilterableIterator<MiStack<T>> iteratorStacks(final Predicate<MiStack<T>> filter,
-                                                       final Predicate<MiStack<T>> takeWhile) {
+  public FilterableIterator<MiStack<T, V>> iteratorStacks(final Predicate<MiStack<T, V>> filter,
+                                                          final Predicate<MiStack<T, V>> takeWhile) {
     return this.iteratorStacks(iterator -> new FilterableIterator<>(iterator, filter, takeWhile));
   }
 
@@ -80,8 +80,8 @@ public class MiStackFlat<T> implements MiStack<T> {
    * @param iteratorFunction function to create a filterable iterator
    * @return iterator of wrapped stacks as iterable items.
    */
-  public FilterableIterator<MiStack<T>> iteratorStacks(
-      final Function<Iterator<MiStack<T>>, FilterableIterator<MiStack<T>>> iteratorFunction) {
+  public FilterableIterator<MiStack<T, V>> iteratorStacks(
+      final Function<Iterator<MiStack<T, V>>, FilterableIterator<MiStack<T, V>>> iteratorFunction) {
     this.assertNotClosed();
     return iteratorFunction.apply(this.stackList.iterator());
   }
@@ -91,7 +91,7 @@ public class MiStackFlat<T> implements MiStack<T> {
    *
    * @return optional stack item, can be empty
    */
-  public Optional<MiStack<T>> popStack() {
+  public Optional<MiStack<T, V>> popStack() {
     this.assertNotClosed();
     return this.stackList.isEmpty() ? Optional.empty() : Optional.of(this.stackList.remove(0));
   }
@@ -102,7 +102,7 @@ public class MiStackFlat<T> implements MiStack<T> {
    * @param stack stack to push, can be null.
    * @return this instance
    */
-  public MiStackFlat<T> pushStack(final MiStack<T> stack) {
+  public MiStackFlat<T, V> pushStack(final MiStack<T, V> stack) {
     this.assertNotClosed();
     if (stack != null) {
       this.stackList.remove(stack);
@@ -123,7 +123,7 @@ public class MiStackFlat<T> implements MiStack<T> {
    * @param stack stack to be removed, must not be null
    * @return optional wrapper for removed stack, empty if not found
    */
-  public Optional<MiStack<T>> removeStack(final MiStack<T> stack) {
+  public Optional<MiStack<T, V>> removeStack(final MiStack<T, V> stack) {
     this.assertNotClosed();
     this.assertNotEmpty();
 
@@ -135,7 +135,7 @@ public class MiStackFlat<T> implements MiStack<T> {
   }
 
   @Override
-  public MiStack<T> push(final MiStackItem<T> item) {
+  public MiStack<T, V> push(final V item) {
     this.assertNotClosed();
     this.assertNotEmpty();
     this.stackList.get(0).push(item);
@@ -143,21 +143,21 @@ public class MiStackFlat<T> implements MiStack<T> {
   }
 
   @Override
-  public TruncableIterator<MiStackItem<T>> iterator() {
+  public TruncableIterator<V> iterator() {
     return this.iterator(x -> true, x -> true);
   }
 
   @Override
-  public TruncableIterator<MiStackItem<T>> iterator(
-      final Predicate<MiStackItem<T>> predicate,
-      final Predicate<MiStackItem<T>> takeWhile) {
+  public TruncableIterator<V> iterator(
+      final Predicate<V> predicate,
+      final Predicate<V> takeWhile) {
 
-    final Iterator<MiStack<T>> iterator = this.stackList.iterator();
+    final Iterator<MiStack<T, V>> iterator = this.stackList.iterator();
 
     return new TruncableIterator<>() {
 
-      private MiStack<T> currentList = null;
-      private TruncableIterator<MiStackItem<T>> currentListIterator = null;
+      private MiStack<T, V> currentList = null;
+      private TruncableIterator<V> currentListIterator = null;
       private boolean completed;
       private boolean truncated;
 
@@ -192,11 +192,11 @@ public class MiStackFlat<T> implements MiStack<T> {
           return;
         }
 
-        MiStack<T> sourceList = this.currentList;
+        MiStack<T, V> sourceList = this.currentList;
 
         do {
           if (iterator.hasNext()) {
-            final MiStack<T> nextIteratorList = iterator.next();
+            final MiStack<T, V> nextIteratorList = iterator.next();
             if (predicateSwitchNext.test(sourceList, nextIteratorList)) {
               sourceList = this.currentList;
               this.currentList = nextIteratorList;
@@ -237,7 +237,7 @@ public class MiStackFlat<T> implements MiStack<T> {
       }
 
       @Override
-      public MiStackItem<T> next() {
+      public V next() {
         assertNotClosed();
         if (this.completed || this.truncated) {
           throw new NoSuchElementException();
@@ -248,7 +248,7 @@ public class MiStackFlat<T> implements MiStack<T> {
           if (this.completed) {
             throw new NoSuchElementException();
           } else {
-            final MiStackItem<T> result = this.currentListIterator.next();
+            final V result = this.currentListIterator.next();
             this.truncated = this.currentListIterator.isTruncated();
             return result;
           }

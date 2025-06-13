@@ -28,7 +28,7 @@ import java.util.UUID;
  * @param <T> item type to be saved on stack
  * @since 1.0.0
  */
-public class MiStackLinkedList<T> extends AbstractMiStackList<T> {
+public class MiStackLinkedList<T, V extends MiStackItem<T>> extends AbstractMiStackList<T, V> {
 
   /**
    * Default constructor, as name will be used random UUID text representation.
@@ -51,7 +51,7 @@ public class MiStackLinkedList<T> extends AbstractMiStackList<T> {
   }
 
   @Override
-  protected Iterator<MiStackItem<T>> makeItemIterator(List<MiStackItem<T>> list) {
-    return ((LinkedList<MiStackItem<T>>) list).descendingIterator();
+  protected Iterator<V> makeItemIterator(List<V> list) {
+    return ((LinkedList<V>) list).descendingIterator();
   }
 }
