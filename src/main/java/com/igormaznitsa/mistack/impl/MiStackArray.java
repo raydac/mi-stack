@@ -33,7 +33,9 @@ import java.util.function.Predicate;
  * Implementation of thread-unsafe Mi-Stack based on internal array of objects (like ArrayList).
  * Array can be either fixed size or dynamically growing.
  *
- * @param <V> type of item saved in the stack.
+ * @param <V> type of values placed on stack
+ * @param <I> type of value wrapper placed on stack
+ * @param <T> type of value stack tag
  * @since 1.0.0
  */
 public class MiStackArray<V, I extends MiStackItem<V, T>, T extends MiStackTag>

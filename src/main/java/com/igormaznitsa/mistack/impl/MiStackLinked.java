@@ -30,7 +30,9 @@ import java.util.function.Predicate;
 /**
  * Implementation of thread-unsafe Mi-Stack with linked chained items (like LinkedList).
  *
- * @param <V> type of item saved in the stack.
+ * @param <V> type of values placed on stack
+ * @param <I> type of value wrapper placed on stack
+ * @param <T> type of value stack tag
  * @since 1.0.0
  */
 public class MiStackLinked<V, I extends MiStackItem<V, T>, T extends MiStackTag>

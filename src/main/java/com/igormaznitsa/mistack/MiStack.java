@@ -75,7 +75,7 @@ public interface MiStack<V, I extends MiStackItem<V, T>, T extends MiStackTag>
    * Make predicate to check any tag presented for stack item.
    *
    * @param tags array of tags, must not contain null or be null
-   * @param <I> type of stack items.
+   * @param <I>  type of stack items.
    * @return predicate returns true only if all tags presented for stack item.
    * @since 2.0.0
    */
@@ -321,7 +321,7 @@ public interface MiStack<V, I extends MiStackItem<V, T>, T extends MiStackTag>
   /**
    * Check that there is no any element on the stack for predicate.
    *
-   * @param  predicate it allows to select items which should take part in search
+   * @param predicate it allows to select items which should take part in search
    * @return true if the stack is empty, false elsewhere
    * @throws IllegalStateException thrown if stack already closed.
    * @since 2.0.0

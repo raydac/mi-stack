@@ -31,6 +31,8 @@ import java.util.function.Predicate;
  * Class allows to build MiStacks based on java.util.Deque collections.
  *
  * @param <V> type of values placed on stack
+ * @param <I> type of value wrapper placed on stack
+ * @param <T> type of value stack tag
  * @since 1.0.0
  */
 public abstract class AbstractMiStackDeque<V, I extends MiStackItem<V, T>, T extends MiStackTag>

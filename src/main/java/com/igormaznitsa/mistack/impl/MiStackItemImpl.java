@@ -29,7 +29,8 @@ import java.util.stream.Stream;
 /**
  * Parametrized implementation of mi-stack item.
  *
- * @param <V> type of object carried by item
+ * @param <V> type of values placed on stack
+ * @param <T> type of value stack tag
  * @since 1.0.0
  */
 public class MiStackItemImpl<V, T extends MiStackTag> implements MiStackItem<V, T>, Serializable {

@@ -28,7 +28,9 @@ import java.util.function.Predicate;
 /**
  * Array list based implementation of Mi-Stack. <b>It is not thread safe</b>
  *
- * @param <V> item type to be saved on stack
+ * @param <V> type of values placed on stack
+ * @param <I> type of value wrapper placed on stack
+ * @param <T> type of value stack tag
  * @since 1.0.0
  */
 public class MiStackArrayList<V, I extends MiStackItem<V, T>, T extends MiStackTag>

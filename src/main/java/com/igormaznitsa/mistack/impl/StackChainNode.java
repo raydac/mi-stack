@@ -24,7 +24,9 @@ import com.igormaznitsa.mistack.MiStackTag;
 /**
  * Auxiliary class describing one stack item saved in heap.
  *
- * @param <V> type of value saved by stack item
+ * @param <V> type of values placed on stack
+ * @param <I> type of value wrapper placed on stack
+ * @param <T> type of value stack tag
  * @see MiStackLinked
  * @since 1.0.0
  */

@@ -19,7 +19,9 @@ import java.util.function.Predicate;
  * Implements stack of stacks with solid iterating their elements.
  * <b>Non Thread Safe</b>
  *
- * @param <V> type of wrapped stacks.
+ * @param <V> type of values placed on stack
+ * @param <I> type of value wrapper placed on stack
+ * @param <T> type of value stack tag
  * @since 1.0.2
  */
 public class MiStackFlat<V, I extends MiStackItem<V, T>, T extends MiStackTag>

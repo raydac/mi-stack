@@ -24,7 +24,9 @@ import java.util.concurrent.ConcurrentLinkedDeque;
 /**
  * Concurrent thread safe version of MiStack. As base collection it uses ConcurrentLinkedDeque.
  *
- * @param <V> type of data items kept on stack
+ * @param <V> type of values placed on stack
+ * @param <I> type of value wrapper placed on stack
+ * @param <T> type of value stack tag
  * @see ConcurrentLinkedDeque
  * @since 1.0.0
  */

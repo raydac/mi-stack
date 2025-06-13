@@ -26,7 +26,9 @@ import java.util.UUID;
 /**
  * Linked list based implementation of Mi-Stack. <b>It is not thread safe</b>
  *
- * @param <V> item type to be saved on stack
+ * @param <V> type of values placed on stack
+ * @param <I> type of value wrapper placed on stack
+ * @param <T> type of value stack tag
  * @since 1.0.0
  */
 public class MiStackLinkedList<V, I extends MiStackItem<V, T>, T extends MiStackTag>

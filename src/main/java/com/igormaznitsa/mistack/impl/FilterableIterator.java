@@ -58,7 +58,7 @@ public class FilterableIterator<T> implements TruncableIterator<T> {
   /**
    * Full main constructor.
    *
-   * @param delegate   base iterator, must not be null
+   * @param delegate       base iterator, must not be null
    * @param filter         predicate to filter values, must not be null
    * @param takeWhile      predicate to take values from base iterator, must not be null
    * @param supplierClose  supplier which allows provide control signal that source is closed, if source is closed then true must be return, false otherwise, can't be null
@@ -83,9 +83,9 @@ public class FilterableIterator<T> implements TruncableIterator<T> {
   /**
    * Constructor requires only base iterator and predicates.
    *
-   * @param delegate base iterator, must not be null
-   * @param filter       predicate to filter values, must not be null
-   * @param takeWhile    predicate to take values from base iterator, must not be null
+   * @param delegate  base iterator, must not be null
+   * @param filter    predicate to filter values, must not be null
+   * @param takeWhile predicate to take values from base iterator, must not be null
    * @throws NullPointerException if any parameter is null
    * @since 1.0.0
    */

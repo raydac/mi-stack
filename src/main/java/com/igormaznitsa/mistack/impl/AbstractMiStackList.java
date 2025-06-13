@@ -33,8 +33,10 @@ import java.util.function.Predicate;
  * Class allows to build MiStacks based on java.util.List collections.
  *
  * @param <V> type of values placed on stack
+ * @param <I> type of value wrapper placed on stack
+ * @param <T> type of value stack tag
  * @see java.util.List
- * @since 1.0.0
+ * @since 2.0.0
  */
 public abstract class AbstractMiStackList<V, I extends MiStackItem<V, T>, T extends MiStackTag>
     implements MiStack<V, I, T> {
