@@ -46,7 +46,8 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @return predicate returns true only if all tags presented for stack item.
    * @since 1.0.0
    */
-  static <V extends MiStackItem<?>> Predicate<V> allTags(final MiStackTag... tags) {
+  @SafeVarargs
+  static <V extends MiStackItem<?>, G extends MiStackTag> Predicate<V> allTags(final G... tags) {
     return allTags(List.of(tags));
   }
 
@@ -59,8 +60,8 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @since 1.0.0
    */
   @SafeVarargs
-  static <V extends MiStackItem<?>> Predicate<V> allTags(
-      final Collection<? extends MiStackTag>... tags) {
+  static <V extends MiStackItem<?>, G extends MiStackTag> Predicate<V> allTags(
+      final Collection<G>... tags) {
     var setOfAllTags = Stream.of(tags).flatMap(Collection::stream).collect(Collectors.toSet());
     return e -> e.getTags().containsAll(setOfAllTags);
   }
@@ -73,7 +74,8 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @return predicate returns true only if all tags presented for stack item.
    * @since 1.0.0
    */
-  static <V extends MiStackItem<?>> Predicate<V> anyTag(final MiStackTag... tags) {
+  @SafeVarargs
+  static <V extends MiStackItem<?>, G extends MiStackTag> Predicate<V> anyTag(final G... tags) {
     return anyTag(List.of(tags));
   }
 
@@ -86,8 +88,8 @@ public interface MiStack<T, V extends MiStackItem<T>> extends Iterable<V>, AutoC
    * @since 1.0.0
    */
   @SafeVarargs
-  static <V extends MiStackItem<?>> Predicate<V> anyTag(
-      final Collection<? extends MiStackTag>... tags) {
+  static <V extends MiStackItem<?>, G extends MiStackTag> Predicate<V> anyTag(
+      final Collection<G>... tags) {
     var setOfTags = Stream.of(tags).flatMap(Collection::stream).collect(Collectors.toSet());
     return e -> e.getTags().stream().anyMatch(setOfTags::contains);
   }
