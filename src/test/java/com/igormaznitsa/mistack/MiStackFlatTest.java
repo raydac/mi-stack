@@ -99,9 +99,8 @@ class MiStackFlatTest extends AbstractMiStackTest {
       assertSame(stacks.get(1), flatStack.popStack().orElseThrow());
 
       final List<String> found = new ArrayList<>();
-      var iterator = flatStack.iterator();
-      while (iterator.hasNext()) {
-        found.add(iterator.next().getValue());
+      for (MiStackItem<String, MiStackTag> stringMiStackTagMiStackItem : flatStack) {
+        found.add(stringMiStackTagMiStackItem.getValue());
       }
       assertArrayEquals(new String[] {"item7", "item8", "item9"}, found.toArray(
           String[]::new));

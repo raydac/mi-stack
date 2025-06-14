@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import com.igormaznitsa.mistack.impl.MiStackConcurrent;
 import com.igormaznitsa.mistack.impl.MiStackItemImpl;
@@ -79,7 +80,7 @@ public class MiStackConcurrentTest extends AbstractMiStackTest {
             monkey.run();
             successful.incrementAndGet();
           } catch (Throwable ex) {
-            ex.printStackTrace();
+            fail("Throwable detected", ex);
           } finally {
             latch.countDown();
           }

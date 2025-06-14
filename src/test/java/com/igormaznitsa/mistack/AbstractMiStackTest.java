@@ -17,8 +17,10 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 
+@SuppressWarnings("unchecked")
 abstract class AbstractMiStackTest {
 
+  @SuppressWarnings("unchecked")
   @Test
   void testExceptionAfterClose() {
     MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> stack = this.makeStack();
@@ -54,6 +56,7 @@ abstract class AbstractMiStackTest {
 
   abstract MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> makeStack();
 
+  @SuppressWarnings("unchecked")
   @Test
   void testIteratorWithTakeWhile() {
     try (MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> stack = this.makeStack()) {
@@ -95,6 +98,7 @@ abstract class AbstractMiStackTest {
     }
   }
 
+  @SuppressWarnings("resource")
   @Test
   void testIsEmptyForPredicate() {
     final MiStack<String, MiStackItem<String, MiStackTag>, MiStackTag> stack = this.makeStack();

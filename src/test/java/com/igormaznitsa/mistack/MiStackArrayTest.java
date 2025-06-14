@@ -46,6 +46,7 @@ class MiStackArrayTest extends AbstractMiStackTest {
     }
   }
 
+  @SuppressWarnings("resource")
   @Test
   void testDynamicSize() {
     final int elements = 16384;
