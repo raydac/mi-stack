@@ -122,12 +122,7 @@ public abstract class AbstractMiStackDeque<V, I extends MiStackItem<V, T>, T ext
   @Override
   public long size() {
     this.assertNotClosed();
-    int result = this.deque.size();
-    if (result < Integer.MAX_VALUE) {
-      return result;
-    } else {
-      return this.deque.stream().count();
-    }
+    return this.deque.size();
   }
 
   @Override

@@ -139,6 +139,7 @@ public class MiStackFlat<V, I extends MiStackItem<V, T>, T extends MiStackTag>
     }
   }
 
+  @SuppressWarnings("resource")
   @Override
   public MiStack<V, I, T> push(final I item) {
     this.assertNotClosed();
