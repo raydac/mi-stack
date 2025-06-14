@@ -1,5 +1,5 @@
 __2.0.0 (SNAPSHOT)__
-- became more flexible by providing a way to define the MiStackItem type for MiStack
+- improved generics for more flexible object processing
 
 __1.0.3 (18-aug-2024)__
 - fixes and test improve
