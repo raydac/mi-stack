@@ -1,4 +1,4 @@
-__2.0.0 (SNAPSHOT)__
+__2.0.0 (15-jun-2025)__
 - improved generics for more flexible object processing
 
 __1.0.3 (18-aug-2024)__

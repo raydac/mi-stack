@@ -8,13 +8,11 @@
 
 # Changelog
 
-__2.0.0 (SNAPSHOT)__
-
-- improved generics for more flexible object processing
+__2.0.0 (15-jun-2025)__
+  - improved generics for more flexible object processing
 
 - __1.0.3 (18-aug-2024)__
-
-- fix and test improvements
+  - fix and test improvements
 
 
 # What is it?
@@ -60,7 +58,7 @@ predicated streams.
 ```java
     var tagStar = MiStackTagImpl.tagsOf("star");
     var tagPlanet = MiStackTagImpl.tagsOf("planet");
-var tagPlanetoids = MiStackTagImpl.tagsOf("planetoids");
+    var tagPlanetoids = MiStackTagImpl.tagsOf("planetoids");
     var tagAsteroid = MiStackTagImpl.tagsOf("asteroid");
     var tagSatellite = MiStackTagImpl.tagsOf("satellite");
 
@@ -69,9 +67,7 @@ var tagPlanetoids = MiStackTagImpl.tagsOf("planetoids");
       stack.push(MiStackItemImpl.itemOf("Mercury", tagPlanet));
       stack.push(MiStackItemImpl.itemOf("Venus", tagPlanet, tagSatellite));
       stack.push(MiStackItemImpl.itemOf("Earth", tagPlanet, tagSatellite));
-    stack.
-
-push(MiStackItemImpl.itemOf("Moon", tagPlanetoids, tagSatellite));
+      stack.push(MiStackItemImpl.itemOf("Moon", tagPlanetoids, tagSatellite));
       stack.push(MiStackItemImpl.itemOf("Mars", tagPlanet));
       stack.push(MiStackItemImpl.itemOf("Phobos", tagAsteroid, tagSatellite));
       stack.push(MiStackItemImpl.itemOf("Demos", tagAsteroid, tagSatellite));
@@ -79,31 +75,10 @@ push(MiStackItemImpl.itemOf("Moon", tagPlanetoids, tagSatellite));
       stack.push(MiStackItemImpl.itemOf("Saturn", tagPlanet));
       stack.push(MiStackItemImpl.itemOf("Uranus", tagPlanet));
       stack.push(MiStackItemImpl.itemOf("Neptune", tagPlanet));
-    stack.
-
-push(MiStackItemImpl.itemOf("Pluto", tagPlanetoids));
-
+      stack.push(MiStackItemImpl.itemOf("Pluto", tagPlanetoids));
       assertArrayEquals(new Object[] {"Sun"}, stack.stream(MiStack.allTags(tagStar)).map(MiStackItem::getValue).toArray());
-
-assertArrayEquals(new Object[] {
-  "Pluto", "Moon"
-},stack.
-
-stream(MiStack.allTags(tagPlanetoids)).
-
-map(MiStackItem::getValue).
-
-toArray());
+      assertArrayEquals(new Object[] {"Pluto", "Moon"},stack.stream(MiStack.allTags(tagPlanetoids)).map(MiStackItem::getValue).toArray());
       assertArrayEquals(new Object[] {"Neptune", "Uranus", "Saturn", "Jupiter", "Mars", "Earth", "Venus","Mercury"}, stack.stream(MiStack.allTags(tagPlanet)).map(MiStackItem::getValue).toArray());
-
-assertArrayEquals(new Object[] {
-  "Pluto", "Neptune", "Uranus", "Saturn", "Jupiter", "Mars", "Moon", "Earth", "Venus", "Mercury"
-},stack.
-
-stream(MiStack.anyTag(tagPlanet, tagPlanetoids)).
-
-map(MiStackItem::getValue).
-
-toArray());
+      assertArrayEquals(new Object[] {"Pluto", "Neptune", "Uranus", "Saturn", "Jupiter", "Mars", "Moon", "Earth", "Venus", "Mercury"},stack.stream(MiStack.anyTag(tagPlanet, tagPlanetoids)).map(MiStackItem::getValue).toArray());
     }
 ```
