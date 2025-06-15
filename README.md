@@ -11,7 +11,7 @@
 __2.0.0 (15-jun-2025)__
   - improved generics for more flexible object processing
 
-- __1.0.3 (18-aug-2024)__
+__1.0.3 (18-aug-2024)__
   - fix and test improvements
 
 
@@ -46,7 +46,7 @@ Just add the snippet into the list of dependencies
 <dependency>
     <groupId>com.igormaznitsa</groupId>
     <artifactId>mi-stack</artifactId>
-    <version>2.0.0-SNAPSHOT</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
